@@ -53,7 +53,7 @@ def get_model(sensor : Dict, N: int = CGM_INPUT_POINTS, input_features: int = NU
     x = layers.LSTM(round(N/8), input_shape = (N, input_features))(x)
 
     # Dense layer that outputs the predicted points
-    output = layers.Dense(PH/5)(x) # PH/SENSOR_SAMPLING_FREQUENCY
+    output = layers.Dense(PH/sensor["SAMPLE_PERIOD"])(x) # PH/SENSOR_SAMPLING_FREQUENCY
 
     # Define the model
     model = Model(input, output)

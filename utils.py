@@ -811,9 +811,9 @@ def get_CGM_X_Y_multistep(CGM_data_dict: Dict, glucose_sensor : Dict, N: int, st
     # Save training dataset summary in a txt file
     with open('dataset_summary.txt', 'w') as f:
         f.write('N = {}\n'.format(N))
-        f.write('tau = {}\n'.format(tau))
-        f.write('prediction time = {}\n'.format(prediction_horizon))
-        f.write('sensor type = {}\n'.format(glucose_sensor['NAME']))
+        f.write('step = {}\n'.format(step))
+        f.write('PH = {}\n'.format(prediction_horizon))
+        f.write('sensor = {}\n'.format(glucose_sensor['NAME']))
         f.write('nº blocks = {}\n'.format(n_blocks))
 
     # Export X, Y and associated times as .npy files

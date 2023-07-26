@@ -170,7 +170,7 @@ def get_model(sensor : Dict, N: int = CGM_INPUT_POINTS, input_features: int = NU
     x = layers.TimeDistributed(layers.Dense(32))(x)
 
     # Once flattened, add a dense layer to predict the output
-    output = layers.Dense(PH)(x) # PH/SENSOR_SAMPLING_FREQUENCY
+    output = layers.Dense(PH/sensor["SAMPLE_PERIOD"])(x) # PH/SENSOR_SAMPLING_FREQUENCY
 
     # Define the model
     model = Model(input, output)

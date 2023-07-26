@@ -371,7 +371,7 @@ def train_model(model : tf.keras.Model,
     # Save training configuration in a txt file
     with open('training_configuration.txt', 'w') as f:
         f.write('N = {}\n'.format(N))
-        f.write('tau = {}\n'.format(tau))
+        f.write('stride = {}\n'.format(stride))
         f.write('epochs = {}\n'.format(epochs))
         f.write('batch_size = {}\n'.format(batch_size))
         f.write('lr = {}\n'.format(lr))
@@ -446,7 +446,7 @@ def train_model(model : tf.keras.Model,
     # Reduce the space between the subplots
     fig.subplots_adjust(hspace=0)
 
-    plt.suptitle(str(fold)+' Training evolution: N = {}, tau = {}, PH = {} min.' .format(N, tau, predicted_points*5))
+    plt.suptitle(str(fold)+' Training evolution: N = {}, tau = {}, PH = {} min.' .format(N, stride, predicted_points*5))
 
     # Save the figure
     plt.savefig(dir+'/'+str(fold)+'_training_evolution.png')
