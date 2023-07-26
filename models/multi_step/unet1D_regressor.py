@@ -17,7 +17,7 @@
 
 from tensorflow.keras import layers, Input, Model
 import tensorflow as tf
-from typing import Tuple
+from typing import Tuple, Dict
 
 from arch_params import *
 
@@ -113,9 +113,12 @@ def decoding_block(x: tf.Tensor, residual: tf.Tensor, filters: int,
     return x
 
 # Returns a CNN-model instance 
-def get_model(N: int = CGM_INPUT_POINTS, input_features: int = NUMBER_OF_INPUT_SIGNALS,
-              tau : int = 1, kernel_size : int = 3, predicted_points : int = 1) -> Model:
-    """Returns the model described in [1].
+def get_model(sensor : Dict, N: int = CGM_INPUT_POINTS, input_features: int = NUMBER_OF_INPUT_SIGNALS,
+              tau : int = 1, kernel_size : int = 3, PH : int = 1) -> Model:
+    
+    """Returns a multistep regression model based on the 1D-UNET described in [1]. Some modifications 
+    have been performed to adapt a segmentation model to a regresison model: activation functions,
+    output dimension and the time distributed layers
 
     Args:
     -----
@@ -123,7 +126,8 @@ def get_model(N: int = CGM_INPUT_POINTS, input_features: int = NUMBER_OF_INPUT_S
         input_features (int): Number of features in the input tensor. Default: NUMBER_OF_INPUT_SIGNALS.
         tau (int): Stride of the convolutional layers. Default: 1, as [1]
         kernel_size (int): Kernel size of the convolutional layers. Default: 3, as [1]
-        output_points (int): Number of predictied points (time dimension) Default: 1.
+        PH (int): Prediction Horizon to predict. Length of the predicted sequence lenght = PH/sampling frequency of
+        the sensor. Default: 5.
     
     Returns:
     --------
@@ -157,7 +161,6 @@ def get_model(N: int = CGM_INPUT_POINTS, input_features: int = NUMBER_OF_INPUT_S
     x = decoding_block(x, res_1, filters=input_features*2, kernel_size=kernel_size, stride = tau, activation = "linear", padding = "same", name_prefix = "dec_3")
 
     # Output of the model (modified from [1] to switch from classification to regression) 
-    # x = layers.Conv1D(filters=predicted_points, kernel_size=kernel_size, strides=tau, padding="same", name='final_conv')(x)
     x = layers.Conv1D(filters=input_features, kernel_size=kernel_size, strides=tau, activation="sigmoid", padding="same", name='final_conv')(x)
 
     # Reshape x to be a 3D tensor
@@ -167,7 +170,7 @@ def get_model(N: int = CGM_INPUT_POINTS, input_features: int = NUMBER_OF_INPUT_S
     x = layers.TimeDistributed(layers.Dense(32))(x)
 
     # Once flattened, add a dense layer to predict the output
-    output = layers.Dense(predicted_points)(x)
+    output = layers.Dense(PH)(x) # PH/SENSOR_SAMPLING_FREQUENCY
 
     # Define the model
     model = Model(input, output)

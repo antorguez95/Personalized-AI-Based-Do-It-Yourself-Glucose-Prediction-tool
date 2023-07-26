@@ -16,47 +16,41 @@
 # along with T1DM_WARIFA.  If not, see <http://www.gnu.org/licenses/>.
 
 from tensorflow.keras import layers, Input, Model
-import tensorflow as tf
-from typing import Tuple
+from typing import Dict
 
 from arch_params import *
 
-
-
-
-
-# Returns a CNN-model instance 
-def get_model(N: int = CGM_INPUT_POINTS, input_features: int = NUMBER_OF_INPUT_SIGNALS,
-              tau : int = 1, kernel_size : int = 3, predicted_points : int = 1) -> Model:
-    """Returns the model described in [1].
+# Returns a LSTM-model instance 
+def get_model(sensor : Dict, N: int = CGM_INPUT_POINTS, input_features: int = NUMBER_OF_INPUT_SIGNALS,
+            PH : int = 1) -> Model:
+    """Returns a LSTM [1] for CGM multistep forecasting whose number of memory units 
+    depends on the lenght of the input features (N).
 
     Args:
     -----
+        sensor (Dict) : Dictionary with the sensor's information, such as the sampling frequency.
         N (int): Number of samples in the input tensor. Must be multiple of 2. Default: CGM_INPUT_POINTS.
         input_features (int): Number of features in the input tensor. Default: NUMBER_OF_INPUT_SIGNALS.
-        tau (int): Stride of the convolutional layers. Default: 1, as [1]
-        kernel_size (int): Kernel size of the convolutional layers. Default: 3, as [1]
-        output_points (int): Number of predictied points (time dimension) Default: 1.
+        PH (int): Prediction Horizon to predict. Length of the predicted sequence lenght = PH/sampling frequency of
+        the sensor. Default: 5.
     
     Returns:
     --------
-        model (Model): CNN-model instance.
+        model (Model): LSTM-model instance.
     
     References:
     -----------
-        [1] F. Renna, J. Oliveira and M. T. Coimbra, "Deep Convolutional Neural
-        Networks for Heart Sound Segmentation," in IEEE Journal of Biomedical
-        and Health Informatics, vol. 23, no. 6, pp. 2435-2445, Nov. 2019, doi:
-        10.1109/JBHI.2019.2894222.
+        [1] Sepp Hochreiter and Jürgen Schmidhuber. 1997. Long Short-Term Memory. 
+        Neural Comput. 9, 8 (November 15, 1997), 1735-1780. https://doi.org/10.1162/neco.1997.9.8.1735.
     """
     # Input tensor
     input = Input(shape=(N, input_features)) 
 
     # LSTM 
-    x = layers.LSTM(round(N/2), input_shape = (N, input_features))(input)
+    x = layers.LSTM(N, input_shape = (N, input_features))(input)
 
     # Dense layer that outputs the predicted points
-    output = layers.Dense(predicted_points)(x)
+    output = layers.Dense(PH)(x) # PH/SENSOR_SAMPLING_FREQUENCY
 
     # Define the model
     model = Model(input, output)

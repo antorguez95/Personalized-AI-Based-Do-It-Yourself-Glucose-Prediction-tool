@@ -28,7 +28,7 @@ from arch_params import *
 def extract_Mikael_data(json_file_path : str, json_file_name : str, ONLY_CGM: bool = True): 
     """
     This function prepares the data from the json file (Mikael personal data) and returns
-    a list of dictionaries containing data of interet for Type 1 Diabetes managament of
+    a list of dictionaries containing data of interest for Type 1 Diabetes managament of
     different nature. 
     From the original json file, the following data is not extracted: 
         - HBA1C (empty)
@@ -46,6 +46,7 @@ def extract_Mikael_data(json_file_path : str, json_file_name : str, ONLY_CGM: bo
     -----
         json_file_path: path to the json file
         json_file_name: name of the json file
+        ONLY_CGM: if True, only CGM data is extracted. If False, all the data is extracted
 
     Returns:
     --------
@@ -319,23 +320,22 @@ def extract_Mikael_data(json_file_path : str, json_file_name : str, ONLY_CGM: bo
     
     return data , basal_data_dict, blood_pressure_dict, bolus_data_dict, exercise_data_dict, carbohydrates_data_dict, pump_events_data_dict, sgv_data_dict, sleep_data_dict, smgb_data_dict, steps_data_dict, weight_dict 
 
-def get_CGM_X_Y_slow(CGM_data_dict: Dict, glucose_sensor : Dict, N: int, tau: int,
+def get_CGM_X_Y_slow(CGM_data_dict: Dict, glucose_sensor : Dict, N: int, step: int,
                 prediction_time : int, 
                 experiments_folder : str, verbose = int) -> Tuple[np.array, np.array, np.array, np.array]:
     
-    """Generates the X and Y arrays for the Mikael T1DM dataset. The X array
-    contains windows of size N and stride tau of the envelograms of the
-    recordings sampled at 50 Hz, as done in Renna et al. [2]. The S array
-    contains the heart state sequence of the recordings.
+    """Generates the X and Y vectors to train and test a Deep Learning model for CGM 
+    forecasting. Also returns the associated timestamps (as datetime objects).
+    *****NOTE: THIS IS A SLOW VERSION OF THE FUNCION!!!!!! .
 
     Args:
     -----
-        CGM_data_dict (dict): dictionary containing all the CGM entries of the json file
-        N (int): window size
-        tau (int): window stride
+        CGM_data_dict (dict): dictionary containing all the CGM entries of the json file.
+        glucose_sensor (dict): dictionary that contains sensor parameters that will influence the DL design.
+        N (int): input feature size.
+        step (int): step bewteen two consecutive generated input instances.
         prediction_time (int): prediction time in minutes
-        experiments_folder (str): path to the folder where the experiments generated
-        results will be saved
+        experiments_folder (str): path where the generated results will be saved
         verbose (int): Verbosity level.
     
     Returns:
@@ -359,7 +359,7 @@ def get_CGM_X_Y_slow(CGM_data_dict: Dict, glucose_sensor : Dict, N: int, tau: in
     os.chdir(parent_directory+experiments_folder)
 
     # Create a folder dependent on N, stride and step to save the data
-    experiment_path = r'\N%i_stride%i_step%i' % (N, tau, prediction_time)
+    experiment_path = r'\N%i_stride%i_step%i' % (N, step, prediction_time)
     if not os.path.exists(parent_directory+experiments_folder+experiment_path):
         os.makedirs(parent_directory+experiments_folder+experiment_path)
 
@@ -493,20 +493,19 @@ def get_CGM_X_Y(CGM_data_dict: Dict, glucose_sensor : Dict, N: int, tau: int,
                 prediction_time : int, 
                 experiments_folder : str, 
                 plot : bool, verbose = int) -> Tuple[np.array, np.array, np.array, np.array]:
-    """Generates the X and Y arrays for the Mikael T1DM dataset. The X array
-    contains windows of size N and stride tau of the envelograms of the
-    recordings sampled at 50 Hz, as done in Renna et al. [2]. The S array
-    contains the heart state sequence of the recordings.
+    
+    """Generates the X and Y vectors to train and test a Deep Learning model for CGM 
+    forecasting. Also returns the associated timestamps (as datetime objects).
 
     Args:
     -----
-        CGM_data_dict (dict): dictionary containing all the CGM entries of the json file
-        N (int): window size
-        tau (int): window stride
+        CGM_data_dict (dict): dictionary containing all the CGM entries of the json file.
+        glucose_sensor (dict): dictionary that contains sensor parameters that will influence the DL design.
+        N (int): input feature size.
+        step (int): step bewteen two consecutive generated input instances.
         prediction_time (int): prediction time in minutes
-        experiments_folder (str): path to the folder where the experiments generated
-        results will be saved
-        plot (bool): if True, plots the sample difference between two consecutive samples
+        experiments_folder (str): path where the generated results will be saved
+        plot (bool): if True, plots the time difference between two consecutive samples
         verbose (int): Verbosity level.
     
     Returns:
@@ -649,24 +648,28 @@ def get_CGM_X_Y(CGM_data_dict: Dict, glucose_sensor : Dict, N: int, tau: int,
     np.save('X.npy', X)
     np.save('Y.npy', Y)
     np.save('X_times.npy', X_times)
-    np.save('Y_times.npy', Y_times) 
+    np.save('Y_times.npy', Y_times)
+
+    # Convert np.arrays to float32 to convert them to Tensorflow tensors
+    X = X.astype(np.float32)
+    Y = Y.astype(np.float32) 
 
     return X, Y, X_times, Y_times
 
-def get_CGM_X_Y_multistep(CGM_data_dict: Dict, glucose_sensor : Dict, N: int, tau: int,
+def get_CGM_X_Y_multistep(CGM_data_dict: Dict, glucose_sensor : Dict, N: int, step: int,
                 prediction_horizon : int, 
                 experiments_folder : str, 
                 plot : bool, verbose = int) -> Tuple[np.array, np.array, np.array, np.array]:
-    """Generates the X and Y arrays for the Mikael T1DM dataset. The X array
-    contains windows of size N and stride tau of the envelograms of the
-    recordings sampled at 50 Hz, as done in Renna et al. [2]. The S array
-    contains the heart state sequence of the recordings.
+    
+    """Generates the X and Y vectors to train and test a Deep Learning model for CGM 
+    forecasting. Suports sequence-to-sequence data generation.Also returns the 
+    associated timestamps (as datetime objects).
 
     Args:
     -----
         CGM_data_dict (dict): dictionary containing all the CGM entries of the json file
-        N (int): window size
-        tau (int): window stride
+        N (int): window size of the instances in the generated dataset
+        step (int): step forward to create the next instance of the dataset
         prediction_time (int): prediction horizon in minutes
         experiments_folder (str): path to the folder where the experiments generated
         results will be saved
@@ -677,8 +680,8 @@ def get_CGM_X_Y_multistep(CGM_data_dict: Dict, glucose_sensor : Dict, N: int, ta
     --------
         X (np.ndarray): 2D array with the windows of the CGM readings. Its shape
         is (number of windows, N).
-        Y (np.ndarray): 1D array with the value just after the end of the correspondant window
-        (Value Nth+1). Its shape is (number of windows, 1).
+        Y (np.ndarray): 2D array with the sequence just after the end of the correspondant input
+        (Value Nth+1). Its shape is (prediction_horizon/sampling frequency of the sensor, 1).
         X_times (np.array): datetime datatypes associated to X 
         Y_times (np.array): datetime datatypes associated to Y
     """
@@ -693,7 +696,7 @@ def get_CGM_X_Y_multistep(CGM_data_dict: Dict, glucose_sensor : Dict, N: int, ta
     os.chdir(parent_directory+experiments_folder)
 
     # Create a folder dependent on N, stride and step to save the data
-    experiment_path = r'\N%i_stride%i_step%i' % (N, tau, prediction_horizon/5)
+    experiment_path = r'\N%i_stride%i_step%i' % (N, step, prediction_horizon/5)
     if not os.path.exists(parent_directory+experiments_folder+experiment_path):
         os.makedirs(parent_directory+experiments_folder+experiment_path)
 
@@ -783,9 +786,6 @@ def get_CGM_X_Y_multistep(CGM_data_dict: Dict, glucose_sensor : Dict, N: int, ta
             # Reference value for the last data point to be collected 
             Y_end_list.append(global_idx+j+N+step)
 
-            # Extract glucose output (Y) indexes (Ground Truth) and the time associated 
-            # Y_idxs_list.append(round(global_idx+j+N+step-1)) # For slicing N samples, index N. For indexing sample in the Nth, index N
-
             # Count the samples of the current block
             num_samples[i] = j+1
 
@@ -821,6 +821,10 @@ def get_CGM_X_Y_multistep(CGM_data_dict: Dict, glucose_sensor : Dict, N: int, ta
     np.save('Y.npy', Y)
     np.save('X_times.npy', X_times)
     np.save('Y_times.npy', Y_times) 
+
+    # Convert np.arrays to float32 to convert them to Tensorflow tensors
+    X = X.astype(np.float32)
+    Y = Y.astype(np.float32)
 
     return X, Y, X_times, Y_times
 

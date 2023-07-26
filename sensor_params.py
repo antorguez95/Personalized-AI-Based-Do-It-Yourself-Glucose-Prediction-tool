@@ -20,15 +20,12 @@ from arch_params import *
 # Parameters (dependent on the sensors) for the input data that will fix the architecture of the tested ML/DL models
 
 # Mikael sensor
-MIKAEL_SAMPLE_PERIOD = 5 #minutes per time
-
 sensor_Mikael = {
     "NAME" : "Mikael sensor",
     "INPUT_SIZE" : CGM_INPUT_POINTS,
     "INPUT_FEATURES" : 1,
     "STRIDE" : 1,
-    "SAMPLE_PERIOD" : MIKAEL_SAMPLE_PERIOD, #times per minute
-    "PREDICTED_POINTS" : PREDICTION_TIME/MIKAEL_SAMPLE_PERIOD # means 2 * SAMPLE_PERIOD MINUTES
+    "SAMPLE_PERIOD" : 5, #minutes between consecutive readings
     }
 
 # Dummy sensor 

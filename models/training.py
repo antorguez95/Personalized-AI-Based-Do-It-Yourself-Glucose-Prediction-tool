@@ -94,18 +94,31 @@ class CustomMetrics(tf.keras.callbacks.Callback):
         print('- {}ISO %: {} - {}Parker %: {}'.format(self.prefix, _iso_percentage, self.prefix, _parker_percentage), end=' ')
 
 def month_wise_4fold_cv(N : int, X: np.array, Y: np.array, X_times : np.array, training_partitions : Dict, 
-                        shuffle : bool, verbose : int):
+                        shuffle : bool, verbose : int) -> None:
     """
+    This function partitions the data in 4 folds, so models are trained with all seasons and validated with 
+    all season: 
+
+    Fold 1: January - September (train) and October - December (test)  
+    Fold 2: January - June (train) and July - September (test)
+    Fold 3: January - March (train) and April - June (test)
+    Fold 4: April - December (train) and January - March (test)
+
+    Dara is stored in its correspondant fold in the dictionary training_partitions.
 
     Args:
     -----
-    y_true: The true glucose values.
-    y_pred: The predicted glucose values.
+    N: window size of the input data.
+    X: input sequence of lenght N.
+    Y: output sequence.
+    X_times: time stamps of the input sequence.
+    training_partitions: dictionary where the data will be stored.
+    shuffle: flag that indicates whether to shuffle the data or not.
+    verbose: verbosity level. 
 
     Returns:
     --------
-    iso_perc: The percentage of points within the acceptable range.
-    parker_perc: The percentage of points within the acceptable range in the Parker Grid.
+    None
 
     """
  
@@ -294,30 +307,40 @@ def month_wise_4fold_cv(N : int, X: np.array, Y: np.array, X_times : np.array, t
         print("Month-wise 4-fold Cross Validation partition already done.")  
 
 def train_model(model : tf.keras.Model,
-                X: np.array, Y: np.array,
-                N: int, tau: int,
+                X: np.array, 
+                Y: np.array,
+                N: int, 
+                stride: int,
                 kernel_size: int, 
                 predicted_points: int,
-                sensor_name : Dict, 
-                epochs: int, batch_size: int, lr: float,
+                sensor : Dict, 
+                epochs: int, 
+                batch_size: int, 
+                lr: float,
                 fold : int,
                 verbose: int = 1) -> None: 
-    """Loads the model in `pretrained_model`and trains a model with the given
-    parameters using the trainset defined in `X` and `S`.
+    """Train a previously loaded Deep Learning model parameters using 
+    the given data, and some model hyperparameters. 
 
     Args:
     -----
         model (tf.keras.Model): The model to train.
-        X (np.array): The segmentation input features.
-        Y (np.array): The segmentation true labels.
-        model_path (str): Path to the directory where the model will be saved.
-        N (int): Window length.
-        tau (int): Stride of the windowing.
+        X (np.array): The input features (size = N).
+        Y (np.array): The output sequence (size = predicted_points).
+        N (int): Input features length.
+        stride (int): Stride of the windowing.
+        kernel_size (int): Kernel size of the convolutional layers.
+        predicted_points (int): Number of points to predict, i.e., the output sequence length.
         epochs (int): Number of epochs.
+        sensor (Dict): Dictionary with the sensor name and its parameters.
         batch_size (int): Batch size.
         lr (float): Learning rate.
         fold (int): When training with cross-validation, the fold to train and save the model with its name. 
         verbose (int): Verbosity level. Defaults to 1.
+
+    Returns:
+    --------
+        None
     """
     
     # Model compile 
@@ -340,12 +363,6 @@ def train_model(model : tf.keras.Model,
     else: 
         pass
     
-    # callbacks = []
-
-    # Create a callback to evaluate the ISO percentages after each epoch   
-    custom_metrics_train = CustomMetrics([X, Y])
-    # callbacks.append(custom_metrics_train)
-
     # Save model summary in a txt file
     filename = str(fold)+'_modelsummary.txt'
     with open('modelsummary.txt', 'w') as f:
@@ -369,6 +386,10 @@ def train_model(model : tf.keras.Model,
 
     # Annote the initial time
     t0 = time.time()
+
+    # Create a callback to evaluate the ISO percentages after each epoch   
+    custom_metrics_train = CustomMetrics([X, Y])
+    # callbacks.append(custom_metrics_train)
 
     # Callback to implement early stopping
     callback = tf.keras.callbacks.EarlyStopping(monitor='root_mean_squared_error', 
