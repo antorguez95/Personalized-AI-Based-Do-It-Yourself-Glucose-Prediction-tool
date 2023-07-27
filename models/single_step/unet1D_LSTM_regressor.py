@@ -114,8 +114,13 @@ def decoding_block(x: tf.Tensor, residual: tf.Tensor, filters: int,
 
 # Returns a CNN-model instance 
 def get_model(N: int = CGM_INPUT_POINTS, input_features: int = NUMBER_OF_INPUT_SIGNALS,
-              tau : int = 1, kernel_size : int = 3, predicted_points : int = 1) -> Model:
-    """Returns the model described in [1].
+              tau : int = 1, kernel_size : int = 3) -> Model:
+    """Returns a one step regression model based on the 1D-UNET described in [1] together with
+    an LSTM [2] layer. Some modifications have been performed in [1] to adapt a segmentation model
+    to a regresison model: activation functions, output dimension and the time distributed layers.
+    The memory units of the LSTM depends on the lenght of the input features, N.
+    The Prediction Horizon of the model is defined by the previously generated training dataset 
+    since it does not influence the model's architecture..
 
     Args:
     -----
@@ -123,7 +128,6 @@ def get_model(N: int = CGM_INPUT_POINTS, input_features: int = NUMBER_OF_INPUT_S
         input_features (int): Number of features in the input tensor. Default: NUMBER_OF_INPUT_SIGNALS.
         tau (int): Stride of the convolutional layers. Default: 1, as [1]
         kernel_size (int): Kernel size of the convolutional layers. Default: 3, as [1]
-        output_points (int): Number of predictied points (time dimension) Default: 1.
     
     Returns:
     --------
@@ -135,6 +139,10 @@ def get_model(N: int = CGM_INPUT_POINTS, input_features: int = NUMBER_OF_INPUT_S
         Networks for Heart Sound Segmentation," in IEEE Journal of Biomedical
         and Health Informatics, vol. 23, no. 6, pp. 2435-2445, Nov. 2019, doi:
         10.1109/JBHI.2019.2894222.
+        [2] S. Hochreiter and J. Schmidhuber, "Long Short-Term Memory," in Neural
+        Computation, vol. 9, no. 8, pp. 1735-1780, 15 Nov. 1997, doi: 10.1162/neco.1997.9.8.1735.
+
+
     """
     # Input tensor
     input = Input(shape=(N, input_features)) 
@@ -157,7 +165,7 @@ def get_model(N: int = CGM_INPUT_POINTS, input_features: int = NUMBER_OF_INPUT_S
     x = decoding_block(x, res_1, filters=input_features*2, kernel_size=kernel_size, stride = tau, activation = "relu", padding = "same", name_prefix = "dec_3")
 
     # Output of the convolutional part of the model (modified from [1] to switch from classification to regression) 
-    x = layers.Conv1D(filters=predicted_points, kernel_size=kernel_size, strides=tau, padding="same", name='final_conv')(x)
+    x = layers.Conv1D(filters=input_features, kernel_size=kernel_size, strides=tau, padding="same", name='final_conv')(x)
 
     # Reshape x to be a 3D tensor
     x = layers.Reshape((input_features, N), input_shape=(N, input_features))(x)
@@ -170,9 +178,6 @@ def get_model(N: int = CGM_INPUT_POINTS, input_features: int = NUMBER_OF_INPUT_S
 
     # Once flattened, add a dense layer to predict the output
     output = layers.Dense(1)(x)
-
-    # Once flattened, add a dense layer to predict the output
-    output = layers.Dense(predicted_points)(x)
 
     # Define the model
     model = Model(input, output)

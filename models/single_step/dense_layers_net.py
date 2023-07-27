@@ -16,35 +16,27 @@
 # along with T1DM_WARIFA.  If not, see <http://www.gnu.org/licenses/>.
 
 from tensorflow.keras import layers, Input, Model
-import tensorflow as tf
-from typing import Tuple
+from typing import Dict
 
 from arch_params import *
 
 
 # Returns a model instance 
-def get_model(N: int = CGM_INPUT_POINTS, input_features: int = NUMBER_OF_INPUT_SIGNALS,
-              tau : int = 1, kernel_size : int = 3, predicted_points : int = 1) -> Model:
-    """Returns the model described in [1].
+def get_model(N: int = CGM_INPUT_POINTS, input_features: int = NUMBER_OF_INPUT_SIGNALS) -> Model:
+    """Returns a simple Dense Layer to serve as baseline to Deep Learning models
+    single step forecasting evaluation. The Prediction Horizon of the model 
+    is defined by the previously generated training dataset since it does not influence
+    the model's architecture.
 
     Args:
     -----
         N (int): Number of samples in the input tensor. Must be multiple of 2. Default: CGM_INPUT_POINTS.
         input_features (int): Number of features in the input tensor. Default: NUMBER_OF_INPUT_SIGNALS.
-        tau (int): Stride of the convolutional layers. Default: 1, as [1]
-        kernel_size (int): Kernel size of the convolutional layers. Default: 3, as [1]
-        output_points (int): Number of predictied points (time dimension) Default: 1.
-    
+ 
     Returns:
     --------
-        model (Model): CNN-model instance.
+        model (Model): Dense layers based model instance.
     
-    References:
-    -----------
-        [1] F. Renna, J. Oliveira and M. T. Coimbra, "Deep Convolutional Neural
-        Networks for Heart Sound Segmentation," in IEEE Journal of Biomedical
-        and Health Informatics, vol. 23, no. 6, pp. 2435-2445, Nov. 2019, doi:
-        10.1109/JBHI.2019.2894222.
     """
     # Input tensor
     input = Input(shape=(N, input_features)) 
@@ -54,13 +46,11 @@ def get_model(N: int = CGM_INPUT_POINTS, input_features: int = NUMBER_OF_INPUT_S
 
     # Couple of dense layers to reduce the dimensionality
     x = layers.Dense(32)(x)
-    #x = layers.Dense(16)(x)
     x = layers.Dense(8)(x)
-    #x = layers.Dense(4)(x)
     x = layers.Dense(2)(x)
 
     # Once flattened, add a dense layer to predict the output
-    output = layers.Dense(predicted_points)(x)
+    output = layers.Dense(1)(x)
 
     # Define the model
     model = Model(input, output)

@@ -306,20 +306,19 @@ def month_wise_4fold_cv(N : int, X: np.array, Y: np.array, X_times : np.array, t
         # We assume that if the key exists, so does the partition
         print("Month-wise 4-fold Cross Validation partition already done.")  
 
-def train_model(model : tf.keras.Model,
+def train_model(sensor : Dict, 
+                model : tf.keras.Model,
                 X: np.array, 
                 Y: np.array,
                 N: int, 
-                stride: int,
-                kernel_size: int, 
-                predicted_points: int,
-                sensor : Dict, 
+                predicted_points: int, 
                 epochs: int, 
                 batch_size: int, 
                 lr: float,
                 fold : int,
                 verbose: int = 1) -> None: 
-    """Train a previously loaded Deep Learning model parameters using 
+    
+    """Train a previously loaded Deep Learning model using 
     the given data, and some model hyperparameters. 
 
     Args:
@@ -328,8 +327,6 @@ def train_model(model : tf.keras.Model,
         X (np.array): The input features (size = N).
         Y (np.array): The output sequence (size = predicted_points).
         N (int): Input features length.
-        stride (int): Stride of the windowing.
-        kernel_size (int): Kernel size of the convolutional layers.
         predicted_points (int): Number of points to predict, i.e., the output sequence length.
         epochs (int): Number of epochs.
         sensor (Dict): Dictionary with the sensor name and its parameters.
@@ -371,7 +368,6 @@ def train_model(model : tf.keras.Model,
     # Save training configuration in a txt file
     with open('training_configuration.txt', 'w') as f:
         f.write('N = {}\n'.format(N))
-        f.write('stride = {}\n'.format(stride))
         f.write('epochs = {}\n'.format(epochs))
         f.write('batch_size = {}\n'.format(batch_size))
         f.write('lr = {}\n'.format(lr))
@@ -446,7 +442,7 @@ def train_model(model : tf.keras.Model,
     # Reduce the space between the subplots
     fig.subplots_adjust(hspace=0)
 
-    plt.suptitle(str(fold)+' Training evolution: N = {}, tau = {}, PH = {} min.' .format(N, stride, predicted_points*5))
+    plt.suptitle(str(fold)+' Training evolution: N = {}, PH = {} min.' .format(N, predicted_points*sensor['SAMPLE_PERIOD']))
 
     # Save the figure
     plt.savefig(dir+'/'+str(fold)+'_training_evolution.png')

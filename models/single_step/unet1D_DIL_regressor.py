@@ -23,7 +23,7 @@ from arch_params import *
 
 def encoding_block(x: tf.Tensor, filters: int, kernel_size: int, stride: int,
                    activation: str, padding: str, dilation_rate : int, name_prefix: str) -> Tuple[tf.Tensor, tf.Tensor]:
-    """Encoding block of the network, based on the description of [1].
+    """Encoding block of the network, modified from [1], since dilation rate in convolution is included.
 
     Args:
     -----
@@ -69,7 +69,7 @@ def encoding_block(x: tf.Tensor, filters: int, kernel_size: int, stride: int,
 def decoding_block(x: tf.Tensor, residual: tf.Tensor, filters: int,
                    kernel_size: int, stride: int, activation: str, padding: str,
                    dilation_rate : int, name_prefix: str) -> tf.Tensor:
-    """Decoding block of the network, based on the description of [1].
+    """Decoding block of the network, modified from [1], since dilation rate in convolution is included.
 
     Args:
     -----
@@ -116,8 +116,14 @@ def decoding_block(x: tf.Tensor, residual: tf.Tensor, filters: int,
 
 # Returns a CNN-model instance 
 def get_model(N: int = CGM_INPUT_POINTS, input_features: int = NUMBER_OF_INPUT_SIGNALS,
-              tau : int = 1, kernel_size : int = 3, dilation_rate : int = 1, predicted_points : int = 1) -> Model:
-    """Returns the model described in [1].
+              tau : int = 1, kernel_size : int = 3, dilation_rate : int = 1) -> Model:
+    
+    """Returns a one step regression model based on the 1D-UNET described in [1]. Some modifications 
+    have been performed to adapt a segmentation model to a regresison model: activation functions,
+    output dimension and the time distributed layers. Furthermore, the dilation in the convolutional 
+    layers has been included in the encoding and decoding phase. The Prediction Horizon of the model 
+    is defined by the previously generated training dataset since it does not influence
+    the model's architecture.
 
     Args:
     -----
@@ -125,7 +131,7 @@ def get_model(N: int = CGM_INPUT_POINTS, input_features: int = NUMBER_OF_INPUT_S
         input_features (int): Number of features in the input tensor. Default: NUMBER_OF_INPUT_SIGNALS.
         tau (int): Stride of the convolutional layers. Default: 1, as [1]
         kernel_size (int): Kernel size of the convolutional layers. Default: 3, as [1]
-        output_points (int): Number of predictied points (time dimension) Default: 1.
+        dilation_rate (int): Dilation rate of the convolutional layers. Default: 1
     
     Returns:
     --------
@@ -159,7 +165,7 @@ def get_model(N: int = CGM_INPUT_POINTS, input_features: int = NUMBER_OF_INPUT_S
     x = decoding_block(x, res_1, filters=input_features*2, kernel_size=kernel_size, stride = tau, activation = "relu", padding = "same", dilation_rate = dilation_rate, name_prefix = "dec_3")
 
     # Output of the model (modified from [1] to switch from classification to regression) 
-    x = layers.Conv1D(filters=predicted_points, kernel_size=kernel_size, strides=tau, padding="same", dilation_rate = dilation_rate, name='final_conv')(x)
+    x = layers.Conv1D(filters=1, kernel_size=kernel_size, strides=tau, padding="same", dilation_rate = dilation_rate, name='final_conv')(x)
 
     # Reshape x to be a 3D tensor
     x = layers.Reshape((input_features, N), input_shape=(N, input_features))(x)

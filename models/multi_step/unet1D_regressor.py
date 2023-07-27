@@ -114,7 +114,7 @@ def decoding_block(x: tf.Tensor, residual: tf.Tensor, filters: int,
 
 # Returns a CNN-model instance 
 def get_model(sensor : Dict, N: int = CGM_INPUT_POINTS, input_features: int = NUMBER_OF_INPUT_SIGNALS,
-              tau : int = 1, kernel_size : int = 3, PH : int = 1) -> Model:
+              tau : int = 1, kernel_size : int = 3, PH : int = 5) -> Model:
     
     """Returns a multistep regression model based on the 1D-UNET described in [1]. Some modifications 
     have been performed to adapt a segmentation model to a regresison model: activation functions,

@@ -22,7 +22,7 @@ from arch_params import *
 
 # Returns a LSTM-model instance 
 def get_model(sensor : Dict, N: int = CGM_INPUT_POINTS, input_features: int = NUMBER_OF_INPUT_SIGNALS,
-            PH : int = 1) -> Model:
+            PH : int = 5) -> Model:
     """Returns a Stacked LSTM [1] for CGM multistep forecasting whose number of 
     memory units depends on the lenght on the input tensor.
 
@@ -32,8 +32,7 @@ def get_model(sensor : Dict, N: int = CGM_INPUT_POINTS, input_features: int = NU
         N (int): Number of samples in the input tensor. Must be multiple of 2. Default: CGM_INPUT_POINTS.
         input_features (int): Number of features in the input tensor. Default: NUMBER_OF_INPUT_SIGNALS.
         PH (int): Prediction Horizon to predict. Length of the predicted sequence lenght = PH/sampling frequency of
-        the sensor. Default: 5.
-        sensor (Dict) : Dictionary with the sensor's information. Default: CGM_SENSOR. ##### TO BE INCLUDED
+        the sensor. Default: 1.
     
     Returns:
     --------

@@ -114,8 +114,12 @@ def decoding_block(x: tf.Tensor, residual: tf.Tensor, filters: int,
 
 # Returns a CNN-model instance 
 def get_model(N: int = CGM_INPUT_POINTS, input_features: int = NUMBER_OF_INPUT_SIGNALS,
-              tau : int = 1, kernel_size : int = 3, predicted_points : int = 1) -> Model:
-    """Returns the model described in [1].
+              tau : int = 1, kernel_size : int = 3) -> Model:
+    """Returns a single step regression model based on the 1D-UNET described in [1]. Some modifications 
+    have been performed to adapt a segmentation model to a regresison model: activation functions,
+    output dimension and the time distributed layers. The Prediction Horizon of the model 
+    is defined by the previously generated training dataset since it does not influence
+    the model's architecture.
 
     Args:
     -----
@@ -157,7 +161,6 @@ def get_model(N: int = CGM_INPUT_POINTS, input_features: int = NUMBER_OF_INPUT_S
     x = decoding_block(x, res_1, filters=input_features*2, kernel_size=kernel_size, stride = tau, activation = "relu", padding = "same", name_prefix = "dec_3")
 
     # Output of the model (modified from [1] to switch from classification to regression) 
-    # x = layers.Conv1D(filters=predicted_points, kernel_size=kernel_size, strides=tau, padding="same", name='final_conv')(x)
     x = layers.Conv1D(filters=input_features, kernel_size=kernel_size, strides=tau, padding="same", name='final_conv')(x)
 
     # Reshape x to be a 3D tensor
@@ -169,7 +172,7 @@ def get_model(N: int = CGM_INPUT_POINTS, input_features: int = NUMBER_OF_INPUT_S
     x = layers.TimeDistributed(layers.Dense(2))(x)
 
     # Once flattened, add a dense layer to predict the output
-    output = layers.Dense(predicted_points)(x)
+    output = layers.Dense(1)(x)
 
     # Define the model
     model = Model(input, output)
