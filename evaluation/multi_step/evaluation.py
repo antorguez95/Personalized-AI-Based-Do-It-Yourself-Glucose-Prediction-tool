@@ -455,23 +455,38 @@ def parkes_EGA_chart(ground_truth : np.array, predictions : np.array, fold : str
 
 def model_evaluation(N : int, PH : int, name : str, X_test : np.array, Y_test : np.array, pred_steps : int, X : np.array) -> None: 
     """
-    Model evaluation. 
+    Model evaluation for a multi-step (Seq-to-seq) CGM forecasting. Since the
+    models are trained with a min-max normalization between 0-1, in the test 
+    set the samples are denormalized in order to compare obtained results with
+    those available in the  literature. Metrics are evaluated overall sequence
+    and time step by time step, except for the ISO [1] and Parker [2] percentages
+    that are computed only step by step.Evaluated metrics are: 
+    - RMSE
+    - MAE
+    - MAPE
+    - Percentage of values in the ISO 15197:2015 acceptable zone
+    - Percentage of values in the Parkes Error Grid Analysis acceptable zone 
 
     Args:
     -----
+        N: input features sequence length
+        PH: prediction horizon
         name(str): name of the model 
+        X_test: array with the input features of the test set
+        Y_test: array with the ground truth of the test set
+        pred_steps: number of predicted time steps, i.e., lenght of the output sequence
         predictions: array with the predictions of glucose values of a given model
-        fold : if many folds evaluated separately, indicate it so figures are properly saved
-        plot: boolean indicating if the plot must be shown or not
+        X: array with the input features of the whole dataset (train + test) to min-max denormalize the predictions
+
         
     Returns:
     --------
-        percentage: percentage of predicted points in the acceptable zone
-        acceptability: boolean indicating if the percentage is acceptable or not 
+        None
     
     References:
     -----------
     [1] ISO 15197:2015
+    [2] Parkes
     
     """
 
@@ -545,8 +560,8 @@ def model_evaluation(N : int, PH : int, name : str, X_test : np.array, Y_test : 
     # Save the figure
     plt.savefig(name+'.png', dpi=300, bbox_inches='tight')
 
-    # # Go to the evaluation folder
-    # # os.chdir(os.getcwd()+r"\evaluation")
+    # Go to the evaluation folder
+    # os.chdir(os.getcwd()+r"\evaluation")
 
     # Compute the metrics once per time step
     # iso_perc, parkerAB_perc= iso_percentage_metrics(Y_test, Y_pred)
@@ -586,7 +601,6 @@ def model_evaluation(N : int, PH : int, name : str, X_test : np.array, Y_test : 
 
     # Plot 4 random predictions to visual evaluation
     random_idx = np.random.randint(0, X_test_denorm.shape[0], size = 4)
-    # random_idx = [0, 7, 900, 6589]
 
     for i in random_idx: 
 

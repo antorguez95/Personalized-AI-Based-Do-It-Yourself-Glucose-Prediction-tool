@@ -29,7 +29,7 @@ import matplotlib.pyplot as plt
 # Add the parent directory to the path 
 import sys
 sys.path.append('..')
-from evaluation.multi_step.evaluation import *
+from evaluation.multi_step.evaluation import bgISOAcceptableZone, parkes_EGA_chart
 
 from typing import Tuple, Dict
 

@@ -489,8 +489,8 @@ def get_CGM_X_Y_slow(CGM_data_dict: Dict, glucose_sensor : Dict, N: int, step: i
 
     return X, Y, X_times, Y_times
 
-def get_CGM_X_Y(CGM_data_dict: Dict, glucose_sensor : Dict, N: int, tau: int,
-                prediction_time : int, 
+def get_CGM_X_Y(CGM_data_dict: Dict, sensor : Dict, N: int, step: int,
+                PH : int, 
                 experiments_folder : str, 
                 plot : bool, verbose = int) -> Tuple[np.array, np.array, np.array, np.array]:
     
@@ -500,10 +500,10 @@ def get_CGM_X_Y(CGM_data_dict: Dict, glucose_sensor : Dict, N: int, tau: int,
     Args:
     -----
         CGM_data_dict (dict): dictionary containing all the CGM entries of the json file.
-        glucose_sensor (dict): dictionary that contains sensor parameters that will influence the DL design.
+        sensor (dict): Dictionary with the sensor's information, such as the sampling frequency.
         N (int): input feature size.
         step (int): step bewteen two consecutive generated input instances.
-        prediction_time (int): prediction time in minutes
+        PH (int): prediction horizon in minutes
         experiments_folder (str): path where the generated results will be saved
         plot (bool): if True, plots the time difference between two consecutive samples
         verbose (int): Verbosity level.
@@ -528,7 +528,7 @@ def get_CGM_X_Y(CGM_data_dict: Dict, glucose_sensor : Dict, N: int, tau: int,
     os.chdir(parent_directory+experiments_folder)
 
     # Create a folder dependent on N, stride and step to save the data
-    experiment_path = r'\N%i_stride%i_step%i' % (N, tau, prediction_time/5)
+    experiment_path = r'\N%i_step%i_PH%i' % (N, step, round(PH/sensor["SAMPLE_PERIOD"]))
     if not os.path.exists(parent_directory+experiments_folder+experiment_path):
         os.makedirs(parent_directory+experiments_folder+experiment_path)
 
@@ -581,7 +581,7 @@ def get_CGM_X_Y(CGM_data_dict: Dict, glucose_sensor : Dict, N: int, tau: int,
     print("Number of blocks is %i\n" % n_blocks)
 
     # Step for the output  value identification - 1: the output is 5 min (value 50) / 2: 10 min (value 51) / etc. 
-    step = prediction_time/5
+    step = PH/sensor["SAMPLE_PERIOD"]
 
     # Global index useful to extract the blocks for the original array
     global_idx = 0 # 1 in matlab
@@ -626,9 +626,9 @@ def get_CGM_X_Y(CGM_data_dict: Dict, glucose_sensor : Dict, N: int, tau: int,
 
     # Declare X an Y vector with all time and glucose concatenated data to further processing
     X = np.zeros((len(X_init_list), N), dtype=np.float32)
-    Y = np.zeros((len(Y_idxs_list), round(glucose_sensor['PREDICTED_POINTS'])), dtype=np.float32) # Check values on sensor_params.py and arch_params.py
+    Y = np.zeros((len(Y_idxs_list), 1), dtype=np.float32) # Check values on sensor_params.py and arch_params.py
     X_times = np.empty((len(X_init_list), N), dtype='datetime64[s]')
-    Y_times = np.empty((len(Y_idxs_list), round(glucose_sensor['PREDICTED_POINTS'])), dtype='datetime64[s]')
+    Y_times = np.empty((len(Y_idxs_list), 1), dtype='datetime64[s]')
 
     for i in range(0, X.shape[0]):
         X[i,:] = glucose_concat[X_init_list[i] : X_end_list[i]]
@@ -639,9 +639,9 @@ def get_CGM_X_Y(CGM_data_dict: Dict, glucose_sensor : Dict, N: int, tau: int,
     # Save training dataset summary in a txt file
     with open('dataset_summary.txt', 'w') as f:
         f.write('N = {}\n'.format(N))
-        f.write('tau = {}\n'.format(tau))
-        f.write('prediction time = {}\n'.format(prediction_time))
-        f.write('sensor type = {}\n'.format(glucose_sensor['NAME']))
+        f.write('step = {}\n'.format(step))
+        f.write('PH = {}\n'.format(PH))
+        f.write('sensor = {}\n'.format(sensor['NAME']))
         f.write('nº blocks = {}\n'.format(n_blocks))
 
     # Export X, Y and associated times as .npy files
@@ -827,6 +827,98 @@ def get_CGM_X_Y_multistep(CGM_data_dict: Dict, glucose_sensor : Dict, N: int, st
     Y = Y.astype(np.float32)
 
     return X, Y, X_times, Y_times
+
+def undersample_normal_range_outputs(X_ref : np.array, 
+                                    X : np.array, Y: np.array,
+                                    normalization : str,  
+                                    undersampling_factor : int,  
+                                    sever_hypo_th : int = 54, hypo_th : int = 70, 
+                                    hyper_th : int = 180, sever_hyper_th : int = 250, 
+                                    verbose : int = 1,
+                                    random_seed : int = 42) -> Tuple[np.array, np.array]:
+
+    """Undersample the prediction points (Y) and its associated features (X)
+    to obtain a more balanced amount of points in the normal, hyperglucemia,
+    and hypoglucemia ranges. This function is suitable for single-step and 
+    multi-step CGM forecasting. This is performed considering the established 
+    thresholds of normal, hyper, hypo, severely hyper and sever hypo (mg/dL):
+    - Severely hyper: 250
+    - Hyper: 180
+    - Hypo: 70
+    - Severely hypo: 54
+    These values are set by default, but can be changed. 
+
+    Args:
+    -----
+        X_ref (np.array) : The input features (size = N). If normalized == True, reference 
+        to normalize the thresholds.
+        X (np.array): The input features (size = N).
+        Y (np.array): The output sequence (size = predicted_points).
+        normalization (str): Normalization applied to the data.
+        undersampling_factor (int): Factor to undersample the normal range respected to the most
+        restrictive range (hyper in this case)
+        sever_hypo_th (int): Threshold to consider a point as severely hypo in mg/dL. Defaults to 54.
+        hypo_th (int): Threshold to consider a point as hypo in mg/dL. Defaults to 70.
+        hyper_th (int): Threshold to consider a point as hyper in mg/dL. Defaults to 180.
+        sever_hyper_th (int): Threshold to consider a point as severely hyper in mg/dL. Defaults to 250.
+        verbose (int): Verbosity level. Defaults to 1.
+        random_seed (int): Random seed to reproduce results. Defaults to 42.
+
+    Returns:
+    --------
+        X (np.array): undersampled input features.
+        Y (np.array): undersampled output sequence.
+    """
+    
+    # If normalization was applied, normalized thresholds
+    if normalization == 'min-max':
+        hypo_th = (hypo_th - np.min(X_ref))/(np.max(X_ref) - np.min(X_ref))
+        hyper_th = (hyper_th - np.min(X_ref))/(np.max(X_ref) - np.min(X_ref))
+    elif normalization == None:
+        pass
+
+    # Count the number of instances within each range considering the output sequence 
+    normal_count = np.count_nonzero((Y >= hypo_th) & (Y <= hyper_th))
+    hyper_count = np.count_nonzero(Y> hyper_th)
+    hypo_count = np.count_nonzero(Y < hypo_th)
+    
+    if verbose == 1: 
+
+        print("Number of normal range points to train before undersampling: ", normal_count)
+        print("Number of hyperglycemia points to train before undersampling: ", hyper_count)
+        print("Number of hypoglycemia points to train before undersampling: ", hypo_count)
+
+        # Percentage of samples in each range 
+        print("Percentage of samples in the normal range: ", round(normal_count / Y.shape[0]*100, 2))
+        print("Percentage of samples in the hyperglycamia range: ", round(hyper_count / Y.shape[0]*100, 2))
+        print("Percentage of samples in the hypoglycamia range: ", round(hypo_count / Y.shape[0]*100, 2))
+
+    # Indices of the samples in each range
+    normal_Y_idxs = np.unique(np.where((Y >= hypo_th) & (Y <= hyper_th))[0])
+    hypo_Y_idxs = np.unique(np.where(Y < hypo_th)[0])
+    hyper_Y_idxs = np.unique(np.where(Y > hyper_th)[0])
+
+    # Set a random seed for reproducibility
+    np.random.seed(random_seed)
+
+    # Undersampling to randomly select idx from the normal values with a random seed
+    normal_Y_idxs = np.random.choice(normal_Y_idxs, size=hyper_count*undersampling_factor, replace=False)
+
+    # X and Y train undersampled with the obtained indices
+    X = np.concatenate((X[normal_Y_idxs], X[hypo_Y_idxs], X[hyper_Y_idxs]))
+    Y = np.concatenate((Y[normal_Y_idxs], Y[hypo_Y_idxs], Y[hyper_Y_idxs]))
+
+    # Concatenate X_train and Y_train to shuffle them in the same way
+    XY = np.concatenate((X, Y), axis=1)
+
+    # Shuffle X_Y_train
+    np.random.shuffle(XY)
+
+    # Split X and Y train again
+    X = XY[:,:-1]
+    Y = XY[:,-1]
+
+    return X, Y
 
 
 

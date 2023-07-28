@@ -23,7 +23,7 @@ from shapely.geometry.polygon import Polygon
 import os
 import tensorflow as tf
 
-from evaluation.Parkes_EGA_boundaries_T1DM import *
+from evaluation.single_step.Parkes_EGA_boundaries_T1DM import *
 
 
 def bgISOAcceptableZone(ground_truth : np.array, predictions: np.array,  fold = str, plot : bool = False) -> Tuple[int, bool]:
@@ -447,21 +447,35 @@ def parkes_EGA_chart(ground_truth : np.array, predictions : np.array, fold : str
 
     return percentage_AB, percentage_values, points_in_regions
 
-def model_evaluation(name : str, X_test : np.array, Y_test : np.array) -> None: 
+def model_evaluation(N : int, PH : int, name : str, normalization : str, X_test : np.array, Y_test : np.array, X : np.array) -> None: 
     """
-    Model evaluation. 
+    Model evaluation for a single-step CGM forecasting. Since the models are trained
+    with a min-max normalization between 0-1, in the test set the samples are
+    denormalized in order to compare obtained results with those available in the 
+    literature. Metrics are evaluated overall sequence and time step by time step,
+    except for the ISO [1] and Parker [2] percentages that are computed only step by step.
+    Evaluated metrics are: 
+    - RMSE
+    - MAE
+    - MAPE
+    - Percentage of values in the ISO 15197:2015 acceptable zone
+    - Percentage of values in the Parkes Error Grid Analysis acceptable zone  
 
     Args:
     -----
+        N: input features sequence length
+        PH: prediction horizon
         name(str): name of the model 
+        normalization: string indicating the type of normalization applied to the data
+        X_test: array with the input features of the test set
+        Y_test: array with the ground truth of the test set
         predictions: array with the predictions of glucose values of a given model
-        fold : if many folds evaluated separately, indicate it so figures are properly saved
-        plot: boolean indicating if the plot must be shown or not
+        X: array with the input features of the whole dataset (train + test) to min-max denormalize the predictions
+
         
     Returns:
     --------
-        percentage: percentage of predicted points in the acceptable zone
-        acceptability: boolean indicating if the percentage is acceptable or not 
+        None
     
     References:
     -----------
@@ -475,11 +489,21 @@ def model_evaluation(name : str, X_test : np.array, Y_test : np.array) -> None:
 
     # Model prediction
     model = tf.keras.models.load_model(name+'.h5')
-    Y_pred = model.predict(X_test)
+    Y_pred_norm = model.predict(X_test)
+
+    # If normalization was applied, denormalize the predictions 
+    if normalization == 'min-max':
+        Y_pred = Y_pred_norm*(np.max(X) - np.min(X)) + np.min(X)
+        X_test_denorm = X_test*(np.max(X) - np.min(X)) + np.min(X)
+        Y_test_denorm = Y_test*(np.max(X) - np.min(X)) + np.min(X)
+    elif normalization == None:
+        Y_pred = Y_pred_norm
+        X_test_denorm = X_test
+        Y_test_denorm = Y_test
 
     # Remove second dimension of Y_pred and Y_test to compute the metrics
     Y_pred = np.squeeze(Y_pred)
-    Y_test = np.squeeze(Y_test)
+    Y_test = np.squeeze(Y_test_denorm)
 
     # RMSE computation
     rmse= np.sqrt(np.square(np.subtract(Y_test,Y_pred)).mean())
@@ -501,6 +525,13 @@ def model_evaluation(name : str, X_test : np.array, Y_test : np.array) -> None:
 
     a, b, c = bgISOAcceptableZone(ground_truth = Y_test, predictions = Y_pred, fold = 'himar-rep', plot = True)
     a, b, c = parkes_EGA_chart(ground_truth = Y_test, predictions = Y_pred, fold = 'himar-rep')
+
+    # Plot histograms of predictions and ground truth 
+    plt.figure(figsize = (10,5)) 
+    plt.hist(Y_test.flatten(), bins=100, alpha=0.5)
+    plt.hist(Y_pred.flatten(), bins=100, alpha=0.5)
+    plt.legend(['GT', 'Prediction'])
+    plt.savefig(name+'_histograms.png', dpi=300, bbox_inches='tight')
 
     # Save a chunk of data to plot as an example
     plt.figure(figsize = (20,10))
