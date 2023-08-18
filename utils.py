@@ -830,6 +830,7 @@ def get_CGM_X_Y_multistep(CGM_data_dict: Dict, glucose_sensor : Dict, N: int, st
 
 def undersample_normal_range_outputs(X_ref : np.array, 
                                     X : np.array, Y: np.array,
+                                    multi_step : bool,
                                     normalization : str,  
                                     undersampling_factor : int,  
                                     sever_hypo_th : int = 54, hypo_th : int = 70, 
@@ -854,6 +855,7 @@ def undersample_normal_range_outputs(X_ref : np.array,
         to normalize the thresholds.
         X (np.array): The input features (size = N).
         Y (np.array): The output sequence (size = predicted_points).
+        multi_step (bool): If True, the output sequence is multi-step. If False, a single point. 
         normalization (str): Normalization applied to the data.
         undersampling_factor (int): Factor to undersample the normal range respected to the most
         restrictive range (hyper in this case)
@@ -877,26 +879,52 @@ def undersample_normal_range_outputs(X_ref : np.array,
     elif normalization == None:
         pass
 
-    # Count the number of instances within each range considering the output sequence 
-    normal_count = np.count_nonzero((Y >= hypo_th) & (Y <= hyper_th))
-    hyper_count = np.count_nonzero(Y> hyper_th)
-    hypo_count = np.count_nonzero(Y < hypo_th)
+    if multi_step == True:
     
-    if verbose == 1: 
+        # Count the number of instances within each range considering the output sequence 
+        normal_count = len(np.where(np.any((Y >= hypo_th) & (Y <= hyper_th), axis=1))[0])
+        hyper_count = len(np.where((np.any((Y> hyper_th), axis=1)))[0])
+        hypo_count = len(np.where((np.any((Y < hypo_th), axis=1)))[0])
 
-        print("Number of normal range points to train before undersampling: ", normal_count)
-        print("Number of hyperglycemia points to train before undersampling: ", hyper_count)
-        print("Number of hypoglycemia points to train before undersampling: ", hypo_count)
+        
+        if verbose == 1: 
 
-        # Percentage of samples in each range 
-        print("Percentage of samples in the normal range: ", round(normal_count / Y.shape[0]*100, 2))
-        print("Percentage of samples in the hyperglycamia range: ", round(hyper_count / Y.shape[0]*100, 2))
-        print("Percentage of samples in the hypoglycamia range: ", round(hypo_count / Y.shape[0]*100, 2))
+            print("Number of normal range points to train before undersampling: ", normal_count)
+            print("Number of hyperglycemia points to train before undersampling: ", hyper_count)
+            print("Number of hypoglycemia points to train before undersampling: ", hypo_count)
 
-    # Indices of the samples in each range
-    normal_Y_idxs = np.unique(np.where((Y >= hypo_th) & (Y <= hyper_th))[0])
-    hypo_Y_idxs = np.unique(np.where(Y < hypo_th)[0])
-    hyper_Y_idxs = np.unique(np.where(Y > hyper_th)[0])
+            # Percentage of samples in each range 
+            print("Percentage of samples in the normal range: ", round(normal_count / Y.shape[0]*100, 2))
+            print("Percentage of samples in the hyperglycamia range: ", round(hyper_count / Y.shape[0]*100, 2))
+            print("Percentage of samples in the hypoglycamia range: ", round(hypo_count / Y.shape[0]*100, 2))
+
+        # Indices of the samples in each range
+        normal_Y_idxs = np.where(np.any((Y >= hypo_th) & (Y <= hyper_th), axis=1))[0]
+        hyper_Y_idxs = np.where((np.any((Y> hyper_th), axis=1)))[0]
+        hypo_Y_idxs = np.where((np.any((Y < hypo_th), axis=1)))[0]
+    
+    elif multi_step == False:
+
+        # Count the number of instances within each range considering the output sequence 
+        normal_count = np.count_nonzero((Y >= hypo_th) & (Y <= hyper_th))
+        hyper_count = np.count_nonzero(Y> hyper_th)
+        hypo_count = np.count_nonzero(Y < hypo_th)
+        
+        if verbose == 1: 
+
+            print("Number of normal range points to train before undersampling: ", normal_count)
+            print("Number of hyperglycemia points to train before undersampling: ", hyper_count)
+            print("Number of hypoglycemia points to train before undersampling: ", hypo_count)
+
+            # Percentage of samples in each range 
+            print("Percentage of samples in the normal range: ", round(normal_count / Y.shape[0]*100, 2))
+            print("Percentage of samples in the hyperglycamia range: ", round(hyper_count / Y.shape[0]*100, 2))
+            print("Percentage of samples in the hypoglycamia range: ", round(hypo_count / Y.shape[0]*100, 2))
+
+        # Indices of the samples in each range
+        normal_Y_idxs = np.unique(np.where((Y >= hypo_th) & (Y <= hyper_th))[0])
+        hypo_Y_idxs = np.unique(np.where(Y < hypo_th)[0])
+        hyper_Y_idxs = np.unique(np.where(Y > hyper_th)[0])
 
     # Set a random seed for reproducibility
     np.random.seed(random_seed)
@@ -920,5 +948,62 @@ def undersample_normal_range_outputs(X_ref : np.array,
 
     return X, Y
 
+def update_results_dictionary(parent_directory : str, experiments_folder : str,
+                              single_multi_step : str, N : int, step : int,  PH : int, data_partition : str, 
+                              normalization : str, under_over_sampling : str, name : str ) -> Dict: 
+    """
+    Updates the results dictionary with the results of the experiment. If the dictionary does not exist, it creates one.
+    It consideres the dataset parameters, some preprocessing steps and the name of the employed Deep Learning model.
+    Models hyperparameters might be further included. 
 
+    Args: 
+    -----
+        parent_directory (str): path to the parent directory.
+        experiments_folder (str): name of the folder where the results dictionary is stored.
+        single_multi_step (str): 'single' or 'multi' step prediction.
+        N (int): input sequence length.
+        step (int): number of steps between each input in the generated dataset.
+        PH (int): prediction horizon.
+        data_partition (str): 'june-21', 'month-wise-4-folds' are the current possibilites
+        normalization (str): 'min_max' or None.
+        under_over_sampling (str): 'under', 'over' or None.
+        name (str): name of the employed Deep Learning model.
+    
+    Returns:
+    --------
+        None    
+    """
+
+    # Store current directory 
+    wd = os.getcwd()
+
+    # Go to the experiments folder
+    os.chdir(parent_directory + experiments_folder)
+
+    # Read the results from dictionary. If not, create one
+    try:
+        with open('results_dictionary.json', 'rb') as handle:
+            results_dictionary = json.load(handle)
+            print("Dictionary loaded.\n")
+    except:
+        results_dictionary = {}
+        print("Non-existing dictionary. A new one was created.\n")
+
+    # Create the correspondant dictionary entry considering all the parameters. If existing, overwrite it
+    results_dictionary['{}_N{}_step{}_PH{}_{}_{}_{}_{}'.format(single_multi_step, N, step, PH, data_partition, normalization, under_over_sampling, name)] =  {
+                                                            'RMSE' : 0,
+                                                            'MAE' : 0,
+                                                            'MAPE' : 0,
+                                                            'ISO' : 0,
+                                                            'Parker' : 0,
+                                                            'time_lag': 0 }
+
+    print("Dictionary entry created.\n")
+
+    # Save dictionary as json
+    with open('results_dictionary.json', 'w') as fp:
+        json.dump(results_dictionary, fp)                                                                                                                              
+
+    # Go back to the original working directory
+    os.chdir(wd)
 

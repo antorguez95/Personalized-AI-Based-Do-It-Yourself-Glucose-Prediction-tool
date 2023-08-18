@@ -453,14 +453,14 @@ def parkes_EGA_chart(ground_truth : np.array, predictions : np.array, fold : str
 
     return percentage_AB, percentage_values, points_in_regions
 
-def model_evaluation(N : int, PH : int, name : str, X_test : np.array, Y_test : np.array, pred_steps : int, X : np.array) -> None: 
+def model_evaluation(N : int, PH : int, name : str, normalization : str, X_test : np.array, Y_test : np.array, pred_steps : int, X : np.array) -> None: 
     """
-    Model evaluation for a multi-step (Seq-to-seq) CGM forecasting. Since the
-    models are trained with a min-max normalization between 0-1, in the test 
-    set the samples are denormalized in order to compare obtained results with
-    those available in the  literature. Metrics are evaluated overall sequence
-    and time step by time step, except for the ISO [1] and Parker [2] percentages
-    that are computed only step by step.Evaluated metrics are: 
+    Model evaluation for a multi-step (Seq-to-seq) CGM forecasting. If the
+    models are trained with normalized, in the test set the samples are denormalized
+    in order to compare obtained results with those available in the  literature.
+    Metrics are evaluated overall sequence and time step by time step, except for the ISO [1]
+    and Parker [2] percentages that are computed only step by step.
+    Evaluated metrics are: 
     - RMSE
     - MAE
     - MAPE
@@ -471,7 +471,8 @@ def model_evaluation(N : int, PH : int, name : str, X_test : np.array, Y_test : 
     -----
         N: input features sequence length
         PH: prediction horizon
-        name(str): name of the model 
+        name(str): name of the model
+        normalization: string indicating the type of normalization applied to the data 
         X_test: array with the input features of the test set
         Y_test: array with the ground truth of the test set
         pred_steps: number of predicted time steps, i.e., lenght of the output sequence
@@ -498,13 +499,19 @@ def model_evaluation(N : int, PH : int, name : str, X_test : np.array, Y_test : 
     model = tf.keras.models.load_model(name+'.h5')
     Y_pred_norm = model.predict(X_test)
 
-    # Denormalize the predictions 
-    Y_pred = Y_pred_norm*(np.max(X) - np.min(X)) + np.min(X)
-    X_test_denorm = X_test*(np.max(X) - np.min(X)) + np.min(X)
+    # If normalization was applied, denormalize the predictions 
+    if normalization == 'min-max':
+        Y_pred = Y_pred_norm*(np.max(X) - np.min(X)) + np.min(X)
+        X_test_denorm = X_test*(np.max(X) - np.min(X)) + np.min(X)
+        Y_test_denorm = Y_test*(np.max(X) - np.min(X)) + np.min(X)
+    elif normalization == None:
+        Y_pred = Y_pred_norm
+        X_test_denorm = X_test
+        Y_test_denorm = Y_test
 
     # Remove second dimension of Y_pred and Y_test to compute the metrics
     Y_pred = np.squeeze(Y_pred)
-    Y_test = np.squeeze(Y_test)
+    Y_test = np.squeeze(Y_test_denorm)
 
     # Metrics treating all the time steps at the same time 
     # Total RMSE
