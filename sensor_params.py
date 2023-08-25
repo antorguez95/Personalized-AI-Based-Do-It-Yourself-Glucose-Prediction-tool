@@ -21,7 +21,7 @@ from arch_params import *
 
 # Mikael sensor
 sensor_Mikael = {
-    "NAME" : "Mikael sensor",
+    "NAME" : "mikael_sensor",
     "INPUT_SIZE" : CGM_INPUT_POINTS,
     "INPUT_FEATURES" : 1,
     "STRIDE" : 1,

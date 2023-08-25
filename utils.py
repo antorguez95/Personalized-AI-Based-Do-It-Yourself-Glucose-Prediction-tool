@@ -948,31 +948,22 @@ def undersample_normal_range_outputs(X_ref : np.array,
 
     return X, Y
 
-def update_results_dictionary(parent_directory : str, experiments_folder : str,
-                              single_multi_step : str, N : int, step : int,  PH : int, data_partition : str, 
-                              normalization : str, under_over_sampling : str, name : str ) -> Dict: 
+def create_results_dictionary(parent_directory : str, experiments_folder : str): 
     """
-    Updates the results dictionary with the results of the experiment. If the dictionary does not exist, it creates one.
-    It consideres the dataset parameters, some preprocessing steps and the name of the employed Deep Learning model.
-    Models hyperparameters might be further included. 
+    Given the parent and experiments directory, a dictionary is created to 
+    store the results of the experiments. If already created, it is loaded. 
+    The format to save and load the dictionary is json.
 
-    Args: 
-    -----
-        parent_directory (str): path to the parent directory.
-        experiments_folder (str): name of the folder where the results dictionary is stored.
-        single_multi_step (str): 'single' or 'multi' step prediction.
-        N (int): input sequence length.
-        step (int): number of steps between each input in the generated dataset.
-        PH (int): prediction horizon.
-        data_partition (str): 'june-21', 'month-wise-4-folds' are the current possibilites
-        normalization (str): 'min_max' or None.
-        under_over_sampling (str): 'under', 'over' or None.
-        name (str): name of the employed Deep Learning model.
+    Args:
+    ----
+        parent_directory (str): Parent directory of the experiments folder.
+        experiments_folder (str): Experiments folder name.
     
     Returns:
-    --------
-        None    
-    """
+    -------
+        results_dictionary (dict): Dictionary to store the results of the experiments.
+
+    """ 
 
     # Store current directory 
     wd = os.getcwd()
@@ -989,21 +980,45 @@ def update_results_dictionary(parent_directory : str, experiments_folder : str,
         results_dictionary = {}
         print("Non-existing dictionary. A new one was created.\n")
 
-    # Create the correspondant dictionary entry considering all the parameters. If existing, overwrite it
-    results_dictionary['{}_N{}_step{}_PH{}_{}_{}_{}_{}'.format(single_multi_step, N, step, PH, data_partition, normalization, under_over_sampling, name)] =  {
-                                                            'RMSE' : 0,
-                                                            'MAE' : 0,
-                                                            'MAPE' : 0,
-                                                            'ISO' : 0,
-                                                            'Parker' : 0,
-                                                            'time_lag': 0 }
-
-    print("Dictionary entry created.\n")
-
-    # Save dictionary as json
-    with open('results_dictionary.json', 'w') as fp:
-        json.dump(results_dictionary, fp)                                                                                                                              
+        # Save dictionary as json
+        with open('results_dictionary.json', 'w') as fp:
+            json.dump(results_dictionary, fp)  
 
     # Go back to the original working directory
     os.chdir(wd)
+
+    return results_dictionary
+
+def get_dictionary_key(sensor : Dict, single_multi_step : str, N : int, step : int,  PH : int, data_partition : str, 
+                              normalization : str, under_over_sampling : str, name : str ) -> str: 
+    """
+    Get the dictionary key to uniquely store the results correspondant to the current dataset configuration.
+    It consideres the sensor, the dataset parameters, some preprocessing steps and the name of the employed
+    Deep Learning model. Models hyperparameters might be further included. 
+
+    Args: 
+    -----
+        parent_directory (str): path to the parent directory.
+        experiments_folder (str): name of the folder where the results dictionary is stored.
+        sensor (Dict): dictionary with the sensor information.
+        single_multi_step (str): 'single' or 'multi' step prediction.
+        N (int): input sequence length.
+        step (int): number of steps between each input in the generated dataset.
+        PH (int): prediction horizon.
+        data_partition (str): 'june-21', 'month-wise-4-folds' are the current possibilites
+        normalization (str): 'min_max' or None.
+        under_over_sampling (str): 'under', 'over' or None.
+        name (str): name of the employed Deep Learning model.
+    
+    Returns:
+    --------
+        key (str): key of the dictionary entry to further manage the results on it.    
+    """
+
+    # Create the correspondant dictionary empty entry considering all the parameters. If existing, overwrite it
+    key = '{}_{}_N{}_step{}_PH{}_{}_{}_{}_{}'.format(sensor["NAME"], single_multi_step, N, step, PH, data_partition, normalization,
+                                                        under_over_sampling, name)
+    print("Dictionary entry created.\n")
+
+    return key
 

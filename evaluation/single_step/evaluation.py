@@ -447,7 +447,7 @@ def parkes_EGA_chart(ground_truth : np.array, predictions : np.array, fold : str
 
     return percentage_AB, percentage_values, points_in_regions
 
-def model_evaluation(N : int, PH : int, name : str, normalization : str, X_test : np.array, Y_test : np.array, X : np.array) -> None: 
+def model_evaluation(N : int, PH : int, name : str, normalization : str, X_test : np.array, Y_test : np.array, X : np.array, plot_results : bool = False) -> None: 
     """
     Model evaluation for a single-step CGM forecasting. Since the models are trained
     with a min-max normalization between 0-1, in the test set the samples are
@@ -471,6 +471,7 @@ def model_evaluation(N : int, PH : int, name : str, normalization : str, X_test 
         Y_test: array with the ground truth of the test set
         predictions: array with the predictions of glucose values of a given model
         X: array with the input features of the whole dataset (train + test) to min-max denormalize the predictions
+        plot_results: boolean indicating if the results must be plotted or not. Default is False.
 
         
     Returns:
@@ -486,6 +487,12 @@ def model_evaluation(N : int, PH : int, name : str, normalization : str, X_test 
     # Create 'evaluation' folder is it does not exist 
     if not os.path.exists(os.getcwd()+r"\evaluation"):
         os.mkdir(os.getcwd()+r"\evaluation")
+    
+    # If flag set to False, do not plot
+    if plot_results == False:
+        plt.ioff()
+    else: 
+        plt.ion()
 
     # Model prediction
     model = tf.keras.models.load_model(name+'.h5')
@@ -532,6 +539,8 @@ def model_evaluation(N : int, PH : int, name : str, normalization : str, X_test 
     plt.hist(Y_pred.flatten(), bins=100, alpha=0.5)
     plt.legend(['GT', 'Prediction'])
     plt.savefig(name+'_histograms.png', dpi=300, bbox_inches='tight')
+    # Plot if flag set to True
+
 
     # Save a chunk of data to plot as an example
     plt.figure(figsize = (20,10))
@@ -540,3 +549,5 @@ def model_evaluation(N : int, PH : int, name : str, normalization : str, X_test 
     plt.legend()
     # Save the plot
     plt.savefig(name+'.png', dpi=300, bbox_inches='tight')   
+    # Plot if flag set to True
+

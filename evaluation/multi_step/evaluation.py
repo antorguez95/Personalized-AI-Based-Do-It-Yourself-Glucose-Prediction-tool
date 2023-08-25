@@ -22,6 +22,7 @@ from shapely.geometry import Point
 from shapely.geometry.polygon import Polygon
 import os
 import tensorflow as tf
+from typing import Dict
 
 from evaluation.multi_step.Parkes_EGA_boundaries_T1DM import *
 
@@ -453,7 +454,9 @@ def parkes_EGA_chart(ground_truth : np.array, predictions : np.array, fold : str
 
     return percentage_AB, percentage_values, points_in_regions
 
-def model_evaluation(N : int, PH : int, name : str, normalization : str, X_test : np.array, Y_test : np.array, pred_steps : int, X : np.array) -> None: 
+def model_evaluation(results_dictionary : Dict, N : int, PH : int, name : str, normalization : str,
+                    X_test : np.array, Y_test : np.array, pred_steps : int, X : np.array, 
+                    plot_results : bool = False) -> None: 
     """
     Model evaluation for a multi-step (Seq-to-seq) CGM forecasting. If the
     models are trained with normalized, in the test set the samples are denormalized
@@ -478,6 +481,7 @@ def model_evaluation(N : int, PH : int, name : str, normalization : str, X_test 
         pred_steps: number of predicted time steps, i.e., lenght of the output sequence
         predictions: array with the predictions of glucose values of a given model
         X: array with the input features of the whole dataset (train + test) to min-max denormalize the predictions
+        plot_results: boolean indicating if the results must be plotted or not. Defaults to False.
 
         
     Returns:
@@ -494,6 +498,12 @@ def model_evaluation(N : int, PH : int, name : str, normalization : str, X_test 
     # Create 'evaluation' folder is it does not exist 
     if not os.path.exists(os.getcwd()+r"\evaluation"):
         os.mkdir(os.getcwd()+r"\evaluation")
+    
+    # If flag set to False, do not plot
+    if plot_results == False:
+        plt.ioff()
+    else: 
+        plt.ion()
 
     # Model prediction
     model = tf.keras.models.load_model(name+'.h5')
@@ -574,8 +584,11 @@ def model_evaluation(N : int, PH : int, name : str, normalization : str, X_test 
     # iso_perc, parkerAB_perc= iso_percentage_metrics(Y_test, Y_pred)
 
     for i in range(pred_steps):
-        a, b, c = bgISOAcceptableZone(ground_truth = Y_test[:,i], predictions = Y_pred[:,i], fold = name+'step'+str(i+1)+'_himar-rep', step=i, plot = True)
-        a, b, c = parkes_EGA_chart(ground_truth = Y_test[:,i], predictions = Y_pred[:,i], fold =name+'step'+str(i+1)+'_himar-rep', step=i)
+        iso_perc_in, _, _ = bgISOAcceptableZone(ground_truth = Y_test[:,i], predictions = Y_pred[:,i], fold = name+'step'+str(i+1)+'_himar-rep', step=i, plot = True)
+        parkerAB_perc, _, _ = parkes_EGA_chart(ground_truth = Y_test[:,i], predictions = Y_pred[:,i], fold =name+'step'+str(i+1)+'_himar-rep', step=i)
+    
+    # Store results in a dictionary to further add it to the results dictionary 
+    results = {'RMSE': rmse.tolist(), 'MAE': mae.tolist(), 'MAPE': mape.tolist(), 'ISO': iso_perc_in.tolist(), 'PARKES': parkerAB_perc.tolist(), 'time_lag' : 0}
 
     # Plot histograms of predictions and ground truth 
     plt.figure(figsize = (10,5)) 
@@ -619,4 +632,6 @@ def model_evaluation(N : int, PH : int, name : str, normalization : str, X_test 
         plt.plot(np.linspace(N-1,N-1+round(PH/5), round(PH/5)), Y_pred[i,:], label = 'Y_pred') # for LSTM
         plt.legend()
         # Save figure
-        plt.savefig(name+'_sample'+str(i)+'.png', dpi=300, bbox_inches='tight')   
+        plt.savefig(name+'_sample'+str(i)+'.png', dpi=300, bbox_inches='tight') 
+
+    return results   
