@@ -3,6 +3,7 @@
 ## What's in this repository?
 
 Our work enclosed in the WARIFA project :O
+:)
 
 ## Requirements 
 
