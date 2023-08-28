@@ -1,5 +1,11 @@
 # T1DM_WARIFA
 
+## What's in this repository?
+
+Our work enclosed in the WARIFA project
+
+## Requirements 
+
 `conda create -n T1DM_WARIFA python=3.10`
 
 `conda install -c anaconda pandas`
