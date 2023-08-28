@@ -2,7 +2,7 @@
 
 ## What's in this repository?
 
-Our work enclosed in the WARIFA project
+Our work enclosed in the WARIFA project :O
 
 ## Requirements 
 
