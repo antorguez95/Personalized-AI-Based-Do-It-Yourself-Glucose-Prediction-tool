@@ -25,6 +25,8 @@ import tensorflow as tf
 
 from evaluation.single_step.Parkes_EGA_boundaries_T1DM import *
 
+from models.training import ISO_adapted_loss
+
 
 def bgISOAcceptableZone(ground_truth : np.array, predictions: np.array,  fold = str, plot : bool = False) -> Tuple[int, bool]:
     
@@ -447,13 +449,52 @@ def parkes_EGA_chart(ground_truth : np.array, predictions : np.array, fold : str
 
     return percentage_AB, percentage_values, points_in_regions
 
-def model_evaluation(N : int, PH : int, name : str, normalization : str, X_test : np.array, Y_test : np.array, X : np.array, plot_results : bool = False) -> None: 
+def time_lag(ground_truth : np.array, predictions : np.array) -> Tuple[float, float]:
+    
     """
-    Model evaluation for a single-step CGM forecasting. Since the models are trained
-    with a min-max normalization between 0-1, in the test set the samples are
-    denormalized in order to compare obtained results with those available in the 
-    literature. Metrics are evaluated overall sequence and time step by time step,
-    except for the ISO [1] and Parker [2] percentages that are computed only step by step.
+    As done in the GluNet framework [1], this function computes the time lag between
+    the ground truth and the predictions. This calculation is based on the autocorrelation.
+    The time lag is computed as the time shift that maximizes the autocorrelation bewteen 
+    the prediction and the original signal. A lag equals than the PH could mean that the models
+    is not actually predicting, but just giving the last value of the sequence. 
+    
+    Args:
+    -----
+        ground_truth: array with the ground truth to be compared with the predictions
+        predictions: array with the predictions of glucose values of a given model
+    
+    Returns:
+    --------
+        lag: time lag between the ground truth and the predictions
+        PSD: power spectral density of the autocorrelation function
+    
+    References:
+    -----------
+        [1] K. Li, C. Liu, T. Zhu, P. Herrero and P. Georgiou, "GluNet: A Deep Learning Framework for
+        Accurate Glucose Forecasting," in IEEE Journal of Biomedical and Health Informatics,
+        vol. 24, no. 2, pp. 414-423, Feb. 2020, doi: 10.1109/JBHI.2019.2931842.
+
+
+    """
+
+    # Compute the autocorrelation
+    autocorr = np.correlate(ground_truth, predictions, mode='full')
+
+    
+    
+    lag = []
+    PSD = []
+    
+    return lag, PSD
+
+def model_evaluation(N : int, PH : int, name : str, normalization : str, X_test : np.array, Y_test : np.array, X : np.array,
+                    loss_function : str, plot_results : bool = False) -> None: 
+    """
+    Model evaluation for a single-step CGM forecasting. If the models are trained 
+    with normalized, in the test set the samples are denormalized in order to compare
+    obtained results with those available in the  literature. Metrics are evaluated
+    overall sequence and time step by time step, except for the ISO [1] and Parker [2]
+    percentages that are computed only step by step.
     Evaluated metrics are: 
     - RMSE
     - MAE
@@ -471,6 +512,7 @@ def model_evaluation(N : int, PH : int, name : str, normalization : str, X_test 
         Y_test: array with the ground truth of the test set
         predictions: array with the predictions of glucose values of a given model
         X: array with the input features of the whole dataset (train + test) to min-max denormalize the predictions
+        loss_function : str with the loss functions to load differently models trained with custom functions.
         plot_results: boolean indicating if the results must be plotted or not. Default is False.
 
         
@@ -494,8 +536,13 @@ def model_evaluation(N : int, PH : int, name : str, normalization : str, X_test 
     else: 
         plt.ion()
 
+    # Load model depending on the loss function
+    if loss_function == 'ISO_loss':
+        model = tf.keras.models.load_model(name+'.h5', custom_objects={'ISO_adapted_loss': ISO_adapted_loss})
+    else :
+        model = tf.keras.models.load_model(name+'.h5', custom_objects={'ISO_adapted_loss': ISO_adapted_loss})
+
     # Model prediction
-    model = tf.keras.models.load_model(name+'.h5')
     Y_pred_norm = model.predict(X_test)
 
     # If normalization was applied, denormalize the predictions 
@@ -530,8 +577,10 @@ def model_evaluation(N : int, PH : int, name : str, normalization : str, X_test 
     # Compute the metrics
     # iso_perc, parkerAB_perc= iso_percentage_metrics(Y_test, Y_pred)
 
-    a, b, c = bgISOAcceptableZone(ground_truth = Y_test, predictions = Y_pred, fold = 'himar-rep', plot = True)
-    a, b, c = parkes_EGA_chart(ground_truth = Y_test, predictions = Y_pred, fold = 'himar-rep')
+    iso_perc_in, b, c = bgISOAcceptableZone(ground_truth = Y_test, predictions = Y_pred, fold = 'himar-rep', plot = True)
+    parkerAB_perc, b, c = parkes_EGA_chart(ground_truth = Y_test, predictions = Y_pred, fold = 'himar-rep')
+
+    results = {'RMSE': rmse.tolist(), 'MAE': mae.tolist(), 'MAPE': mape.tolist(), 'ISO': iso_perc_in.tolist(), 'PARKES': parkerAB_perc.tolist()}#, 'time_lag' : time_lag.to_list()}
 
     # Plot histograms of predictions and ground truth 
     plt.figure(figsize = (10,5)) 
@@ -551,3 +600,183 @@ def model_evaluation(N : int, PH : int, name : str, normalization : str, X_test 
     plt.savefig(name+'.png', dpi=300, bbox_inches='tight')   
     # Plot if flag set to True
 
+    return results 
+
+def model_evaluation_refeed(N : int, PH : int, name : str, normalization : str, X_test : np.array, Y_test : np.array, X : np.array,
+                            loss_function : str, num_predictions : int = 1000, close_loop_steps : int = 5, plot_results : bool = False) -> None: 
+    """
+    Model evaluation for a single-step CGM forecasting, evaluating the model
+    with its last output. If the models are trained with normalized, in the test
+    set the samples are denormalized in order to compare obtained results with those
+    available in the  literature. Metrics are evaluated overall sequence and time step
+    by time step, except for the ISO [1] and Parker [2] percentages that are computed
+    only step by step. Evaluated metrics are: 
+    - RMSE
+    - MAE
+    - MAPE
+    - Percentage of values in the ISO 15197:2015 acceptable zone
+    - Percentage of values in the Parkes Error Grid Analysis acceptable zone  
+
+    Args:
+    -----
+        N: input features sequence length
+        PH: prediction horizon
+        name(str): name of the model 
+        normalization: string indicating the type of normalization applied to the data
+        X_test: array with the input features of the test set
+        Y_test: array with the ground truth of the test set
+        X: array with the input features of the whole dataset (train + test) to min-max denormalize the predictions
+        loss_function : str with the loss functions to load differently models trained with custom functions.
+        num_predictions : number of predictions to be evaluated with the close loop evaluation.
+        close_loop_steps : steps to give in the close loop evaluation before feed the model with real data. 
+        plot_results: boolean indicating if the results must be plotted or not. Default is False.
+
+        
+    Returns:
+    --------
+        None
+    
+    References:
+    -----------
+    [1] ISO 15197:2015
+    
+    """
+
+    # Create 'evaluation' folder is it does not exist 
+    if not os.path.exists(os.getcwd()+r"\evaluation_refeed"):
+        os.mkdir(os.getcwd()+r"\evaluation_refeed")
+    
+    # If flag set to False, do not plot
+    if plot_results == False:
+        plt.ioff()
+    else: 
+        plt.ion()
+
+    # Load model depending on the loss function
+    if loss_function == 'ISO_loss':
+        model = tf.keras.models.load_model(name+'.h5', custom_objects={'ISO_adapted_loss': ISO_adapted_loss})
+    else :
+        model = tf.keras.models.load_model(name+'.h5', custom_objects={'ISO_adapted_loss': ISO_adapted_loss})    
+    
+    # Normal point by point prediction to compare to the close loop prediction
+    # Create empty numpy 
+    Y_pred_norm_normal = np.empty((0))
+
+    # Loop to iterate over all the X test vector with jumps equal to the close loop iterations
+    # for i in range(0, 1000, close_loop_iterations):
+    for i in range(0, num_predictions):
+
+        input_seq = X_test[i].reshape(1,N,1)
+                        
+        # Model prediction 
+        pred = model.predict(input_seq)
+
+        # Add the prediction to the Y_pred_norm vector
+        Y_pred_norm_normal = np.append(Y_pred_norm_normal, pred)
+    
+    # Close-loop evaluation
+    # Create empty numpy 
+    Y_pred_norm_cl = np.empty((0))
+
+    # Loop to iterate over all the X test vector with jumps equal to the close loop iterations
+    for i in range(0, num_predictions, close_loop_steps):
+
+        # Loop to generate one prediction at a time and make that prediction to be the last sample of the input sequence. 
+        for j in range(0, close_loop_steps): 
+
+            # When entering the loop, the input sequence is the full of the X_test vector
+            if j == 0:
+                input_seq = X_test[i+j].reshape(1,N,1)
+            else:
+                # Shift to the left the input sequence
+                input_seq = np.roll(input_seq, -1, axis=1)
+
+                # Replace last element with the prediction
+                input_seq[0][N-1] = pred
+
+                # Reshape to fit the Keras call
+                input_seq = input_seq.reshape(1,N,1)
+                
+            # Model prediction 
+            pred = model.predict(input_seq)
+
+            print("Prev sample: ", X_test[i+j][len(X_test[i+j])-1])
+            print("Prediction: ", pred)
+
+            # Add the prediction to the Y_pred_norm vector
+            Y_pred_norm_cl = np.append(Y_pred_norm_cl, pred)
+    
+    # If normalization was applied, denormalize the predictions 
+    if normalization == 'min-max':
+        Y_pred_normal = Y_pred_norm_normal*(np.max(X) - np.min(X)) + np.min(X)
+        Y_pred_cl = Y_pred_norm_cl*(np.max(X) - np.min(X)) + np.min(X)
+        X_test_denorm = X_test*(np.max(X) - np.min(X)) + np.min(X)
+        Y_test_denorm = Y_test*(np.max(X) - np.min(X)) + np.min(X)
+    elif normalization == None:
+        Y_pred_normal = Y_pred_norm_normal
+        Y_pred_cl = Y_pred_norm_cl
+        X_test_denorm = X_test
+        Y_test_denorm = Y_test
+
+    # Remove second dimension of Y_pred and Y_test to compute the metrics
+    Y_pred_normal = np.squeeze(Y_pred_normal)
+    Y_pred_cl = np.squeeze(Y_pred_cl)
+    Y_test = np.squeeze(Y_test_denorm)
+
+    # RMSE computation
+    rmse_normal= np.sqrt(np.square(np.subtract(Y_test,Y_pred_normal)).mean())
+    rmse_cl= np.sqrt(np.square(np.subtract(Y_test,Y_pred_cl)).mean())
+    print(name+ " Test RMSE (normal eval.):  ", str(rmse_normal))
+    print(name+ " Test RMSE (close loop eval.):  ", str(rmse_cl))
+
+    # MAE computation
+    mae_normal = np.mean(np.abs(Y_test-Y_pred_normal))
+    mae_cl = np.mean(np.abs(Y_test-Y_pred_cl))
+    print(name+ " Test MAE (normal eval.):  ", str(mae_normal))
+    print(name+ " Test MAE (close loop eval.):  ", str(mae_cl))
+
+    # MAPE computation
+    mape_normal= np.mean(np.abs((Y_test - Y_pred_normal) / Y_test)) * 100
+    mape_cl= np.mean(np.abs((Y_test - Y_pred_cl) / Y_test)) * 100
+    print(name+ " Test MAPE (normal eval.):  ", str(mape_normal))
+    print(name+ " Test MAPE (close loop eval.):  ", str(mape_cl))
+
+    # Go to the evaluation folder
+    os.chdir(os.getcwd()+r"\evaluation_refeed")
+
+    # Compute the metrics
+    # iso_perc, parkerAB_perc= iso_percentage_metrics(Y_test, Y_pred)
+
+    iso_perc_in_normal, b, c = bgISOAcceptableZone(ground_truth = Y_test, predictions = Y_pred_normal, fold = 'normal', plot = False)
+    iso_perc_in_cl, b, c = bgISOAcceptableZone(ground_truth = Y_test, predictions = Y_pred_cl, fold = 'close_loop', plot = False)
+
+    parkerAB_perc_normal, b, c = parkes_EGA_chart(ground_truth = Y_test, predictions = Y_pred_normal, fold = 'normal')
+    parkerAB_perc_cl, b, c = parkes_EGA_chart(ground_truth = Y_test, predictions = Y_pred_cl, fold = 'close_loop')
+
+    # Only plot if flag set to True
+    with plt.ion():
+    
+        # Plot histograms of predictions and ground truth 
+        plt.figure(figsize = (10,5)) 
+        plt.hist(Y_test.flatten(), bins=100, alpha=0.5)
+        plt.hist(Y_pred_normal.flatten(), bins=100, alpha=0.5)
+        plt.hist(Y_pred_cl.flatten(), bins=100, alpha=0.5)
+        plt.legend(['GT', 'Normal', 'Close loop'])
+        plt.savefig(name+'_histograms.png', dpi=300, bbox_inches='tight')
+        # Plot if flag set to True
+
+
+        # Save a chunk of data to plot as an example
+        plt.figure(figsize = (20,10))
+        plt.plot(Y_test[0:500], label = 'Y_test')
+        plt.plot(Y_pred_normal[0:500], label = 'Y_pred Normal')
+        plt.plot(Y_pred_cl[0:500], label = 'Y_pred Close loop')
+        plt.legend()
+        # Save the plot
+        plt.savefig(name+'.png', dpi=300, bbox_inches='tight')   
+        # Plot if flag set to True
+
+    results = {'Normal' : {'RMSE': rmse_normal.tolist(), 'MAE': mae_normal.tolist(), 'MAPE': mape_normal.tolist(), 'ISO': iso_perc_in_normal.tolist(), 'PARKES': parkerAB_perc_normal.tolist()},#, 'time_lag' : time_lag.to_list()}
+               'Close loop' : {'RMSE': rmse_cl.tolist(), 'MAE': mae_cl.tolist(), 'MAPE': mape_cl.tolist(), 'ISO': iso_perc_in_cl.tolist(), 'PARKES': parkerAB_perc_cl.tolist()}}#, 'time_lag' : time_lag.to_list()}
+
+    return results 

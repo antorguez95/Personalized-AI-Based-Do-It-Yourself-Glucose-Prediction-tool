@@ -518,22 +518,22 @@ def get_CGM_X_Y(CGM_data_dict: Dict, sensor : Dict, N: int, step: int,
         Y_times (np.array): datetime datatypes associated to Y
     """
 
-    # Set current directory as parent directory (code has been designed to have 'modular' paths)
-    parent_directory = os.getcwd()
+    # # Set current directory as parent directory (code has been designed to have 'modular' paths)
+    # parent_directory = os.getcwd()
 
-    # Create folder to save the experiments data
-    if not os.path.exists(parent_directory+experiments_folder):
-        os.makedirs(parent_directory+experiments_folder)
+    # # Create folder to save the experiments data
+    # if not os.path.exists(parent_directory+experiments_folder):
+    #     os.makedirs(parent_directory+experiments_folder)
 
-    os.chdir(parent_directory+experiments_folder)
+    # os.chdir(parent_directory+experiments_folder)
 
-    # Create a folder dependent on N, stride and step to save the data
-    experiment_path = r'\N%i_step%i_PH%i' % (N, step, round(PH/sensor["SAMPLE_PERIOD"]))
-    if not os.path.exists(parent_directory+experiments_folder+experiment_path):
-        os.makedirs(parent_directory+experiments_folder+experiment_path)
+    # # Create a folder dependent on N, stride and step to save the data
+    # experiment_path = r'\N%i_step%i_PH%i' % (N, step, round(PH/sensor["SAMPLE_PERIOD"]))
+    # if not os.path.exists(parent_directory+experiments_folder+experiment_path):
+    #     os.makedirs(parent_directory+experiments_folder+experiment_path)
 
-    # Change to that directory 
-    os.chdir(parent_directory+experiments_folder+experiment_path)
+    # # Change to that directory 
+    # os.chdir(parent_directory+experiments_folder+experiment_path)
 
     # Variable to store CGM and times as a single continue value to further split them as desired
     time_concat = np.array(0)
@@ -636,6 +636,10 @@ def get_CGM_X_Y(CGM_data_dict: Dict, sensor : Dict, N: int, step: int,
         X_times[i,:] = time_concat[X_init_list[i] : X_end_list[i]]
         Y_times[i] = time_concat[Y_idxs_list[i]] 
 
+    ################################
+    print(os.getcwd())
+    ################################
+    
     # Save training dataset summary in a txt file
     with open('dataset_summary.txt', 'w') as f:
         f.write('N = {}\n'.format(N))
@@ -686,22 +690,22 @@ def get_CGM_X_Y_multistep(CGM_data_dict: Dict, glucose_sensor : Dict, N: int, st
         Y_times (np.array): datetime datatypes associated to Y
     """
 
-    # Set current directory as parent directory (code has been designed to have 'modular' paths)
-    parent_directory = os.getcwd()
+    # # Set current directory as parent directory (code has been designed to have 'modular' paths)
+    # parent_directory = os.getcwd()
 
-    # Create folder to save the experiments data
-    if not os.path.exists(parent_directory+experiments_folder):
-        os.makedirs(parent_directory+experiments_folder)
+    # # Create folder to save the experiments data
+    # if not os.path.exists(parent_directory+experiments_folder):
+    #     os.makedirs(parent_directory+experiments_folder)
 
-    os.chdir(parent_directory+experiments_folder)
+    # os.chdir(parent_directory+experiments_folder)
 
-    # Create a folder dependent on N, stride and step to save the data
-    experiment_path = r'\N%i_stride%i_step%i' % (N, step, prediction_horizon/5)
-    if not os.path.exists(parent_directory+experiments_folder+experiment_path):
-        os.makedirs(parent_directory+experiments_folder+experiment_path)
+    # # Create a folder dependent on N, stride and step to save the data
+    # experiment_path = r'\N%i_stride%i_step%i' % (N, step, prediction_horizon/5)
+    # if not os.path.exists(parent_directory+experiments_folder+experiment_path):
+    #     os.makedirs(parent_directory+experiments_folder+experiment_path)
 
-    # Change to that directory 
-    os.chdir(parent_directory+experiments_folder+experiment_path)
+    # # Change to that directory 
+    # os.chdir(parent_directory+experiments_folder+experiment_path)
 
     # Variable to store CGM and times as a single continue value to further split them as desired
     time_concat = np.array(0)
@@ -891,12 +895,12 @@ def undersample_normal_range_outputs(X_ref : np.array,
 
             print("Number of normal range points to train before undersampling: ", normal_count)
             print("Number of hyperglycemia points to train before undersampling: ", hyper_count)
-            print("Number of hypoglycemia points to train before undersampling: ", hypo_count)
+            print("Number of hypoglycemia points to train before undersampling: ", hypo_count, "\n")
 
             # Percentage of samples in each range 
             print("Percentage of samples in the normal range: ", round(normal_count / Y.shape[0]*100, 2))
             print("Percentage of samples in the hyperglycamia range: ", round(hyper_count / Y.shape[0]*100, 2))
-            print("Percentage of samples in the hypoglycamia range: ", round(hypo_count / Y.shape[0]*100, 2))
+            print("Percentage of samples in the hypoglycamia range: ", round(hypo_count / Y.shape[0]*100, 2), "\n")
 
         # Indices of the samples in each range
         normal_Y_idxs = np.where(np.any((Y >= hypo_th) & (Y <= hyper_th), axis=1))[0]
@@ -914,12 +918,12 @@ def undersample_normal_range_outputs(X_ref : np.array,
 
             print("Number of normal range points to train before undersampling: ", normal_count)
             print("Number of hyperglycemia points to train before undersampling: ", hyper_count)
-            print("Number of hypoglycemia points to train before undersampling: ", hypo_count)
+            print("Number of hypoglycemia points to train before undersampling: ", hypo_count, "\n")
 
             # Percentage of samples in each range 
             print("Percentage of samples in the normal range: ", round(normal_count / Y.shape[0]*100, 2))
             print("Percentage of samples in the hyperglycamia range: ", round(hyper_count / Y.shape[0]*100, 2))
-            print("Percentage of samples in the hypoglycamia range: ", round(hypo_count / Y.shape[0]*100, 2))
+            print("Percentage of samples in the hypoglycamia range: ", round(hypo_count / Y.shape[0]*100, 2), "\n")
 
         # Indices of the samples in each range
         normal_Y_idxs = np.unique(np.where((Y >= hypo_th) & (Y <= hyper_th))[0])
@@ -930,7 +934,7 @@ def undersample_normal_range_outputs(X_ref : np.array,
     np.random.seed(random_seed)
 
     # Undersampling to randomly select idx from the normal values with a random seed
-    normal_Y_idxs = np.random.choice(normal_Y_idxs, size=hyper_count*undersampling_factor, replace=False)
+    normal_Y_idxs = np.random.choice(normal_Y_idxs, size=hyper_count*undersampling_factor, replace=True)
 
     # X and Y train undersampled with the obtained indices
     X = np.concatenate((X[normal_Y_idxs], X[hypo_Y_idxs], X[hyper_Y_idxs]))
@@ -990,7 +994,7 @@ def create_results_dictionary(parent_directory : str, experiments_folder : str):
     return results_dictionary
 
 def get_dictionary_key(sensor : Dict, single_multi_step : str, N : int, step : int,  PH : int, data_partition : str, 
-                              normalization : str, under_over_sampling : str, name : str ) -> str: 
+                              normalization : str, under_over_sampling : str, name : str, loss_function : str) -> str: 
     """
     Get the dictionary key to uniquely store the results correspondant to the current dataset configuration.
     It consideres the sensor, the dataset parameters, some preprocessing steps and the name of the employed
@@ -1009,6 +1013,7 @@ def get_dictionary_key(sensor : Dict, single_multi_step : str, N : int, step : i
         normalization (str): 'min_max' or None.
         under_over_sampling (str): 'under', 'over' or None.
         name (str): name of the employed Deep Learning model.
+        loss_function (str): loss function employed to train the model.
     
     Returns:
     --------
@@ -1016,8 +1021,8 @@ def get_dictionary_key(sensor : Dict, single_multi_step : str, N : int, step : i
     """
 
     # Create the correspondant dictionary empty entry considering all the parameters. If existing, overwrite it
-    key = '{}_{}_N{}_step{}_PH{}_{}_{}_{}_{}'.format(sensor["NAME"], single_multi_step, N, step, PH, data_partition, normalization,
-                                                        under_over_sampling, name)
+    key = '{}_{}_N{}_step{}_PH{}_{}_{}_{}_{}_{}'.format(sensor["NAME"], single_multi_step, N, step, PH, data_partition, normalization,
+                                                        under_over_sampling, name, loss_function)
     print("Dictionary entry created.\n")
 
     return key

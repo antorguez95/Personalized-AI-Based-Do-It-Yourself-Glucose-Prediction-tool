@@ -119,7 +119,7 @@ def get_model(N: int = CGM_INPUT_POINTS, input_features: int = NUMBER_OF_INPUT_S
               tau : int = 1, kernel_size : int = 3, dilation_rate : int = 1) -> Model:
     
     """Returns a one step regression model based on the 1D-UNET described in [1]. Some modifications 
-    have been performed to adapt a segmentation model to a regresison model: activation functions,
+    have been performed to adapt a segmentation model to a regression model: activation functions,
     output dimension and the time distributed layers. Furthermore, the dilation in the convolutional 
     layers has been included in the encoding and decoding phase. The Prediction Horizon of the model 
     is defined by the previously generated training dataset since it does not influence

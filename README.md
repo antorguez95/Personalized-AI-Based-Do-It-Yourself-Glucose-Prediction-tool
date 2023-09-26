@@ -15,3 +15,14 @@ Our work enclosed in the WARIFA project :O
 `pip install pydot`
 `conda install -c anaconda graphviz`
 `conda install -c conda-forge shapely`
+
+## Included sensors
+
+Freestyle Libre
+
+## Input data 
+
+Glucose
+Insulin
+
+## How to include your model in this framework: 

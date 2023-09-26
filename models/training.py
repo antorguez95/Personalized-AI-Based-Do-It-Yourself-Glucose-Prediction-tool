@@ -29,7 +29,7 @@ import matplotlib.pyplot as plt
 # Add the parent directory to the path 
 import sys
 sys.path.append('..')
-from evaluation.multi_step.evaluation import bgISOAcceptableZone, parkes_EGA_chart
+# from evaluation.multi_step.evaluation import bgISOAcceptableZone, parkes_EGA_chart
 
 from typing import Tuple, Dict
 
@@ -39,59 +39,122 @@ from arch_params import *
 import pandas as pd
 import numpy as np
 
+# def ISO_adapted_loss(y_true: np.ndarray, y_pred: np.ndarray, n : int = 40, admisible_gamma : float = 0.1,
+#                     upper_bound_error : int = 14) -> float:
+def ISO_adapted_loss(y_true: tf.Tensor, y_pred: tf.Tensor) -> tf.Tensor:
+    """
+    Custom loss function adapted from the classic RMSE to force the model 
+    to have a larger amount of  CGM prediction points within the ISO [1] and
+    Parker [2] ranges.
 
-def iso_percentage_metrics(y_true: np.ndarray, y_pred: np.ndarray) -> Tuple[float, float]:
-    """This computes the positive percentage of the points within the acceptable
-    range according to the ISO___ [1]. It expects the arguments to be generated
-    during the Keras fit/evaluate runtime, so first it computes the obtained
-    glucose values and then computes both percentage calling ____ for the entire batch.  
-
-    Args:
+    Args: 
     -----
         y_true: The true glucose values.
         y_pred: The predicted glucose values.
+        n : orden del comportamiento exponencial del termino de confinamiento ("filtro"). Fuera de la region de interes Default : 40.
+        admisible_gamma : aportacion de de termino de confinamiento (ke2n) en la region de interes. Default : 0.1.   
+        upper_bound_error : limite superior en la region de interes. Default : 14.
     
     Returns:
     --------
-        iso_perc: The percentage of points within the acceptable range.
-        parker_perc: The percentage of points within the acceptable range in the Parker Grid.
+        loss: The loss value.
 
     References:
     -----------
-        [1] ISO __________
-    """
-    # If the batch size is None, return 0 for both metrics
-    if y_true.shape[0] == None:
-        return 0, 0
-    
-    # for i in tqdm(range(y_true.shape[0]), desc="Computing PPV and Sens"):
+        [1] ISO
+        [2] Parker
 
-    # Compute the ISO and Parker percentages
-    iso_percentage, _ , _= bgISOAcceptableZone(y_true, y_pred)
-    parker_percentage, _, _= parkes_EGA_chart(y_true, y_pred, "_")
-    
-    return iso_percentage, parker_percentage
-
-class CustomMetrics(tf.keras.callbacks.Callback):
-    """Custom callback to calculate the positive predicted value and sensitivity
-    metrics in the validation data after each epoch.
     """
 
-    def __init__(self, data, prefix=''):
-        super(CustomMetrics, self).__init__()
-        self.data = data
-        self.prefix = prefix
-        self.iso_perc = []
-        self.parker_perc = []
+    n = tf.constant(40.0, dtype=tf.float32)
+    admisible_gamma = tf.constant(0.1, dtype=tf.float32)
+    upper_bound_error = tf.constant(14.0, dtype=tf.float32)
+    
+    # N is the maximum between 1 and y_true/100
+    N = tf.math.maximum(y_true/100, 1)
+    # N = np.maximum(y_true/100, 1)
 
-    def on_epoch_end(self, epoch, logs=None):
+    # Error is prediction - true value
+    e = y_pred - y_true
 
-        x, y = self.data
-        _iso_percentage, _parker_percentage = iso_percentage_metrics(y, self.model.predict(x))
+    # Normalized error
+    e_norm = e/N
+
+    # Squared the Error between true and predicted values
+    e2 = tf.math.square(e_norm)
+    # e2 = np.square(e_norm)
+
+    # K is a constant that multiplies admisible_sigma and upper_bound_error
+    # K = admisible_gamma/(tf.math.pow(upper_bound_error, 2*n)) 
+    K = admisible_gamma/(tf.math.pow(upper_bound_error, 2*n)) 
+    # K = admisible_gamma/(np.power(upper_bound_error, 2*n))
+
+    # Error powered 2*n
+    e2n = tf.math.pow(e_norm, 2*n)
+    # e2n = np.power(e_norm, 2*n)
+
+    # Final formula
+    ISO_error = e2 + K*e2n
+
+    return ISO_error
+
+
+# def iso_percentage_metrics(y_true: np.ndarray, y_pred: np.ndarray) -> Tuple[float, float]:
+#     """This computes the positive percentage of the points within the acceptable
+#     range according to the ISO___ [1]. It expects the arguments to be generated
+#     during the Keras fit/evaluate runtime, so first it computes the obtained
+#     glucose values and then computes both percentage calling ____ for the entire batch.  
+
+#     Args:
+#     -----
+#         y_true: The true glucose values.
+#         y_pred: The predicted glucose values.
+    
+#     Returns:
+#     --------
+#         iso_perc: The percentage of points within the acceptable range.
+#         parker_perc: The percentage of points within the acceptable range in the Parker Grid.
+
+#     References:
+#     -----------
+#         [1] ISO __________
+#     """
+#     # If the batch size is None, return 0 for both metrics
+#     if y_true.shape[0] == None:
+#         return 0, 0
+    
+#     # for i in tqdm(range(y_true.shape[0]), desc="Computing PPV and Sens"):
+
+#     # Compute the ISO and Parker percentages
+#     iso_percentage, _ , _= bgISOAcceptableZone(y_true, y_pred)
+#     parker_percentage, _, _= parkes_EGA_chart(y_true, y_pred, "_")
+    
+#     return iso_percentage, parker_percentage
+
+# class CustomMetrics(tf.keras.callbacks.Callback):
+#     """Custom callback to calculate the positive predicted value and sensitivity
+#     metrics in the validation data after each epoch.
+#     """
+
+#     def __init__(self, data, prefix=''):
+#         super(CustomMetrics, self).__init__()
+#         self.data = data
+#         self.prefix = prefix
+#         self.mae = []
+#         self.mape = []
+#         # self.iso_perc = []
+#         # self.parker_perc = []
+
+#     def on_epoch_end(self, epoch, logs=None):
+
+#         x, y = self.data
+#         _mae = np.mean(np.abs(y-self.model.predict(x)), axis=0)
+#         _mape = np.mean(np.abs((y - self.model.predict(x)) / y), axis=0) * 100 
+#         #_iso_percentage, _parker_percentage = iso_percentage_metrics(y, self.model.predict(x))
         
-        self.iso_perc.append(_iso_percentage)
-        self.parker_perc.append(_parker_percentage)
-        print('- {}ISO %: {} - {}Parker %: {}'.format(self.prefix, _iso_percentage, self.prefix, _parker_percentage), end=' ')
+#         self.mae.append(_mae)
+#         self.mape.append(_mape)
+#         print('- {}ISO %: {} - {}Parker %: {}'.format(self.prefix, _mae, self.prefix, _mape), end=' ')
 
 def month_wise_4fold_cv(N : int, X: np.array, Y: np.array, X_times : np.array, training_partitions : Dict, 
                         shuffle : bool, verbose : int) -> None:
@@ -316,7 +379,9 @@ def train_model(sensor : Dict,
                 batch_size: int, 
                 lr: float,
                 fold : int,
-                verbose: int = 1) -> None: 
+                loss_function : str = 'root_mean_squared_error',
+                verbose : int = 1,
+                plot : bool = False) -> None: 
     
     """Train a previously loaded Deep Learning model using 
     the given data, and some model hyperparameters. 
@@ -333,6 +398,7 @@ def train_model(sensor : Dict,
         batch_size (int): Batch size.
         lr (float): Learning rate.
         fold (int): When training with cross-validation, the fold to train and save the model with its name. 
+        loss_function (str): Loss function to use. Defaults to 'root_mean_squared_error'.
         verbose (int): Verbosity level. Defaults to 1.
 
     Returns:
@@ -340,10 +406,24 @@ def train_model(sensor : Dict,
         None
     """
     
-    # Model compile 
-    model.compile(optimizer=tf.keras.optimizers.Adam(learning_rate=lr),
-                loss=tf.keras.losses.MeanSquaredError(), 
-                metrics=[tf.keras.metrics.RootMeanSquaredError()]) # Maybe we can explore more
+    # Avoid plotting 
+    if plot == False: 
+        plt.ioff()
+    else: 
+        plt.ion()
+    
+    # Compile model dependin on the loss function (for now it will be the same)
+    if loss_function == 'root_mean_squared_error':
+        model.compile(optimizer=tf.keras.optimizers.Adam(learning_rate=lr),
+                    loss=tf.keras.losses.MeanSquaredError(), 
+                    metrics=[tf.keras.metrics.RootMeanSquaredError(), ISO_adapted_loss]) 
+    
+    elif loss_function == 'ISO_loss':
+        model.compile(optimizer=tf.keras.optimizers.Adam(learning_rate=lr),
+                    loss=ISO_adapted_loss, 
+                    metrics=[tf.keras.metrics.RootMeanSquaredError(), ISO_adapted_loss])
+    else :
+        raise ValueError('The loss function {} is not implemented'.format(loss_function))
     
     # Modular path of the model. Current directory assumed to be the parent directory 
     dir = os.getcwd()
@@ -383,24 +463,31 @@ def train_model(sensor : Dict,
     # Annote the initial time
     t0 = time.time()
 
-    # Create a callback to evaluate the ISO percentages after each epoch   
-    custom_metrics_train = CustomMetrics([X, Y])
-    # callbacks.append(custom_metrics_train)
+    # Define delta for early stopping depending on the loss function
+    if loss_function == 'root_mean_squared_error':
+        delta = 0.05
+    
+    elif loss_function == 'ISO_loss':
+        delta = 0.0001
 
+    else :
+        raise ValueError('The loss function {} is not implemented'.format(loss_function))
+    
     # Callback to implement early stopping
-    callback = tf.keras.callbacks.EarlyStopping(monitor='root_mean_squared_error', 
-                                                min_delta =0.5,
-                                                patience=1, # epochs to wait until stop
+    callbacks = tf.keras.callbacks.EarlyStopping(monitor='loss', # monitor always the loss function
+                                                min_delta = delta,
+                                                patience=2, # epochs to wait until stop
                                                 mode = "min",
                                                 restore_best_weights=True,
                                                 )
+    
     # Model training
     history = model.fit(
             x=X,
             y=Y,
             batch_size=batch_size,
             epochs=epochs,
-            callbacks= callback,
+            callbacks= callbacks,
             verbose=verbose
         )
 
@@ -416,28 +503,24 @@ def train_model(sensor : Dict,
     with open(str(fold)+'_history.pkl', 'wb') as f:
         pickle.dump(history.history, f)
 
-    # Save custom metrics too
-    with open(str(fold)+'_custom_metrics_train.pkl', 'wb') as f:
-        pickle.dump({'ISO%': custom_metrics_train.iso_perc, 'Parker%': custom_metrics_train.parker_perc}, f)
-
     # Plot training and validation loss
-    fig, axs = plt.subplots(4,1, sharex=True, figsize=(10,5))
+    fig, axs = plt.subplots(2,1, sharex=True, figsize=(10,5))
     axs[0].plot(history.history['loss'], label='Training')
-    axs[0].set_ylabel('Loss, RMSE')
+    axs[0].set_ylabel(loss_function)
 
     axs[0].legend()
 
-    axs[1].plot(history.history['root_mean_squared_error'], label='Training')
-    axs[1].set_ylabel('RMSE')
+    print(history.history.keys())
+    
+    # Plot the other metric different from the loss function to evaluate 
+    if loss_function == 'root_mean_squared_error':
+        axs[1].plot(history.history['ISO_adapted_loss'], label='Training')
+        axs[1].set_ylabel('ISO_loss')
+    elif loss_function == 'ISO_loss':
+        axs[1].plot(history.history['root_mean_squared_error'], label='Training')
+        axs[1].set_ylabel('RMSE')
 
-    # Plot custom metrics in the two last axes
-    axs[2].plot(custom_metrics_train.iso_perc, label='Training')
-    axs[2].set_ylabel('ISO %')
-
-    axs[3].plot(custom_metrics_train.parker_perc, label='Training')
-    axs[3].set_ylabel('Parker %')
-
-    axs[-1].set_xlabel('Epoch')
+    axs[1].set_xlabel('Epoch')
 
     # Reduce the space between the subplots
     fig.subplots_adjust(hspace=0)
@@ -454,4 +537,4 @@ def train_model(sensor : Dict,
     model.save(dir+model_name)
 
     if verbose >= 1:
-        print('\tEnd of the training. Model saved in {}'.format(dir))
+        print('\n\tEnd of the training. Model saved in {}\n'.format(dir))
