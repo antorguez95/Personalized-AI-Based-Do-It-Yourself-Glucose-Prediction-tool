@@ -21,7 +21,7 @@ from typing import Dict
 from arch_params import *
 
 # Returns a CNN-model instance 
-def get_model(N: int = CGM_INPUT_POINTS, input_features: int = NUMBER_OF_INPUT_SIGNALS) -> Model:
+def get_model(N: int, input_features: int = 1) -> Model:
     """RReturns a LSTM [1] for CGM single step forecasting whose number of memory units 
     depends on the lenght of the input features (N).The Prediction Horizon of the model 
     is defined by the previously generated training dataset since it does not influence
@@ -29,8 +29,8 @@ def get_model(N: int = CGM_INPUT_POINTS, input_features: int = NUMBER_OF_INPUT_S
 
     Args:
     -----
-        N (int): Number of samples in the input tensor. Must be multiple of 2. Default: CGM_INPUT_POINTS.
-        input_features (int): Number of features in the input tensor. Default: NUMBER_OF_INPUT_SIGNALS.
+        N (int): Number of samples in the input tensor. Must be multiple of 2.
+        input_features (int): Number of features in the input tensor.
 
     
     Returns:

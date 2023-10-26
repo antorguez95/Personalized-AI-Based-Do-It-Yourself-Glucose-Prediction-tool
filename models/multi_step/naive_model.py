@@ -1,0 +1,44 @@
+# Copyright (C) 2023 Antonio Rodriguez
+# 
+# This file is part of T1DM_WARIFA.
+# 
+# T1DM_WARIFA is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+# 
+# T1DM_WARIFA is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+# 
+# You should have received a copy of the GNU General Public License
+# along with T1DM_WARIFA.  If not, see <http://www.gnu.org/licenses/>.
+
+import numpy as np
+from sensor_params import *
+from typing import *
+import copy
+
+def naive_model(X : np.array, pred_steps : int) -> np.array:
+    """Returns a naive model that predicts a sequence that it 
+    is just the input array shifted a number of positions equal to
+    Prediction Horizon (PH) / sampling period of the sensor.
+    This is just for comparison purposes
+
+    Args:
+    -----
+        X (np.array): Input tensor.
+        pred_steps(int): Number of points to predict, that corresponds to: PH/sampling frequency of
+        the sensor.
+
+    Returns:
+    --------
+        naive_prediction (np.array): Naive prediction.
+    """
+
+    # Take only the last PH/sensor["SAMPLE_PERIOD"] samples of the input array (Equivalent to make a prediction that is only a shift of the input array)
+    naive_prediction = copy.deepcopy(X)
+    naive_prediction = naive_prediction[:,-(round(pred_steps)):]
+
+    return naive_prediction

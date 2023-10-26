@@ -115,7 +115,7 @@ def decoding_block(x: tf.Tensor, residual: tf.Tensor, filters: int,
     return x
 
 # Returns a CNN-model instance 
-def get_model(sensor : Dict, N: int = CGM_INPUT_POINTS, input_features: int = NUMBER_OF_INPUT_SIGNALS,
+def get_model(sensor : Dict, N: int, input_features: int = 1,
               tau : int = 1, kernel_size : int = 3, dilation_rate : int = 1, PH : int = 5) -> Model:
     
     """Returns a one step regression model based on the 1D-UNET described in [1]. Some modifications 
@@ -128,8 +128,8 @@ def get_model(sensor : Dict, N: int = CGM_INPUT_POINTS, input_features: int = NU
     Args:
     -----
         sensor (Dict) : Dictionary with the sensor's information, such as the sampling frequency.
-        N (int): Number of samples in the input tensor. Must be multiple of 2. Default: CGM_INPUT_POINTS.
-        input_features (int): Number of features in the input tensor. Default: NUMBER_OF_INPUT_SIGNALS.
+        N (int): Number of samples in the input tensor. Must be multiple of 2.
+        input_features (int): Number of features in the input tensor. Default: 1.
         tau (int): Stride of the convolutional layers. Default: 1, as [1]
         kernel_size (int): Kernel size of the convolutional layers. Default: 3, as [1]
         dilation_rate (int): Dilation rate of the convolutional layers. Default: 1
@@ -151,34 +151,39 @@ def get_model(sensor : Dict, N: int = CGM_INPUT_POINTS, input_features: int = NU
     input = Input(shape=(N, input_features)) 
 
     # Encoding phase of the network: downsampling inputs 
-    x, res_1 = encoding_block(input, filters=input_features*2, kernel_size=kernel_size, stride = tau, activation = "relu", padding = "same", dilation_rate = dilation_rate, name_prefix = "enc_0")
-    x, res_2 = encoding_block(x, filters=input_features*4, kernel_size=kernel_size, stride = tau, activation = "relu", padding = "same", dilation_rate = dilation_rate, name_prefix = "enc_1")
-    x, res_3 = encoding_block(x, filters=input_features*8, kernel_size=kernel_size, stride = tau, activation = "relu", padding = "same", dilation_rate = dilation_rate, name_prefix = "enc_2")
-    x, res_4 = encoding_block(x, filters=input_features*16, kernel_size=kernel_size, stride = tau, activation = "relu", padding = "same", dilation_rate = dilation_rate, name_prefix = "enc_3")
+    x, res_1 = encoding_block(input, filters=input_features*2*2, kernel_size=kernel_size, stride = tau, activation = "relu", padding = "same", dilation_rate = dilation_rate, name_prefix = "enc_0")
+    x, res_2 = encoding_block(x, filters=input_features*4*2, kernel_size=kernel_size, stride = tau, activation = "relu", padding = "same", dilation_rate = dilation_rate, name_prefix = "enc_1")
+    x, res_3 = encoding_block(x, filters=input_features*8*2, kernel_size=kernel_size, stride = tau, activation = "relu", padding = "same", dilation_rate = dilation_rate, name_prefix = "enc_2")
+    x, res_4 = encoding_block(x, filters=input_features*16*2, kernel_size=kernel_size, stride = tau, activation = "relu", padding = "same", dilation_rate = dilation_rate, name_prefix = "enc_3")
 
     # Intermediate layer 
     # 2 x ( Conv + ReLU )
-    x = layers.Conv1D(filters=input_features*32, kernel_size=kernel_size, strides=1, activation="relu", padding="same", dilation_rate = dilation_rate, name='central_conv_relu_0')(x)
-    x = layers.Conv1D(filters=input_features*32, kernel_size=kernel_size, strides=1, activation="relu", padding="same", dilation_rate = dilation_rate, name='central_conv_relu_1')(x)
+    x = layers.Conv1D(filters=input_features*32*2, kernel_size=kernel_size, strides=1, activation="relu", padding="same", dilation_rate = dilation_rate, name='central_conv_relu_0')(x)
+    x = layers.Conv1D(filters=input_features*32*2, kernel_size=kernel_size, strides=1, activation="relu", padding="same", dilation_rate = dilation_rate, name='central_conv_relu_1')(x)
        
     # Decoding phase of the network: upsampling inputs
-    x = decoding_block(x, res_4, filters=input_features*16, kernel_size=kernel_size, stride = tau, activation = "relu", padding = "same", dilation_rate = dilation_rate, name_prefix = "dec_0")
-    x = decoding_block(x, res_3, filters=input_features*8, kernel_size=kernel_size, stride = tau, activation = "relu", padding = "same", dilation_rate = dilation_rate, name_prefix = "dec_1")
-    x = decoding_block(x, res_2, filters=input_features*4, kernel_size=kernel_size, stride = tau, activation = "relu", padding = "same", dilation_rate = dilation_rate, name_prefix = "dec_2")
-    x = decoding_block(x, res_1, filters=input_features*2, kernel_size=kernel_size, stride = tau, activation = "relu", padding = "same", dilation_rate = dilation_rate, name_prefix = "dec_3")
+    x = decoding_block(x, res_4, filters=input_features*16*2, kernel_size=kernel_size, stride = tau, activation = "relu", padding = "same", dilation_rate = dilation_rate, name_prefix = "dec_0")
+    x = decoding_block(x, res_3, filters=input_features*8*2, kernel_size=kernel_size, stride = tau, activation = "relu", padding = "same", dilation_rate = dilation_rate, name_prefix = "dec_1")
+    x = decoding_block(x, res_2, filters=input_features*4*2, kernel_size=kernel_size, stride = tau, activation = "relu", padding = "same", dilation_rate = dilation_rate, name_prefix = "dec_2")
+    x = decoding_block(x, res_1, filters=input_features*2*2, kernel_size=kernel_size, stride = tau, activation = "relu", padding = "same", dilation_rate = dilation_rate, name_prefix = "dec_3")
 
     # Output of the model (modified from [1] to switch from classification to regression) 
     x = layers.Conv1D(filters=1, kernel_size=kernel_size, strides=tau, padding="same", dilation_rate = dilation_rate, name='final_conv')(x)
 
     # Reshape x to be a 3D tensor
     x = layers.Reshape((input_features, N), input_shape=(N, input_features))(x)
+    # x = layers.Reshape((input_features, round(N/16)), input_shape=(round(N/16), input_features))(x)
 
     # Add timeDistributed dense layers
-    x = layers.TimeDistributed(layers.Dense(32))(x)
-    x = layers.TimeDistributed(layers.Dense(8))(x)
-    x = layers.TimeDistributed(layers.Dense(2))(x)
+    # x = layers.TimeDistributed(layers.Dense(N/2))(x)
+    # x = layers.TimeDistributed(layers.Dense(N/4))(x)
+    # x = layers.TimeDistributed(layers.Dense(8))(x)
+    # x = layers.TimeDistributed(layers.Dense(2))(x)
+    # x = layers.Dense(N/2)(x)
+    # x = layers.Dense(N/4)(x)
 
     # Once flattened, add a dense layer to predict the output
+    # output = layers.TimeDistributed(layers.Dense(PH/sensor["SAMPLE_PERIOD"]))(x)
     output = layers.Dense(PH/sensor["SAMPLE_PERIOD"])(x)
 
     # Define the model

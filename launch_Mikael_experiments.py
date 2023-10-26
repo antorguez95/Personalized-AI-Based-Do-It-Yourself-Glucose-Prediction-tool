@@ -22,6 +22,7 @@ import matplotlib.pyplot as plt
 import pickle
 from typing import Dict
 
+
 from utils import *
 
 from sensor_params import *
@@ -70,10 +71,15 @@ from models.multi_step.unet1D_nonCompres_regressor import get_model as get_unet1
 from models.multi_step.StackedLSTM import *
 from models.multi_step.StackedLSTM import get_model as get_StackedLSTM_multi_step
 
+from models.multi_step.naive_model import *
+from models.multi_step.naive_model import naive_model as get_naive_multi_step
+
 from evaluation.multi_step.evaluation import model_evaluation as multi_step_model_evaluation
 from evaluation.multi_step.evaluation import model_evaluation_close_loop as multi_step_model_evaluation_refeed
 
-# Dictionaty with the configurations to train all models 
+ 
+
+# Dictionary with the configurations to train all models 
 from training_configs import * 
 
 # Dataset path 
@@ -223,6 +229,11 @@ def launch_experiment(exp_config : Dict, kernel_size : int = 3, tau : int = 1, l
                                                 print("Y_test shape: ",str(Y_test.shape), "\n")
 
                                             elif data_partition == 'month-wise-4-folds':
+                                                ##################################################### CHANGED
+                                                X_train = X_norm[np.where(X_times[:,N-1] <= pd.to_datetime('2021-05-31 00:00:00'))[0]]
+                                                Y_train = Y_norm[np.where((Y_times[:,0] < pd.to_datetime('2021-05-30 23:59:59')))[0]]
+                                                X_test = X_norm[np.where((X_times[:,N-1] > pd.to_datetime('2021-06-01 00:00:00')))[0]]
+                                                Y_test = Y_norm[np.where((Y_times[:,0] > pd.to_datetime('2021-06-01 00:00:00')))[0]] # Left non-normalized to compute the metrics
                                                 pass
                                             else: 
                                                 raise ValueError("Partition name not valid")
@@ -237,34 +248,34 @@ def launch_experiment(exp_config : Dict, kernel_size : int = 3, tau : int = 1, l
                                             if single_multi_step == 'single':
                                                 if model_name == '1D-UNET':
                                                     model =  get_unet1D_single_step(N=N,
-                                                                    input_features = NUMBER_OF_INPUT_SIGNALS,
+                                                                    input_features = 1,
                                                                     tau=tau,
                                                                     kernel_size=kernel_size)
 
                                                 elif model_name == '1D-UNET-non-compres':
                                                     model =  get_unet1D_nonCompres_single_step(N=N,
-                                                                    input_features = NUMBER_OF_INPUT_SIGNALS,
+                                                                    input_features = 1,
                                                                     tau=tau,
                                                                     kernel_size=kernel_size)
 
                                                 elif model_name == 'DIL-1D-UNET':
                                                     model =  get_DIL_unet1D_single_step(N=N,
-                                                                    input_features = NUMBER_OF_INPUT_SIGNALS,
+                                                                    input_features = 1,
                                                                     tau=tau,
                                                                     kernel_size=kernel_size,
                                                                     dilation_rate=1)
 
                                                 elif model_name == 'LSTM':
                                                     model =  get_LSTM_single_step(N=int(N),
-                                                                    input_features = NUMBER_OF_INPUT_SIGNALS)
+                                                                    input_features = 1)
 
                                                 elif model_name == '1D-UNET-LSTM':
                                                     model =  get_unet1DLSTM_single_step(N=N,
-                                                                    input_features = NUMBER_OF_INPUT_SIGNALS)
+                                                                    input_features = 1)
 
                                                 elif model_name == 'StackedLSTM':
                                                     model = get_StackedLSTM_single_step(N=int(N),
-                                                                    input_features = NUMBER_OF_INPUT_SIGNALS)                                            
+                                                                    input_features = 1)                                            
 
                                                 else: 
                                                     raise ValueError("Model name not valid")
@@ -273,20 +284,20 @@ def launch_experiment(exp_config : Dict, kernel_size : int = 3, tau : int = 1, l
                                                 if model_name == '1D-UNET':
                                                     model =  get_unet1D_multi_step(sensor, 
                                                                     N=N,
-                                                                    input_features = NUMBER_OF_INPUT_SIGNALS,
+                                                                    input_features = 1,
                                                                     tau=tau,
                                                                     kernel_size=kernel_size)
 
                                                 elif model_name == '1D-UNET-non-compres':
                                                     model =  get_unet1D_nonCompres_multi_step(sensor, N=N,
-                                                                    input_features = NUMBER_OF_INPUT_SIGNALS,
+                                                                    input_features = 1,
                                                                     tau=tau,
                                                                     kernel_size=kernel_size,
                                                                     PH=PH)
 
                                                 elif model_name == 'DIL-1D-UNET':
                                                     model =  get_DIL_unet1D_multi_step(N=N,
-                                                                    input_features = NUMBER_OF_INPUT_SIGNALS,
+                                                                    input_features = 1,
                                                                     tau=tau,
                                                                     kernel_size=kernel_size,
                                                                     dilation_rate=1,
@@ -294,16 +305,17 @@ def launch_experiment(exp_config : Dict, kernel_size : int = 3, tau : int = 1, l
 
                                                 elif model_name == 'LSTM':
                                                     model =  get_LSTM_multi_step(sensor, N=int(N),
-                                                                    input_features = NUMBER_OF_INPUT_SIGNALS, PH=PH)
+                                                                    input_features = 1, PH=PH)
 
                                                 elif model_name == '1D-UNET-LSTM':
                                                     model =  get_unet1DLSTM_multi_step(sensor, N=N,
-                                                                    input_features = NUMBER_OF_INPUT_SIGNALS, PH=PH)
+                                                                    input_features = 1, PH=PH)
 
                                                 elif model_name == 'StackedLSTM':
                                                     model = get_StackedLSTM_multi_step(sensor, N=int(N),
-                                                                    input_features = NUMBER_OF_INPUT_SIGNALS, PH=PH)
-
+                                                                    input_features = 1, PH=PH)
+                                                elif model_name == 'naive':
+                                                    pass
                                                 else: 
                                                     raise ValueError("Model name not valid")
                                                                 
@@ -313,20 +325,25 @@ def launch_experiment(exp_config : Dict, kernel_size : int = 3, tau : int = 1, l
                                             elif single_multi_step == 'multi':
                                                 predicted_points = PH/sensor['SAMPLE_PERIOD']
 
-                                            # Model training 
-                                            train_model(sensor,
-                                                    model,
-                                                    X = X_train,
-                                                    Y = Y_train,
-                                                    N = N,
-                                                    predicted_points = predicted_points,
-                                                    epochs = epochs,
-                                                    batch_size = batch_size,
-                                                    lr = lr,
-                                                    fold = model_name,
-                                                    loss_function = loss_function,
-                                                    verbose = 1 
-                                                    ) 
+                                            if model_name != 'naive':
+                                                
+                                                # Model training 
+                                                train_model(sensor,
+                                                        model,
+                                                        X = X_train,
+                                                        Y = Y_train,
+                                                        N = N,
+                                                        predicted_points = predicted_points,
+                                                        epochs = epochs,
+                                                        batch_size = batch_size,
+                                                        lr = lr,
+                                                        fold = model_name,
+                                                        loss_function = loss_function,
+                                                        verbose = 1 
+                                                        ) 
+                                            elif model_name == 'naive':
+                                                print("Naive model evaluation. Training step not needed.")
+                                                pass
 
                                             # Model evaluation depending on the forecast type: single or multi step
                                             if single_multi_step == 'single':
@@ -344,7 +361,7 @@ def launch_experiment(exp_config : Dict, kernel_size : int = 3, tau : int = 1, l
                                             elif single_multi_step == 'multi':
 
                                                 # Non-refeed evaluation
-                                                results_normal_eval = multi_step_model_evaluation(N, PH, model_name, normalization, X_test, Y_test, X, loss_function)
+                                                results_normal_eval = multi_step_model_evaluation(N, PH, model_name, normalization, X_test, Y_test, predicted_points, X, loss_function)
                                                 os.chdir('..')
 
                                                 # # Refeed the model with the FIRST model output to evaluate the model. Aiming to reduce final error. 

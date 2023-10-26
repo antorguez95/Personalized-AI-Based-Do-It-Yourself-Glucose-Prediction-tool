@@ -16,7 +16,7 @@
 # along with T1DM_WARIFA.  If not, see <http://www.gnu.org/licenses/>.
 
 # ARCHITECTURE PARAMETERS
-CGM_INPUT_POINTS = 49 # 49 x SAMPLE PERIOD (time) 
-NUMBER_OF_INPUT_SIGNALS = 1 # CGM
-PREDICTION_TIME = 5 #minutes
+# CGM_INPUT_POINTS = 49 # 49 x SAMPLE PERIOD (time) 
+# NUMBER_OF_INPUT_SIGNALS = 1 # CGM
+# PREDICTION_TIME = 5 #minutes
 

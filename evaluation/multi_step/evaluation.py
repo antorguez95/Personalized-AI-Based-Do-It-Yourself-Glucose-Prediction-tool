@@ -26,6 +26,7 @@ from typing import Dict
 
 
 from models.training import ISO_adapted_loss
+from models.multi_step.naive_model import naive_model 
 
 from evaluation.multi_step.Parkes_EGA_boundaries_T1DM import *
 
@@ -488,7 +489,7 @@ def time_lag(ground_truth : np.array, predictions : np.array, PH : int, pred_ste
 
     return time_lag
 
-def model_evaluation(results_dictionary : Dict, N : int, PH : int, name : str, normalization : str,
+def model_evaluation(N : int, PH : int, name : str, normalization : str,
                     X_test : np.array, Y_test : np.array, pred_steps : int, X : np.array,
                     loss_function : str, plot_results : bool = False) -> None: 
     """
@@ -530,38 +531,59 @@ def model_evaluation(results_dictionary : Dict, N : int, PH : int, name : str, n
     
     """
 
-    # Create 'evaluation' folder is it does not exist 
-    if not os.path.exists(os.getcwd()+r"\evaluation"):
-        os.mkdir(os.getcwd()+r"\evaluation")
-    
     # If flag set to False, do not plot
     if plot_results == False:
         plt.ioff()
     else: 
         plt.ion()
 
-    # Load model depending on the loss function
-    if loss_function == 'ISO_loss':
-        model = tf.keras.models.load_model(name+'.h5', custom_objects={'ISO_adapted_loss': ISO_adapted_loss})
-    else :
-        model = tf.keras.models.load_model(name+'.h5', custom_objects={'ISO_adapted_loss': ISO_adapted_loss})
+    # If it is not a naive model, it is a Keras model. A different path is followed 
+    if 'naive' not in name:
+    
+        # Load model depending on the loss function
+        if loss_function == 'ISO_loss':
+            model = tf.keras.models.load_model(name+'.h5', custom_objects={'ISO_adapted_loss': ISO_adapted_loss})
+        else :
+            model = tf.keras.models.load_model(name+'.h5', custom_objects={'ISO_adapted_loss': ISO_adapted_loss})
 
-    # Model prediction
-    Y_pred_norm = model.predict(X_test)
+        # Model prediction
+        Y_pred_norm = model.predict(X_test)
 
-    # If normalization was applied, denormalize the predictions 
-    if normalization == 'min-max':
-        Y_pred = Y_pred_norm*(np.max(X) - np.min(X)) + np.min(X)
-        X_test_denorm = X_test*(np.max(X) - np.min(X)) + np.min(X)
-        Y_test_denorm = Y_test*(np.max(X) - np.min(X)) + np.min(X)
-    elif normalization == None:
-        Y_pred = Y_pred_norm
-        X_test_denorm = X_test
-        Y_test_denorm = Y_test
+        # If normalization was applied, denormalize the predictions 
+        if normalization == 'min-max':
+            Y_pred = Y_pred_norm*(np.max(X) - np.min(X)) + np.min(X)
+            X_test_denorm = X_test*(np.max(X) - np.min(X)) + np.min(X)
+            Y_test_denorm = Y_test*(np.max(X) - np.min(X)) + np.min(X)
+        elif normalization == None:
+            Y_pred = Y_pred_norm
+            X_test_denorm = X_test
+            Y_test_denorm = Y_test
 
-    # Remove second dimension of Y_pred and Y_test to compute the metrics
-    Y_pred = np.squeeze(Y_pred)
-    Y_test = np.squeeze(Y_test_denorm)
+        # Remove second dimension of Y_pred and Y_test to compute the metrics
+        Y_pred = np.squeeze(Y_pred)
+        Y_test = np.squeeze(Y_test_denorm)
+
+        # Go to previous directory 
+        os.chdir('..')
+    
+    elif 'naive' in name:
+        
+        # Naive model prediction (shift the input array)
+        Y_pred_norm = naive_model(X_test, round(pred_steps))
+    
+        # If normalization was applied, denormalize the predictions 
+        if normalization == 'min-max':
+            Y_pred = Y_pred_norm*(np.max(X) - np.min(X)) + np.min(X)
+            X_test_denorm = X_test*(np.max(X) - np.min(X)) + np.min(X)
+            Y_test_denorm = Y_test*(np.max(X) - np.min(X)) + np.min(X)
+        elif normalization == None:
+            Y_pred = Y_pred_norm
+            X_test_denorm = X_test
+            Y_test_denorm = Y_test
+
+        # Remove second dimension of Y_pred and Y_test to compute the metrics
+        Y_pred = np.squeeze(Y_pred)
+        Y_test = np.squeeze(Y_test_denorm)
 
     # Metrics treating all the time steps at the same time 
     # Total RMSE
@@ -592,12 +614,22 @@ def model_evaluation(results_dictionary : Dict, N : int, PH : int, name : str, n
     print(name+ " Test MAPE in each time step:  ", str(mape))
 
     # Time lag 
-    time_lag = time_lag(Y_test, Y_pred)
+    # time_lag = time_lag(Y_test, Y_pred)
+
+    # # Go to previous directory 
+    # os.chdir('..')
+
+    # Create 'evaluation' folder is it does not exist 
+    if not os.path.exists(os.getcwd()+r"\evaluation"):
+        os.mkdir(os.getcwd()+r"\evaluation")
+
+    # Go to the evaluation folder
+    os.chdir(os.getcwd()+r"\evaluation")
 
     # Plot RMSE, MAE and MAPE for each time step
     plt.figure(figsize = (10,5))
-    plt.plot(np.linspace(5,PH,pred_steps), rmse, '-o', label = 'RMSE', color = 'red', )
-    plt.plot(np.linspace(5,PH,pred_steps),mae, '-o', label = 'MAE', color = 'blue')
+    plt.plot(np.linspace(5,PH,round(pred_steps)), rmse, '-o', label = 'RMSE', color = 'red')
+    plt.plot(np.linspace(5,PH,round(pred_steps)),mae, '-o', label = 'MAE', color = 'blue')
 
     # Legend
     plt.legend()
@@ -608,7 +640,7 @@ def model_evaluation(results_dictionary : Dict, N : int, PH : int, name : str, n
 
     # Add right axis since MAPE is %
     plt.twinx()
-    plt.plot(np.linspace(5,PH,pred_steps),mape, '-o', label = 'MAPE', color = 'green')
+    plt.plot(np.linspace(5,PH,round(pred_steps)),mape, '-o', label = 'MAPE', color = 'green')
     plt.ylabel('MAPE (%)')
 
     # Set y limits bewteen 0 and 100
@@ -618,20 +650,22 @@ def model_evaluation(results_dictionary : Dict, N : int, PH : int, name : str, n
     plt.legend()
 
     # Save the figure
-    plt.savefig(name+'.png', dpi=300, bbox_inches='tight')
-
-    # Go to the evaluation folder
-    os.chdir(os.getcwd()+r"\evaluation")
+    plt.savefig(name+'_multistep_metrics.png', dpi=300, bbox_inches='tight')
 
     # Compute the metrics once per time step
     # iso_perc, parkerAB_perc= iso_percentage_metrics(Y_test, Y_pred)
 
-    for i in range(pred_steps):
-        iso_perc_in, _, _ = bgISOAcceptableZone(ground_truth = Y_test[:,i], predictions = Y_pred[:,i], fold = name+'step'+str(i+1)+'_himar-rep', step=i, plot = True)
-        parkerAB_perc, _, _ = parkes_EGA_chart(ground_truth = Y_test[:,i], predictions = Y_pred[:,i], fold =name+'step'+str(i+1)+'_himar-rep', step=i)
+    iso_percs = []
+    parkerAB_percs = []
+    
+    for i in range(round(pred_steps)):
+        iso_perc_in, _, _ = bgISOAcceptableZone(ground_truth = Y_test[:,i], predictions = Y_pred[:,i], fold = name+'step'+str(i+1), step=i, plot=True)
+        parkerAB_perc, _, _ = parkes_EGA_chart(ground_truth = Y_test[:,i], predictions = Y_pred[:,i], fold =name+'step'+str(i+1), step=i)
+        iso_percs.append(iso_perc_in)
+        parkerAB_percs.append(parkerAB_perc)
     
     # Store results in a dictionary to further add it to the results dictionary 
-    results = {'RMSE': rmse.tolist(), 'MAE': mae.tolist(), 'MAPE': mape.tolist(), 'ISO': iso_perc_in.tolist(), 'PARKES': parkerAB_perc.tolist(), 'time_lag' : time_lag.to_list()}
+    results = {'RMSE': rmse.tolist(), 'MAE': mae.tolist(), 'MAPE': mape.tolist(), 'ISO': iso_percs, 'PARKES': parkerAB_percs}#, 'time_lag' : time_lag.to_list()}
 
     # Plot histograms of predictions and ground truth 
     plt.figure(figsize = (10,5)) 
@@ -653,8 +687,8 @@ def model_evaluation(results_dictionary : Dict, N : int, PH : int, name : str, n
 
     # Save a chunk of data to plot as an example of the first predicted time step
     plt.figure(figsize = (20,10))
-    plt.plot(Y_test[0:500,pred_steps-1], label = 'Y_test')
-    plt.plot(Y_pred[0:500,pred_steps-1], label = 'Y_pred')
+    plt.plot(Y_test[0:500,round(pred_steps)-1], label = 'Y_test')
+    plt.plot(Y_pred[0:500,round(pred_steps)-1], label = 'Y_pred')
     # Set title
     plt.title('First 500 samples of the last predicted time step')
     # Legend
@@ -670,16 +704,16 @@ def model_evaluation(results_dictionary : Dict, N : int, PH : int, name : str, n
     # Plot the X_test, and the difference between Y_test and Y_pred
         plt.figure(figsize = (20,10))
         plt.plot(X_test_denorm[i, :], label = 'X_test')
-        plt.plot(np.linspace(N-1,N-1+round(PH/5), round(PH/5)), Y_test[i, :], label = 'Y_test')
+        plt.plot(np.linspace(N-1,N-1+round(pred_steps), round(pred_steps)), Y_test[i, :], label = 'Y_test')
         # plt.plot(np.linspace(143,149, 6), Y_pred[i, 0,:], label = 'Y_pred')
-        plt.plot(np.linspace(N-1,N-1+round(PH/5), round(PH/5)), Y_pred[i,:], label = 'Y_pred') # for LSTM
+        plt.plot(np.linspace(N-1,N-1+round(pred_steps), round(pred_steps)), Y_pred[i,:], label = 'Y_pred') # for LSTM
         plt.legend()
         # Save figure
         plt.savefig(name+'_sample'+str(i)+'.png', dpi=300, bbox_inches='tight') 
 
     return results  
 
-def model_evaluation_close_loop(results_dictionary : Dict, N : int, PH : int, name : str, normalization : str,
+def model_evaluation_close_loop(N : int, PH : int, name : str, normalization : str,
                     X_test : np.array, Y_test : np.array, pred_steps : int, X : np.array, loss_function : str,  
                     plot_results : bool = False) -> None: 
     """
@@ -785,7 +819,7 @@ def model_evaluation_close_loop(results_dictionary : Dict, N : int, PH : int, na
     print(name+ " Test MAPE in each time step:  ", str(mape))
 
     # Time lag 
-    time_lag = time_lag(Y_test, Y_pred)
+    # time_lag = time_lag(Y_test, Y_pred)
 
     # Plot RMSE, MAE and MAPE for each time step
     plt.figure(figsize = (10,5))
@@ -824,7 +858,7 @@ def model_evaluation_close_loop(results_dictionary : Dict, N : int, PH : int, na
         parkerAB_perc, _, _ = parkes_EGA_chart(ground_truth = Y_test[:,i], predictions = Y_pred[:,i], fold =name+'step'+str(i+1)+'_himar-rep', step=i)
     
     # Store results in a dictionary to further add it to the results dictionary 
-    results = {'RMSE': rmse.tolist(), 'MAE': mae.tolist(), 'MAPE': mape.tolist(), 'ISO': iso_perc_in.tolist(), 'PARKES': parkerAB_perc.tolist(), 'time_lag' : time_lag.to_list()}
+    results = {'RMSE': rmse.tolist(), 'MAE': mae.tolist(), 'MAPE': mape.tolist(), 'ISO': iso_perc_in.tolist(), 'PARKES': parkerAB_perc.tolist()}#, 'time_lag' : time_lag.to_list()}
 
     # Plot histograms of predictions and ground truth 
     plt.figure(figsize = (10,5)) 

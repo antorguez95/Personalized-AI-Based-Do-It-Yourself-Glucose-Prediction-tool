@@ -22,23 +22,18 @@ from arch_params import *
 # Mikael sensor
 sensor_Mikael = {
     "NAME" : "mikael_sensor",
-    "INPUT_SIZE" : CGM_INPUT_POINTS,
-    "INPUT_FEATURES" : 1,
-    "STRIDE" : 1,
+    "CGM" : True,
+    "INSULIN" : True, 
     "SAMPLE_PERIOD" : 5, #minutes between consecutive readings
     }
 
-# Dummy sensor 
-DUMMY_SAMPLE_PERIOD = 1 #minutes per time
+libreview_sensors = {
+    "NAME" : "FreeStyle Libre X",
+    "CGM" : True,
+    "INSULIN" : False, 
+    "SAMPLE_PERIOD" : 15, 
+}
 
-sensor_Dummy = {
-    "NAME" : "TEST",
-    "INPUT_SIZE" : CGM_INPUT_POINTS,
-    "INPUT_FEATURES" : 1,
-    "STRIDE" : 1,
-    "SAMPLE_PERIOD" : DUMMY_SAMPLE_PERIOD, #times per minute
-    "PREDICTED_POINTS" : PREDICTION_TIME/DUMMY_SAMPLE_PERIOD # means 2 * SAMPLE_PERIOD MINUTES
-    }
 
 # RMSE SE PUEDE QUITAR LA RAIZ 
 # minimo del error cuadratico 

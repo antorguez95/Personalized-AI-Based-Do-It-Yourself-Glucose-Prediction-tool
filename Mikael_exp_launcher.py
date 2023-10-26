@@ -36,7 +36,7 @@
 #                         Use custom model hyperparameters
 
 import argparse
-from launch_experiments import launch_experiment
+from launch_Mikael_experiments import launch_experiment
 from training_configs import *
 
 epochs_default = 10
@@ -69,6 +69,8 @@ elif args.training_config == 'loss_functions_comparison':
     training_config = loss_functions_comparison
 elif args.training_config == 'stacked_LSTM_multi':
     training_config = stacked_LSTM_multi
+elif args.training_config == 'test':
+    training_config = test
 else:
     raise ValueError('The training configuration is not valid')
 

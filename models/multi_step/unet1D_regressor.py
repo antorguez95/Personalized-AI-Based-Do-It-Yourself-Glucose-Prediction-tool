@@ -113,7 +113,7 @@ def decoding_block(x: tf.Tensor, residual: tf.Tensor, filters: int,
     return x
 
 # Returns a CNN-model instance 
-def get_model(sensor : Dict, N: int = CGM_INPUT_POINTS, input_features: int = NUMBER_OF_INPUT_SIGNALS,
+def get_model(sensor : Dict, N: int , input_features: int = 1,
               tau : int = 1, kernel_size : int = 3, PH : int = 5) -> Model:
     
     """Returns a multistep regression model based on the 1D-UNET described in [1]. Some modifications 
@@ -122,8 +122,8 @@ def get_model(sensor : Dict, N: int = CGM_INPUT_POINTS, input_features: int = NU
 
     Args:
     -----
-        N (int): Number of samples in the input tensor. Must be multiple of 2. Default: CGM_INPUT_POINTS.
-        input_features (int): Number of features in the input tensor. Default: NUMBER_OF_INPUT_SIGNALS.
+        N (int): Number of samples in the input tensor. Must be multiple of 2.
+        input_features (int): Number of features in the input tensor. Default: 1.
         tau (int): Stride of the convolutional layers. Default: 1, as [1]
         kernel_size (int): Kernel size of the convolutional layers. Default: 3, as [1]
         PH (int): Prediction Horizon to predict. Length of the predicted sequence lenght = PH/sampling frequency of
@@ -170,7 +170,7 @@ def get_model(sensor : Dict, N: int = CGM_INPUT_POINTS, input_features: int = NU
     x = layers.TimeDistributed(layers.Dense(32))(x)
 
     # Once flattened, add a dense layer to predict the output
-    output = layers.Dense(PH/sensor["SAMPLE_PERIOD"])(x) # PH/SENSOR_SAMPLING_FREQUENCY
+    output = layers.Dense(round(PH/sensor["SAMPLE_PERIOD"]))(x) # PH/SENSOR_SAMPLING_FREQUENCY
 
     # Define the model
     model = Model(input, output)

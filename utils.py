@@ -753,7 +753,7 @@ def get_CGM_X_Y_multistep(CGM_data_dict: Dict, glucose_sensor : Dict, N: int, st
     print("Number of blocks is %i\n" % n_blocks)
 
     # Step for the output  value identification - 1: For N = 49, the output is 5 min (value 50) / 2: 10 min (value 51) / etc. 
-    step = round(prediction_horizon/5)
+    step = round(prediction_horizon/glucose_sensor["SAMPLE_PERIOD"])
 
     # Global index useful to extract the blocks for the original array
     global_idx = 0 # 1 in matlab
@@ -802,9 +802,9 @@ def get_CGM_X_Y_multistep(CGM_data_dict: Dict, glucose_sensor : Dict, N: int, st
 
     # Declare X an Y vector with all time and glucose concatenated data to further processing
     X = np.zeros((len(X_init_list), N), dtype=np.float32)
-    Y = np.zeros((len(Y_init_list), round(prediction_horizon/5)), dtype=np.float32) # Check values on sensor_params.py and arch_params.py
+    Y = np.zeros((len(Y_init_list), round(prediction_horizon/glucose_sensor["SAMPLE_PERIOD"])), dtype=np.float32) # Check values on sensor_params.py and arch_params.py
     X_times = np.empty((len(X_init_list), N), dtype='datetime64[s]')
-    Y_times = np.empty((len(Y_init_list), round(prediction_horizon/5)), dtype='datetime64[s]')
+    Y_times = np.empty((len(Y_init_list), round(prediction_horizon/glucose_sensor["SAMPLE_PERIOD"])), dtype='datetime64[s]')
 
     for i in range(0, X.shape[0]):
         X[i,:] = glucose_concat[X_init_list[i] : X_end_list[i]]
@@ -1027,3 +1027,151 @@ def get_dictionary_key(sensor : Dict, single_multi_step : str, N : int, step : i
 
     return key
 
+def get_LibreView_CGM_X_Y_multistep(recordings : np.array, timestamps : np.array, glucose_sensor : Dict,
+                                    N: int, step: int, prediction_horizon : int, plot : bool,
+                                    verbose = int) -> Tuple[np.array, np.array, np.array, np.array]:
+    
+    """It is the same as get_CGM_X_Y_multistep, but taking as input np.arrays.
+    Its name comes from the fact that it was developed to read data from 
+    LibreView sensors, but should work for any recording-timestamps peer. 
+    Generates the X and Y vectors to train and test a Deep Learning model for CGM 
+    forecasting. Suports sequence-to-sequence data generation.Also returns the 
+    associated timestamps (as datetime objects).
+
+    Args:
+    -----
+        recordings (np.array): CGM readings (mg/dL)
+        timestamps (np.array) : timestamps associated to each CGM sample (datetime format)
+        glucose_sensor (Dict) : Dictionary containing the information of the sensor (including the sample period)
+        N (int): window size of the instances in the generated dataset
+        step (int): step forward to create the next instance of the dataset
+        prediction_horizon (int): prediction horizon in minutes
+        plot (bool): if True, plots the sample difference between two consecutive samples
+        verbose (int): Verbosity level.
+    
+    Returns:
+    --------
+        X (np.ndarray): 2D array with the windows of the CGM readings. Its shape
+        is (number of windows, N).
+        Y (np.ndarray): 2D array with the sequence just after the end of the correspondant input
+        (Value Nth+1). Its shape is (prediction_horizon/sampling frequency of the sensor, 1).
+        X_times (np.array): datetime datatypes associated to X 
+        Y_times (np.array): datetime datatypes associated to Y
+    """ 
+
+    # Compute the differentce between two consecutive samples (in minutes)
+    time_diff = np.diff(timestamps)
+
+    # Empty array to fill with the values in minutes 
+    time_diff_mins = np.empty(len(time_diff))
+
+    for i in range(0, len(time_diff_mins)): 
+        time_diff_mins[i] = (time_diff[i].seconds)//60 
+
+    # Plot all time intervals between two consecutive samples
+    if plot == True: 
+        # Set IEEE style
+        #plt.style.use(['science', 'ieee'])
+        plt.figure()
+
+        # Plot 
+        plt.plot(time_diff_mins)
+
+        # Horizontal line in 30 (2 consecutive samples)
+        plt.axhline(y=glucose_sensor["SAMPLE_PERIOD"]*2, color='r', linestyle='-')
+
+        # Set X label
+        plt.xlabel('Sample difference')
+
+        # Set Y label
+        plt.ylabel('Minutes between sensor readings')
+
+        # Save figure
+        plt.savefig('sample_difference.png', dpi=300, bbox_inches='tight')
+
+    # Find indexes where the difference between two consecutive samples is greater than 10 minutes
+    time_diff_idx = np.where(time_diff_mins > glucose_sensor["SAMPLE_PERIOD"]*2)
+
+    # Number of blocks in a patient are defined when two consecutive readings surpass 2*sensor["SAMPLE_PERIOD"]
+    n_blocks = len(time_diff_mins[np.where(time_diff_mins > glucose_sensor["SAMPLE_PERIOD"]*2)])
+    print("Number of blocks of is %i\n" % (n_blocks))
+
+    # Step for the output value identification - 1: For N = 49, the output is 5 min (value 50) / 2: 10 min (value 51) / etc. 
+    step = round(prediction_horizon/glucose_sensor["SAMPLE_PERIOD"])
+
+    # Global index useful to extract the blocks for the original array
+    global_idx = 0 # 1 in matlab
+
+    # Numpy array to count samples in each block
+    num_samples = np.zeros((n_blocks, 1))
+
+    # List to store the indexes X and Y (faster computation than concatenate arrays)
+    X_init_list = []
+    X_end_list = []
+    Y_init_list = []
+    Y_end_list = []
+
+    for i in range(0, n_blocks):
+    
+        # Compute size of the current block
+        block_size = time_diff_idx[0][i]-global_idx
+        
+        if verbose == 1:
+            print("Block size is %i" % (block_size))
+        
+        # Loop until the last value possible value of the block considering N
+        for j in range(0, round(block_size - N - step)):
+
+            # Reference value for the initial data point to be collected 
+            X_init_list.append(global_idx+j)
+
+            # Reference value for the last data point to be collected 
+            X_end_list.append(global_idx+j+N)
+
+            # Reference value for the initial Y point to be collected 
+            Y_init_list.append(global_idx+j+N)
+
+            # Reference value for the last data point to be collected 
+            Y_end_list.append(global_idx+j+N+step)
+
+            # Count the samples of the current block
+            num_samples[i] = j+1
+
+        # Print number of samples 
+        if verbose == 1:
+            print("Number of samples in block %i is %i\n" % ((i+1), num_samples[i]))
+
+        # Update the global index
+        global_idx = time_diff_idx[0][i] 
+
+    # Declare X an Y vector with all time and glucose concatenated data to further processing
+    X = np.zeros((len(X_init_list), N), dtype=np.float32)
+    Y = np.zeros((len(Y_init_list), round(prediction_horizon/glucose_sensor["SAMPLE_PERIOD"])), dtype=np.float32) # Check values on sensor_params.py and arch_params.py
+    X_times = np.empty((len(X_init_list), N), dtype='datetime64[s]')
+    Y_times = np.empty((len(Y_init_list), round(prediction_horizon/glucose_sensor["SAMPLE_PERIOD"])), dtype='datetime64[s]')
+
+    for i in range(0, X.shape[0]):
+        X[i,:] = recordings[X_init_list[i] : X_end_list[i]]
+        Y[i,:] = recordings[Y_init_list[i] : Y_end_list[i]]
+        X_times[i,:] = timestamps[X_init_list[i] : X_end_list[i]]
+        Y_times[i] = timestamps[Y_init_list[i] : Y_end_list[i]] 
+
+    # Save training dataset summary in a txt file
+    with open('dataset_summary.txt', 'w') as f:
+        f.write('N = {}\n'.format(N))
+        f.write('step = {}\n'.format(step))
+        f.write('PH = {}\n'.format(prediction_horizon))
+        f.write('sensor = {}\n'.format(glucose_sensor['NAME']))
+        f.write('nº blocks = {}\n'.format(n_blocks))
+
+    # Export X, Y and associated times as .npy files
+    np.save('X.npy', X)
+    np.save('Y.npy', Y)
+    np.save('X_times.npy', X_times)
+    np.save('Y_times.npy', Y_times) 
+
+    # Convert np.arrays to float32 to convert them to Tensorflow tensors
+    X = X.astype(np.float32)
+    Y = Y.astype(np.float32)
+
+    return X, Y, X_times, Y_times

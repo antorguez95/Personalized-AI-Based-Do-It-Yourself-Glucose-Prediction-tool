@@ -113,7 +113,7 @@ def decoding_block(x: tf.Tensor, residual: tf.Tensor, filters: int,
     return x
 
 # Returns a CNN-model instance 
-def get_model(N: int = CGM_INPUT_POINTS, input_features: int = NUMBER_OF_INPUT_SIGNALS,
+def get_model(N: int, input_features: int = 1,
               tau : int = 1, kernel_size : int = 3) -> Model:
     """Returns a single step regression model based on the 1D-UNET described in [1]. Some modifications 
     have been performed to adapt a segmentation model to a regresison model: activation functions,
@@ -123,8 +123,8 @@ def get_model(N: int = CGM_INPUT_POINTS, input_features: int = NUMBER_OF_INPUT_S
 
     Args:
     -----
-        N (int): Number of samples in the input tensor. Must be multiple of 2. Default: CGM_INPUT_POINTS.
-        input_features (int): Number of features in the input tensor. Default: NUMBER_OF_INPUT_SIGNALS.
+        N (int): Number of samples in the input tensor. Must be multiple of 2.
+        input_features (int): Number of features in the input tensor. Default: 1.
         tau (int): Stride of the convolutional layers. Default: 1, as [1]
         kernel_size (int): Kernel size of the convolutional layers. Default: 3, as [1]
         output_points (int): Number of predictied points (time dimension) Default: 1.

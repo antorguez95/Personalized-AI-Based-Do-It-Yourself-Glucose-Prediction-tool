@@ -54,4 +54,40 @@ stacked_LSTM_multi = {'sensor' : [sensor_Mikael],
                 'loss_function' : ['ISO_loss', 'root_mean_squared_error'], 
                 }
 
+first_approach = {'sensor' : [libreview_sensors],
+                'N' : [96], 
+                'step' : [1], 
+                'PH' : [15, 30, 60], 
+                'single_multi_step' : ['multi'],
+                'partition' : ['month-wise-4-folds'],
+                'normalization' : ['min-max'],
+                'under_over_sampling' : [None], 
+                'model' : ['naive', 'StackedLSTM'],
+                'loss_function' : ['ISO_loss', 'root_mean_squared_error'], 
+                }
+
+testing = {'sensor' : [libreview_sensors],
+                'N' : [96, 144], 
+                'step' : [1], 
+                'PH' : [30, 60], 
+                'single_multi_step' : ['multi'],
+                'partition' : ['month-wise-4-folds'],
+                'normalization' : ['min-max'],
+                'under_over_sampling' : [None], 
+                'model' : ['LSTM'],
+                'loss_function' : ['root_mean_squared_error'], 
+                }
+
+N_patients_N_models_DL = {'sensor' : [libreview_sensors],
+                'N' : [144], 
+                'step' : [1], 
+                'PH' : [30, 60], 
+                'single_multi_step' : ['multi'],
+                'partition' : ['month-wise-4-folds'],
+                'normalization' : ['min-max'],
+                'under_over_sampling' : [None], 
+                'model' : ['naive', 'LSTM', 'StackedLSTM'],#['naive', 'LSTM', 'StackedLSTM', 'DIL-1D-UNET'],# '1D-UNET', '1D-UNET-non-compres', 'DIL-1D-UNET', 'LSTM'],
+                'loss_function' : ['ISO_loss', 'root_mean_squared_error'], 
+                }
+
 
