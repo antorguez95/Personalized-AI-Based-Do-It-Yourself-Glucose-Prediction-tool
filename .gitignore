@@ -1,5 +1,8 @@
+# Ignore the gitignore
+.gitignore
+
 # Ignore the test folder
-test/
+tests/
 
 # Ignore the Python Notebooks
 *.ipynb
