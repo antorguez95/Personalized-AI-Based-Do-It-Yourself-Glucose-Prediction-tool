@@ -1,0 +1,5 @@
+# Ignore the Python Notebooks
+*.ipynb
+
+# Ignore the test folder
+test/
