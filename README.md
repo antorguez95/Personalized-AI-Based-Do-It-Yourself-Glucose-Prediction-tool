@@ -1,17 +1,38 @@
 # A Personalized AI-based "Do it Yourself!" tool for glucose prediction.
-Hi! If you got here, it is very likely that you are interested in blood glucose monitoring, AI, or both! If it is the first case and you are willing to use a tool to track your glucose level in real time (meaning every 5-15 minutes), you can go directly to (___ENLACE A SECCION FOR USERS). If, on the contrary, you are more interested in the development of this tool, this code, or you want to test your own models in this framework, for example. you better go to (____ENLACE A FOR DEVELOPERS). 
+Hi! If you got here, it is very likely that you are interested in blood glucose monitoring, AI, or both! If it is the first case and you are willing to use our tool to track your glucose level in real time (meaning every 5-15 minutes), you can go directly to (___ENLACE A SECCION FOR USERS). If, on the contrary, you are more interested in the development of this tool, this code, or you want to test your own models in this framework, for example. you better go to (____ENLACE A FOR DEVELOPERS). 
 
 ## What's in this repository?
 
 Our work enclosed in the WARIFA project :O
 :) jaja
 
-## For users (Diabetes Mellitus patient or not) 
-In this section, you are assumed to be a user of this tool for the very first time. 
+## Included sensors
 
-1) First: upload your .csv file
-2) An analysis of the uploaded file is done. There are tu options:
-    a) The amount of data you uploaded is enough
+
+| Data source  | Sensors |
+| ------------- | ------------- |
+| LibreView app  | FreeStyle Libre, LibreLink  |
+| Glooko app  | Content Cell  |
+
+Freestyle Libre
+Glooko
+
+## For users (Diabetes Mellitus patient or not) 
+### First time? 
+If it's your first time using this tool, here are the detailed steps you should follow: 
+    
+        1) Go to ___
+        2) Upload your '.csv' file downladed from your 'LibreView' or 'Glooko' personal account. An analysis of the uploaded file will be automatically done. There are two options:
+            a) The amount of data recorded by your sensor is enough to develop a fully-personalized model. (____ AÑADIR MINIMO DE DATOS, RECOMENDACION DE QUE ENVIEN + DEL MINIMO PORSIACA)
+            b) The amount of data recorded by your sensor is too little to develop a enough reliable AI model. A global AI model is used, and you data is used to partially-personalized the model.
+        3) After waiting some time (around 1 hour), your model will be ready to recieve data from your sensor and provide real-time 1-hour predictions, being updated with every reading of the sensor. 
+
+        ____ IMAGES
+        
+### Do you want to upload your model with more data?
+If this is your first time using this tool, yo should go first to (____ENLACE SECCION). If you want to update your model with more data, welcome again! The more data you provide to your AI-model, the better will it be performing! So, if you want to update your AI-based predictor, please follow the following steps: 
+        1) Go to ____
+        2) Upload your '.csv' file downladed from your 'LibreView' or 'Glooko' personal account. An analysis of the uploaded file will be automatically done. There are two options, but these are different 
 
 ### How can I use this tool?
 
@@ -46,9 +67,7 @@ Check https://www.tensorflow.org/install/source_windows?hl=es-419#gpu wor compat
 
 conda install -c conda-forge xlsxwriter
 
-## Included sensors
 
-Freestyle Libre
 
 ## Input data 
 
