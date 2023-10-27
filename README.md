@@ -40,6 +40,7 @@ Now that you install all the necessary stuff, you are ready to deploy your own A
         
 ### Do you want to update your model with more data?
 If this is your first time using this tool, yo should go first to (____ENLACE SECCION). If you want to update your model with more data, welcome again! The more data you provide to your AI-model, the better will it be performing! So, if you want to update your AI-based glucose level predictor, please check out the following steps: 
+        
         1) Go to ____
         2) Upload your '.csv' file downladed from your 'LibreView' or 'Glooko' personal account. An analysis of the uploaded file will be automatically done. There are two options, but these are different 
             a) 
