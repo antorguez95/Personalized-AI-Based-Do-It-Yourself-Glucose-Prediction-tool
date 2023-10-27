@@ -7,6 +7,9 @@ __pycache__/
 # Ignore the test folder
 tests
 
+# Ignore the matlab2python folder
+matlab2python_validation/
+
 # Ignore the Python Notebooks
 *.ipynb
 
