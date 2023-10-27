@@ -1,5 +1,5 @@
 # A Personalized AI-based "Do it Yourself!" for glucose prediction.
-Hi! If you got here, it is very likely that you are interested in blood glucose monitoring, AI, or both! If it is the first case and you are willing to use our tool to track your glucose level in real time (meaning every 5-15 minutes), you can go directly to (___ENLACE A SECCION FOR USERS). If, on the contrary, you are more interested in the development of this tool, this code, or you want to test your own models in this framework, for example. you better go to (____ENLACE A FOR DEVELOPERS). 
+Hi! If you got here, it is very likely that you are interested in blood glucose monitoring, AI, or both! If it is the first case and you are willing to use our tool to track your glucose level in real time (meaning every 5-15 minutes), you can go directly to (___ENLACE A SECCION FOR USERS). If, on the contrary, you are more interested in the development of this tool, this code, or you want to test your own models in this framework, for example. you better [go to Gthe developers section](#For developers). 
 
 If you are interested to go deep into this work, please check our paper(...) published in journal(...). Besides, if this work somehow helped you with your research work or with a personal project, please, cite out paper.  
 
