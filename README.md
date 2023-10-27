@@ -11,9 +11,9 @@ Our work enclosed in the WARIFA project :O
 
 | Data source  | Sensors |
 | ------------- | ------------- |
-| LibreView app  | FreeStyle Libre
-                    LibreLink  |
-| Glooko app  | Content Cell  |
+| LibreView app  | FreeStyle |
+                  | FreeStyle |
+| Glooko app  | -  |
 
 Freestyle Libre
 Glooko
