@@ -82,11 +82,4 @@ Go to the [TensorFlow website](https://www.tensorflow.org/install/source_windows
 
 `conda install -c conda-forge xlsxwriter`
 
-
-
-## Input data 
-
-Glucose
-Insulin
-
 ## How to include your model in this framework: 
