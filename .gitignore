@@ -5,7 +5,7 @@ __pycache__/
 .gitignore
 
 # Ignore the test folder
-tests/
+tests
 
 # Ignore the Python Notebooks
 *.ipynb
