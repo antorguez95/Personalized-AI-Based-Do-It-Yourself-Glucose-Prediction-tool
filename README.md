@@ -5,7 +5,7 @@
 Our work enclosed in the WARIFA project :O
 :) jaja
 
-## For users (Diabetes Mellitus patient or not): 
+## For users (Diabetes Mellitus patient or not) 
 
 ### How can I use this tool?
 
