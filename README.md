@@ -74,7 +74,7 @@ For more information, type `python exp_launcher.py --help`
 
 ## compatibilidades con entrenamiento tensorflow y gpu
 
-Check https://www.tensorflow.org/install/source_windows?hl=es-419#gpu wor compatibilities between Python, CUDA, cuDNN and Tensorflow for Windows.
+Go to the [TensorFlow website](https://www.tensorflow.org/install/source_windows?hl=es-419#gpu) to check the compatibilities between Python, CUDA, cuDNN and Tensorflow versions for Windows.
 
 `conda create -n T1DM_WARIFA_GPU python=3.10`
 `conda activate T1DM_WARIFA_GPU`
