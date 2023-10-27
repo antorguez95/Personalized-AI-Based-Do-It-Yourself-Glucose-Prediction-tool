@@ -18,10 +18,10 @@ P.S.: even it seems pretty obvious, this tool is useful for people that has a gl
 So far, these are the platforms and the sensors associated to them that are supported by this tool
 
 #### Included sensors
-| Data source  | Sensors |
-| ------------- | ------------- |
-| LibreView app | FreeStyle Libre |
-| Glooko app  | -  |
+| Data source  | Sensors | Input data | 
+| ------------- | ------------- | ------------- |
+| LibreView app | FreeStyle Libre | Glucose | 
+| Glooko app  | -  | Glucose, Insulin | 
 
 #### Requirements 
 __ de momento ni puta idea
@@ -80,7 +80,7 @@ Go to the [TensorFlow website](https://www.tensorflow.org/install/source_windows
 `conda activate T1DM_WARIFA_GPU`
 `pip install tensorflow-gpu==2.6.0`
 
-conda install -c conda-forge xlsxwriter
+`conda install -c conda-forge xlsxwriter`
 
 
 
