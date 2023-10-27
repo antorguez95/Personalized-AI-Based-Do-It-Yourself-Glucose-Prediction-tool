@@ -1,3 +1,6 @@
+# Ignore the Python folder
+__pycache__/
+
 # Ignore the gitignore
 .gitignore
 
