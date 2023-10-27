@@ -1,12 +1,14 @@
 # A Personalized AI-based "Do it Yourself!" tool for glucose prediction.
 Hi! If you got here, it is very likely that you are interested in blood glucose monitoring, AI, or both! If it is the first case and you are willing to use our tool to track your glucose level in real time (meaning every 5-15 minutes), you can go directly to (___ENLACE A SECCION FOR USERS). If, on the contrary, you are more interested in the development of this tool, this code, or you want to test your own models in this framework, for example. you better go to (____ENLACE A FOR DEVELOPERS). 
 
-If you are interested to go deep into this work, please check our paper(...) published in journal(...), 
+If you are interested to go deep into this work, please check our paper(...) published in journal(...). Besides, if this work somehow helped you with your research work or with a personal project, please, cite out paper.  
 
 ## What's in this repository?
 
 Our work enclosed in the WARIFA project :O
-:) jaja
+:) jaja. 
+
+For more technical details regarding the content of the repository foldes, files, etc., please go to (FOR DEVELOPERS section). 
 
 ## Included sensors
 
@@ -21,10 +23,14 @@ Our work enclosed in the WARIFA project :O
 ### First time? 
 If it's your first time using this tool, here are the detailed steps you should follow, beginning with the terminal requirements to install and run this tool, and with a brief guide to begin to train and run your own personalized AI-based glucose level predictor!  
 
-#### INSTALLATION
-##### Requirements 
+P.S.: even it seems pretty obvious, this tool is useful for people that has a glucose sensor to monitor its glucose levels! Even if you have T1DM, T2DM, gestational diabetes... Doesn't matter, this tool will suit you as far as you have a glucose sensor attach to your body! However, if you don't have any sensors... we cannot help you this time! Nonetheless, if you are curious, you can always check the tool if you this example data(____ link a datos que podamos usar publicamente). Maybe you can help us to improve this framework!
+
+#### Requirements 
 __ de momento ni puta idea
-#### USAGE
+#### Instalation process
+__ de momento ni puta idea
+#### First use
+Now that you install all the necessary stuff, you are ready to deploy your own AI-based glucose level predictor! 
     
         1) Go to ___
         2) Upload your '.csv' file downladed from your 'LibreView' or 'Glooko' personal account. An analysis of the uploaded file will be automatically done. There are two options:
@@ -34,12 +40,15 @@ __ de momento ni puta idea
 
         ____ IMAGES
         
-### Do you want to upload your model with more data?
-If this is your first time using this tool, yo should go first to (____ENLACE SECCION). If you want to update your model with more data, welcome again! The more data you provide to your AI-model, the better will it be performing! So, if you want to update your AI-based predictor, please follow the following steps: 
+### Do you want to update your model with more data?
+If this is your first time using this tool, yo should go first to (____ENLACE SECCION). If you want to update your model with more data, welcome again! The more data you provide to your AI-model, the better will it be performing! So, if you want to update your AI-based glucose level predictor, please check out the following steps: 
         1) Go to ____
         2) Upload your '.csv' file downladed from your 'LibreView' or 'Glooko' personal account. An analysis of the uploaded file will be automatically done. There are two options, but these are different 
+            a) 
+            b) 
+        3) After waiting for some time (depending of the amount of data uploaded to update the model, but it shouldn't take more than 15 minutes), your re-trained AI-predictor is ready to work again!
 
-### How can I use this tool?
+    ____ IMAGES
 
 
 ## For developers
