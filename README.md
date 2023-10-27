@@ -1,6 +1,8 @@
 # A Personalized AI-based "Do it Yourself!" tool for glucose prediction.
 Hi! If you got here, it is very likely that you are interested in blood glucose monitoring, AI, or both! If it is the first case and you are willing to use our tool to track your glucose level in real time (meaning every 5-15 minutes), you can go directly to (___ENLACE A SECCION FOR USERS). If, on the contrary, you are more interested in the development of this tool, this code, or you want to test your own models in this framework, for example. you better go to (____ENLACE A FOR DEVELOPERS). 
 
+If you are interested to go deep into this work, please check our paper(...) published in journal(...), 
+
 ## What's in this repository?
 
 Our work enclosed in the WARIFA project :O
@@ -11,16 +13,18 @@ Our work enclosed in the WARIFA project :O
 
 | Data source  | Sensors |
 | ------------- | ------------- |
-| LibreView app  | FreeStyle |
-                  | FreeStyle |
+| LibreView app | FreeStyle Libre |
 | Glooko app  | -  |
 
-Freestyle Libre
-Glooko
 
 ## For users (Diabetes Mellitus patient or not) 
 ### First time? 
-If it's your first time using this tool, here are the detailed steps you should follow: 
+If it's your first time using this tool, here are the detailed steps you should follow, beginning with the terminal requirements to install and run this tool, and with a brief guide to begin to train and run your own personalized AI-based glucose level predictor!  
+
+#### INSTALLATION
+##### Requirements 
+__ de momento ni puta idea
+#### USAGE
     
         1) Go to ___
         2) Upload your '.csv' file downladed from your 'LibreView' or 'Glooko' personal account. An analysis of the uploaded file will be automatically done. There are two options:
@@ -39,6 +43,8 @@ If this is your first time using this tool, yo should go first to (____ENLACE SE
 
 
 ## For developers
+Hi again! If you are here, it is assumed that you have basic knowledge of Python programming and AI, so let's get into it!
+
 ## Requirements 
 
 `conda create -n T1DM_WARIFA python=3.10`
