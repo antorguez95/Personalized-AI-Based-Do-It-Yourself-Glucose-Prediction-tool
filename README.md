@@ -8,15 +8,7 @@ If you are interested to go deep into this work, please check our paper(...) pub
 Our work enclosed in the WARIFA project :O
 :) jaja. 
 
-For more technical details regarding the content of the repository foldes, files, etc., please go to (FOR DEVELOPERS section). 
-
-## Included sensors
-
-
-| Data source  | Sensors |
-| ------------- | ------------- |
-| LibreView app | FreeStyle Libre |
-| Glooko app  | -  |
+For more technical details regarding the content of the repository folders, files, etc., please go to (FOR DEVELOPERS section). 
 
 
 ## For users (Diabetes Mellitus patient or not) 
@@ -24,6 +16,14 @@ For more technical details regarding the content of the repository foldes, files
 If it's your first time using this tool, here are the detailed steps you should follow, beginning with the terminal requirements to install and run this tool, and with a brief guide to begin to train and run your own personalized AI-based glucose level predictor!  
 
 P.S.: even it seems pretty obvious, this tool is useful for people that has a glucose sensor to monitor its glucose levels! Even if you have T1DM, T2DM, gestational diabetes... Doesn't matter, this tool will suit you as far as you have a glucose sensor attach to your body! However, if you don't have any sensors... we cannot help you this time! Nonetheless, if you are curious, you can always check the tool if you this example data(____ link a datos que podamos usar publicamente). Maybe you can help us to improve this framework!
+
+So far, these are the platforms and the sensors associated to them that are supported by this tool
+
+#### Included sensors
+| Data source  | Sensors |
+| ------------- | ------------- |
+| LibreView app | FreeStyle Libre |
+| Glooko app  | -  |
 
 #### Requirements 
 __ de momento ni puta idea
