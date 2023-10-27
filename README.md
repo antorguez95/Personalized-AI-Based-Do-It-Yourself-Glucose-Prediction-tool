@@ -1,4 +1,4 @@
-# T1DM_WARIFA
+# A Personalized AI-based "Do it Yourself!" tool for glucose prediction.
 
 ## What's in this repository?
 
