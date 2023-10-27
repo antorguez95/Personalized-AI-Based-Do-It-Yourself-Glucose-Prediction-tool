@@ -54,7 +54,7 @@ If this is your first time using this tool, yo should go first to (____ENLACE SE
 ## For developers
 Hi again! If you are here, it is assumed that you have basic knowledge of Python programming and AI, so let's get into it!
 
-## Requirements 
+### Requirements 
 
 `conda create -n T1DM_WARIFA python=3.10`
 
@@ -67,7 +67,7 @@ Hi again! If you are here, it is assumed that you have basic knowledge of Python
 `conda install -c anaconda scikit-learn`
 `conda install -c anaconda openpyxl`
 
-## How to run the experiments 
+### How to run the experiments 
 
 `python exp_launcher.py loss_functions_comparison --model_hyperparameters KERNEL_SIZE STRIDE --training_hyperparameters EPOCHS BATCH_SIZE LEARNING_RATE`
 
