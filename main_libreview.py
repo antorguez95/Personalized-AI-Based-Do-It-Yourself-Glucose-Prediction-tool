@@ -363,10 +363,9 @@ def launch_LibreView_experiments(test : Dict, kernel_size : int = 3, tau : int =
             # Back to previous directory 
             os.chdir('..')
 
-
-        # Stop when the counter is equal to the total number of experiments
-        if i == total_exps*29: # 29 is the number of patients
-            break
+            # Stop when the counter is equal to the total number of experiments
+            if i == total_exps*29: # 29 is the number of patients
+                break
     
     # Final time
     t1 = time.time()
