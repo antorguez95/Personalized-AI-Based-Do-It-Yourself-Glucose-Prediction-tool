@@ -563,7 +563,7 @@ def get_oldest_year_npys_from_LibreView_csv(dataset_path : str):
     From the raw .csv files obtained from LibreView, this function 
     generates numpy files of the oldest year of CGM data of each patient
     without interruptions. Patients that do not have at least one year 
-    of data are not considered. For more information about how the data is extrected,
+    of data are not considered. For more information about how the data is extracted,
     please refer to the documentation of every particular function. Files
     are stored in the '/1yr_npy_files' folder. CGM recordings are stored as
     'oldest_1yr_CGM.npy' and their timestamps as 'oldest_1yr_CGM_timestamp.npy' 

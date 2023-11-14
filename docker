@@ -1,0 +1,20 @@
+# Python version 
+FROM python: 3.10.13
+
+# Maintainer 
+MAINTAINER Antonio Rodriguez <aralmeida@iuma.ulpgc.com>
+
+# Work directory 
+WORKDIR ${.\testing_with_mirek}
+
+# From conda create the environment and the required packages 
+RUN conda create --name testing_WARIFA_app python=3.10 
+    conda install -c conda-forge tensorflow  # 'v2.10.0'
+    conda install -c anaconda pandas  # 'v2.1.1'
+
+# Add the test file (only one)
+ADD app_pre_test.py
+
+CMD ["python", "test_eda_url.py"]
+
+
