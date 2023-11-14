@@ -65,6 +65,7 @@ Hi again! If you are here, it is assumed that you have basic knowledge of Python
 `conda install -c conda-forge shapely`
 `conda install -c anaconda scikit-learn`
 `conda install -c anaconda openpyxl`
+`conda install -c anaconda statsmodels`
 
 ### How to run the experiments 
 
