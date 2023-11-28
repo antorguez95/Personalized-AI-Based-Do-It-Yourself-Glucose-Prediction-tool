@@ -15,8 +15,6 @@
 # You should have received a copy of the GNU General Public License
 # along with T1DM_WARIFA.  If not, see <http://www.gnu.org/licenses/>.
 
-from arch_params import *
-
 # Parameters (dependent on the sensors) for the input data that will fix the architecture of the tested ML/DL models
 
 # Mikael sensor

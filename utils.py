@@ -23,8 +23,6 @@ from typing import Dict, Tuple
 from matplotlib import pyplot as plt
 import pickle
 
-from arch_params import *
-
 def extract_Mikael_data(json_file_path : str, json_file_name : str, ONLY_CGM: bool = True): 
     """
     This function prepares the data from the json file (Mikael personal data) and returns

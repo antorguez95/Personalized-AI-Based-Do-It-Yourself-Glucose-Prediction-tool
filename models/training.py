@@ -36,7 +36,6 @@ sys.path.append('..')
 from typing import Tuple, Dict
 
 from sensor_params import *
-from arch_params import * 
 
 import pandas as pd
 import numpy as np
