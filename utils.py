@@ -1090,6 +1090,9 @@ def get_LibreView_CGM_X_Y_multistep(recordings : np.array, timestamps : np.array
     # Find indexes where the difference between two consecutive samples is greater than 10 minutes
     time_diff_idx = np.where(time_diff_mins > glucose_sensor["SAMPLE_PERIOD"]*2)
 
+    # The starting index is one after the time difference index
+    starting_idx = time_diff_idx[0]+1
+
     # Number of blocks in a patient are defined when two consecutive readings surpass 2*sensor["SAMPLE_PERIOD"]
     n_blocks = len(time_diff_mins[np.where(time_diff_mins > glucose_sensor["SAMPLE_PERIOD"]*2)])
     print("Number of blocks of is %i\n" % (n_blocks))
@@ -1112,7 +1115,7 @@ def get_LibreView_CGM_X_Y_multistep(recordings : np.array, timestamps : np.array
     for i in range(0, n_blocks):
     
         # Compute size of the current block
-        block_size = time_diff_idx[0][i]-global_idx
+        block_size = starting_idx[i]-global_idx
         
         if verbose == 1:
             print("Block size is %i" % (block_size))
@@ -1140,7 +1143,7 @@ def get_LibreView_CGM_X_Y_multistep(recordings : np.array, timestamps : np.array
             print("Number of samples in block %i is %i\n" % ((i+1), num_samples[i]))
 
         # Update the global index
-        global_idx = time_diff_idx[0][i] 
+        global_idx = starting_idx[i] 
 
     # Declare X an Y vector with all time and glucose concatenated data to further processing
     X = np.zeros((len(X_init_list), N), dtype=np.float32)
