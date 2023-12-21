@@ -33,7 +33,3 @@ libreview_sensors = {
 }
 
 
-# RMSE SE PUEDE QUITAR LA RAIZ 
-# minimo del error cuadratico 
-
-
