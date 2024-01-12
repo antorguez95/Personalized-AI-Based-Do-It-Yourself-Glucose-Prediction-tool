@@ -18,8 +18,6 @@
 from tensorflow.keras import layers, Input, Model
 from typing import Dict
 
-from arch_params import *
-
 # Returns a LSTM-model instance 
 def get_model(sensor : Dict, N : int, input_features: int = 1,
             PH : int = 5) -> Model:
@@ -47,9 +45,9 @@ def get_model(sensor : Dict, N : int, input_features: int = 1,
     input = Input(shape=(N, input_features)) 
 
     # LSTM 
-    x = layers.LSTM(round(N/2), input_shape = (N, input_features), return_sequences = True)(input)
-    x = layers.LSTM(round(N/4), input_shape = (N, input_features), return_sequences = True)(x)
-    x = layers.LSTM(round(N/8), input_shape = (N, input_features))(x)
+    x = layers.LSTM(round(N), input_shape = (N, input_features), return_sequences = True)(input)
+    x = layers.LSTM(round(N/2), input_shape = (N, input_features), return_sequences = True)(x)
+    x = layers.LSTM(round(N/4), input_shape = (N, input_features))(x)
 
     # Dense layer that outputs the predicted points
     output = layers.Dense(PH/sensor["SAMPLE_PERIOD"])(x) # PH/SENSOR_SAMPLING_FREQUENCY

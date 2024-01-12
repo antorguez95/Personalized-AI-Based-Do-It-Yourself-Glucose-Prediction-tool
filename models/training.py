@@ -698,3 +698,187 @@ def train_model(sensor : Dict,
     if verbose >= 1:
         print('\n\tEnd of the training. Model saved in {}\n'.format(dir))
     
+def month_wise_multi_input_LibreView_4fold_cv(X: np.array, Y: np.array, X_times : np.array, Y_times : np.array, N: int) -> Dict:
+
+    """
+    This function partitions the multi input data in 4 folds. Each fold contains data from 3 months of the same year.
+    With this, each model is trained and validated with all different terms in a year. The timestamps 
+    of the folds will vary depending on the patient. The oldest recorded sample in the patient will be the 
+    first sample of the first fold. The first sample of the second fold will be that sample plus 3 months,
+    and so on. This function has been designed to work with LibreView-extracted data, but can be adapted to 
+    other data sources. Information about the partitions is stored in a .txt file.
+
+    Data is stored in its correspondant fold in the dictionary training_partitions.
+
+    Args:
+    -----
+        X: input sequence of lenght N (multi input).
+        Y: output sequence.
+        X_times: timestamps of the input sequence.
+        Y_times: timestamps of the output sequence.
+        N: window size of the input data.
+        shuffle: flag that indicates whether to shuffle the data or not.
+        verbose: verbosity level. 
+
+    Returns:
+    --------
+        folds_dict: dictionary containing the 4 folds. Each fold contains the training and validation sets.
+    
+
+    """
+
+    # Declare the dictionary to intuitively access the folds 
+    folds_dict = {'1-fold' : {'X_train' : {},
+                            'Y_train' : {},
+                            'X_test' : {},
+                            'Y_test' : {}},
+                '2-fold' : {'X_train' : {},
+                            'Y_train' : {},
+                            'X_test' : {},
+                            'Y_test' : {}},            
+                '3-fold' : {'X_train' : {},
+                            'Y_train' : {},
+                            'X_test' : {},
+                            'Y_test' : {}},
+                '4-fold' : {'X_train' : {},
+                            'Y_train' : {},
+                            'X_test' : {},
+                            'Y_test' : {}}}
+
+    # Timestamp of the fold 1 is the first of the whole recording 
+    fold1_first_timestamp = X_times[0][0]
+
+    # Timestamp of the fold 2 is the first of the whole recording + 3 months
+    fold2_first_timestamp = fold1_first_timestamp + pd.DateOffset(months=3)
+
+    # Timestamp of the fold 3 is the first of the whole recording + 6 months
+    fold3_first_timestamp = fold1_first_timestamp + pd.DateOffset(months=6)
+
+    # Timestamp of the fold 4 is the first of the whole recording + 9 months
+    fold4_first_timestamp = fold1_first_timestamp + pd.DateOffset(months=9)
+
+    # With the timestamps, the 4 folds are generated
+    X_fold1 = X[np.where((X_times[:,0] >= fold1_first_timestamp) & (Y_times[:,0] < fold2_first_timestamp))[0]]
+    X_fold2 = X[np.where((X_times[:,0] >= fold2_first_timestamp) & (Y_times[:,0] < fold3_first_timestamp))[0]]
+    X_fold3 = X[np.where((X_times[:,0] >= fold3_first_timestamp) & (Y_times[:,0] < fold4_first_timestamp))[0]]
+    X_fold4 = X[np.where(X_times[:,0] >= fold4_first_timestamp)] 
+
+    # Also save the timestamps of the fold just in case they are necessary 
+    X_times_fold1 = X_times[np.where((X_times[:,0] >= fold1_first_timestamp) & (Y_times[:,0] < fold2_first_timestamp))[0]]
+    X_times_fold2 = X_times[np.where((X_times[:,0] >= fold2_first_timestamp) & (Y_times[:,0] < fold3_first_timestamp))[0]]
+    X_times_fold3 = X_times[np.where((X_times[:,0] >= fold3_first_timestamp) & (Y_times[:,0] < fold4_first_timestamp))[0]]
+    X_times_fold4 = X_times[np.where(X_times[:,0] >= fold4_first_timestamp)]
+
+    # Take the same instances from Y
+    Y_fold1 = Y[np.where((X_times[:,0] >= fold1_first_timestamp) & (Y_times[:,0] < fold2_first_timestamp))[0]]
+    Y_fold2 = Y[np.where((X_times[:,0] >= fold2_first_timestamp) & (Y_times[:,0] < fold3_first_timestamp))[0]]
+    Y_fold3 = Y[np.where((X_times[:,0] >= fold3_first_timestamp) & (Y_times[:,0] < fold4_first_timestamp))[0]]
+    Y_fold4 = Y[np.where(X_times[:,0] >= fold4_first_timestamp)]
+
+    # Take the same instances from Y_times
+    Y_times_fold1 = Y_times[np.where((X_times[:,0] >= fold1_first_timestamp) & (Y_times[:,0] < fold2_first_timestamp))[0]]
+    Y_times_fold2 = Y_times[np.where((X_times[:,0] >= fold2_first_timestamp) & (Y_times[:,0] < fold3_first_timestamp))[0]]
+    Y_times_fold3 = Y_times[np.where((X_times[:,0] >= fold3_first_timestamp) & (Y_times[:,0] < fold4_first_timestamp))[0]]
+    Y_times_fold4 = Y_times[np.where(X_times[:,0] >= fold4_first_timestamp)]
+
+    lost_samples = len(X) - (len(X_fold1) + len(X_fold2) + len(X_fold3) + len(X_fold4))
+
+    print("Discarded instances: %i" % (lost_samples))
+
+    # Save valuable information in a .txt file
+    with open('4-folds_summary.txt', 'w') as f:
+        f.write('1-fold start date = {}\n'.format(fold1_first_timestamp))
+        f.write('1-fold num. samples = {}\n\n'.format(len(X_fold1)))
+
+        f.write('2-fold start date = {}\n'.format(fold2_first_timestamp))
+        f.write('2-fold num. samples = {}\n\n'.format(len(X_fold2)))
+
+        f.write('3-fold start date = {}\n'.format(fold3_first_timestamp))
+        f.write('3-fold num. samples = {}\n\n'.format(len(X_fold3)))
+
+        f.write('4-fold start date = {}\n'.format(fold4_first_timestamp))
+        f.write('4-fold num. samples = {}\n\n'.format(len(X_fold4)))
+
+        f.write('Discarded instances due to overlap = {}\n'.format(lost_samples))
+
+    # Concatenate XY in the same array but in a different axis. Just once to shuflle later 
+    # Reshape Y to 3D
+    Y_fold1 = np.reshape(Y_fold1, (Y_fold1.shape[0], Y_fold1.shape[1], 1))
+    Y_fold2 = np.reshape(Y_fold2, (Y_fold2.shape[0], Y_fold2.shape[1], 1))
+    Y_fold3 = np.reshape(Y_fold3, (Y_fold3.shape[0], Y_fold3.shape[1], 1))
+    Y_fold4 = np.reshape(Y_fold4, (Y_fold4.shape[0], Y_fold4.shape[1], 1))
+
+    # For the sake of concatenation, add a replication of Y_fold in the third dimension 
+    Y_fold1 = np.concatenate((Y_fold1, Y_fold1), axis=2)
+    Y_fold2 = np.concatenate((Y_fold2, Y_fold2), axis=2)
+    Y_fold3 = np.concatenate((Y_fold3, Y_fold3), axis=2)
+    Y_fold4 = np.concatenate((Y_fold4, Y_fold4), axis=2)
+
+    # Concatenate XY in the same array but in a different axis. Just once to shuflle later 
+    XY_fold1 = np.concatenate((X_fold1, Y_fold1), axis=1)
+    XY_fold2 = np.concatenate((X_fold2, Y_fold2), axis=1)
+    XY_fold3 = np.concatenate((X_fold3, Y_fold3), axis=1)
+    XY_fold4 = np.concatenate((X_fold4, Y_fold4), axis=1)
+
+    # Create the training sets for each fold 
+    fold1_XY_train_set = np.concatenate((XY_fold1, XY_fold2, XY_fold3), axis=0)
+    fold2_XY_train_set = np.concatenate((XY_fold1, XY_fold2, XY_fold4), axis=0)
+    fold3_XY_train_set = np.concatenate((XY_fold1, XY_fold3, XY_fold4), axis=0)
+    fold4_XY_train_set = np.concatenate((XY_fold2, XY_fold3, XY_fold4), axis=0)
+
+    # Shuffle the training sets
+    np.random.shuffle(fold1_XY_train_set)
+    np.random.shuffle(fold2_XY_train_set)
+    np.random.shuffle(fold3_XY_train_set)
+    np.random.shuffle(fold4_XY_train_set)
+
+    # Split the training sets into X and Y
+    fold1_X_train = fold1_XY_train_set[:,0:N]
+    fold1_Y_train = fold1_XY_train_set[:,N:]
+
+    fold2_X_train = fold2_XY_train_set[:,0:N]
+    fold2_Y_train = fold2_XY_train_set[:,N:]
+
+    fold3_X_train = fold3_XY_train_set[:,0:N]
+    fold3_Y_train = fold3_XY_train_set[:,N:]
+
+    fold4_X_train = fold4_XY_train_set[:,0:N]
+    fold4_Y_train = fold4_XY_train_set[:,N:]
+
+    # Drop the additional dimension of Y
+    fold1_Y_train = fold1_Y_train[:,:,0]
+    fold2_Y_train = fold2_Y_train[:,:,0]
+    fold3_Y_train = fold3_Y_train[:,:,0]
+    fold4_Y_train = fold4_Y_train[:,:,0]
+
+    Y_fold1 = Y_fold1[:,:,0]
+    Y_fold2 = Y_fold2[:,:,0]
+    Y_fold3 = Y_fold3[:,:,0]
+    Y_fold4 = Y_fold4[:,:,0]
+
+    # Fill the dictionary fold-wise
+    # 1-fold
+    folds_dict['1-fold']['X_train'] = fold1_X_train
+    folds_dict['1-fold']['Y_train'] = fold1_Y_train
+    folds_dict['1-fold']['X_test'] = X_fold4
+    folds_dict['1-fold']['Y_test'] = Y_fold4
+
+    # 2-fold
+    folds_dict['2-fold']['X_train'] = fold2_X_train
+    folds_dict['2-fold']['Y_train'] = fold2_Y_train
+    folds_dict['2-fold']['X_test'] = X_fold3
+    folds_dict['2-fold']['Y_test'] = Y_fold3
+
+    # 3-fold
+    folds_dict['3-fold']['X_train'] = fold3_X_train
+    folds_dict['3-fold']['Y_train'] = fold3_Y_train
+    folds_dict['3-fold']['X_test'] = X_fold2
+    folds_dict['3-fold']['Y_test'] = Y_fold2
+
+    # 4-fold
+    folds_dict['4-fold']['X_train'] = fold4_X_train
+    folds_dict['4-fold']['Y_train'] = fold4_Y_train
+    folds_dict['4-fold']['X_test'] = X_fold1
+    folds_dict['4-fold']['Y_test'] = Y_fold1
+
+    return folds_dict

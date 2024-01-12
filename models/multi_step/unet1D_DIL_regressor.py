@@ -19,8 +19,6 @@ from tensorflow.keras import layers, Input, Model
 import tensorflow as tf
 from typing import Tuple, Dict
 
-from arch_params import *
-
 def encoding_block(x: tf.Tensor, filters: int, kernel_size: int, stride: int,
                    activation: str, padding: str, dilation_rate : int, name_prefix: str) -> Tuple[tf.Tensor, tf.Tensor]:
     """Encoding block of the network, modified from [1], since dilation rate in convolution is included.

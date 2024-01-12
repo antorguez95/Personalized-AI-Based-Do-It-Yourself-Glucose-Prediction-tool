@@ -18,8 +18,6 @@
 from tensorflow.keras import layers, Input, Model
 from typing import Dict
 
-from arch_params import *
-
 # Returns a LSTM-model instance 
 def get_model(sensor : Dict, N: int, input_features: int = 1,
             PH : int = 5) -> Model:
