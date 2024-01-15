@@ -698,7 +698,7 @@ def train_model(sensor : Dict,
     if verbose >= 1:
         print('\n\tEnd of the training. Model saved in {}\n'.format(dir))
     
-def month_wise_multi_input_LibreView_4fold_cv(X: np.array, Y: np.array, X_times : np.array, Y_times : np.array, N: int) -> Dict:
+def month_wise_multi_input_LibreView_4fold_cv(X: np.array, Y: np.array, X_times : np.array, Y_times : np.array, N: int, input_features : int) -> Dict:
 
     """
     This function partitions the multi input data in 4 folds. Each fold contains data from 3 months of the same year.
@@ -717,8 +717,7 @@ def month_wise_multi_input_LibreView_4fold_cv(X: np.array, Y: np.array, X_times 
         X_times: timestamps of the input sequence.
         Y_times: timestamps of the output sequence.
         N: window size of the input data.
-        shuffle: flag that indicates whether to shuffle the data or not.
-        verbose: verbosity level. 
+        input_features: number of input features.
 
     Returns:
     --------
@@ -808,17 +807,24 @@ def month_wise_multi_input_LibreView_4fold_cv(X: np.array, Y: np.array, X_times 
     Y_fold3 = np.reshape(Y_fold3, (Y_fold3.shape[0], Y_fold3.shape[1], 1))
     Y_fold4 = np.reshape(Y_fold4, (Y_fold4.shape[0], Y_fold4.shape[1], 1))
 
-    # For the sake of concatenation, add a replication of Y_fold in the third dimension 
-    Y_fold1 = np.concatenate((Y_fold1, Y_fold1), axis=2)
-    Y_fold2 = np.concatenate((Y_fold2, Y_fold2), axis=2)
-    Y_fold3 = np.concatenate((Y_fold3, Y_fold3), axis=2)
-    Y_fold4 = np.concatenate((Y_fold4, Y_fold4), axis=2)
+    # Y_fold1_concat is a copy of Y_fold1
+    Y_fold1_concat = Y_fold1
+    Y_fold2_concat = Y_fold2
+    Y_fold3_concat = Y_fold3
+    Y_fold4_concat = Y_fold4
+
+    # For the sake of concatenation, add a replication of Y_fold the times needed to match the number of input features 
+    for i in range(0, input_features-1):
+        Y_fold1_concat = np.concatenate((Y_fold1_concat, Y_fold1), axis=2)
+        Y_fold2_concat = np.concatenate((Y_fold2_concat, Y_fold2), axis=2)
+        Y_fold3_concat = np.concatenate((Y_fold3_concat, Y_fold3), axis=2)
+        Y_fold4_concat = np.concatenate((Y_fold4_concat, Y_fold4), axis=2)
 
     # Concatenate XY in the same array but in a different axis. Just once to shuflle later 
-    XY_fold1 = np.concatenate((X_fold1, Y_fold1), axis=1)
-    XY_fold2 = np.concatenate((X_fold2, Y_fold2), axis=1)
-    XY_fold3 = np.concatenate((X_fold3, Y_fold3), axis=1)
-    XY_fold4 = np.concatenate((X_fold4, Y_fold4), axis=1)
+    XY_fold1 = np.concatenate((X_fold1, Y_fold1_concat), axis=1)
+    XY_fold2 = np.concatenate((X_fold2, Y_fold2_concat), axis=1)
+    XY_fold3 = np.concatenate((X_fold3, Y_fold3_concat), axis=1)
+    XY_fold4 = np.concatenate((X_fold4, Y_fold4_concat), axis=1)
 
     # Create the training sets for each fold 
     fold1_XY_train_set = np.concatenate((XY_fold1, XY_fold2, XY_fold3), axis=0)
@@ -845,7 +851,7 @@ def month_wise_multi_input_LibreView_4fold_cv(X: np.array, Y: np.array, X_times 
     fold4_X_train = fold4_XY_train_set[:,0:N]
     fold4_Y_train = fold4_XY_train_set[:,N:]
 
-    # Drop the additional dimension of Y
+    # Drop the additional dimensions of Y 
     fold1_Y_train = fold1_Y_train[:,:,0]
     fold2_Y_train = fold2_Y_train[:,:,0]
     fold3_Y_train = fold3_Y_train[:,:,0]
