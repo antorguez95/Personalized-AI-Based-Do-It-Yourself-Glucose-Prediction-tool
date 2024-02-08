@@ -66,6 +66,7 @@ Hi again! If you are here, it is assumed that you have basic knowledge of Python
 `conda install -c anaconda scikit-learn`
 `conda install -c anaconda openpyxl`
 `conda install -c anaconda statsmodels`
+conda install seaborn -c conda-forge
 
 ### How to run the experiments 
 
