@@ -50,12 +50,13 @@ def encoding_block(x: tf.Tensor, filters: int, kernel_size: int, stride: int,
     x = layers.Conv1D(filters=filters, kernel_size=kernel_size, strides=stride,
                       activation=activation, padding=padding, dilation_rate=dilation_rate, use_bias=False,
                       name=name_prefix+'_conv_relu_0')(x)
-
     x = layers.Conv1D(filters=filters, kernel_size=kernel_size, strides=stride,
                       activation=activation, padding=padding, dilation_rate = dilation_rate, use_bias=False,
                       name=name_prefix+'_conv_relu_1')(x)
     
-    # Store tensor to be the input od the decoding phase
+    x = layers.Dropout(0.1)(x)
+    
+    # Store tensor to be the input of the decoding phase
     enc_residual = x 
     
     # Max pooling to downsample in time
@@ -98,6 +99,7 @@ def decoding_block(x: tf.Tensor, residual: tf.Tensor, filters: int,
     x = layers.Conv1D(filters=filters, kernel_size=kernel_size, strides=stride,
                       activation=activation, padding=padding, dilation_rate = dilation_rate, use_bias=False,
                       name=name_prefix+'_up_conv_relu')(x)
+    x = layers.Dropout(0.1)(x)
 
 
     # Add residual + 2 x ( Conv + ReLU )
@@ -105,10 +107,11 @@ def decoding_block(x: tf.Tensor, residual: tf.Tensor, filters: int,
     x = layers.Conv1D(filters=filters, kernel_size=kernel_size, strides=stride,
                       activation=activation, padding=padding, dilation_rate = dilation_rate, use_bias=False,
                       name=name_prefix+'_conv_relu_0')(x)
-
+    
     x = layers.Conv1D(filters=filters, kernel_size=kernel_size, strides=stride,
                       activation=activation, padding=padding, dilation_rate = dilation_rate, use_bias=False,
                       name=name_prefix+'_conv_relu_1')(x)
+    x = layers.Dropout(0.1)(x)
       
     return x
 
@@ -158,7 +161,8 @@ def get_model(sensor : Dict, N: int, input_features: int = 1,
     # 2 x ( Conv + ReLU )
     x = layers.Conv1D(filters=input_features*32*2, kernel_size=kernel_size, strides=1, activation="relu", padding="same", dilation_rate = dilation_rate, name='central_conv_relu_0')(x)
     x = layers.Conv1D(filters=input_features*32*2, kernel_size=kernel_size, strides=1, activation="relu", padding="same", dilation_rate = dilation_rate, name='central_conv_relu_1')(x)
-       
+    x = layers.Dropout(0.1)(x) 
+
     # Decoding phase of the network: upsampling inputs
     x = decoding_block(x, res_4, filters=input_features*16*2, kernel_size=kernel_size, stride = tau, activation = "relu", padding = "same", dilation_rate = dilation_rate, name_prefix = "dec_0")
     x = decoding_block(x, res_3, filters=input_features*8*2, kernel_size=kernel_size, stride = tau, activation = "relu", padding = "same", dilation_rate = dilation_rate, name_prefix = "dec_1")
@@ -167,9 +171,10 @@ def get_model(sensor : Dict, N: int, input_features: int = 1,
 
     # Output of the model (modified from [1] to switch from classification to regression) 
     x = layers.Conv1D(filters=1, kernel_size=kernel_size, strides=tau, padding="same", dilation_rate = dilation_rate, name='final_conv')(x)
+    x = layers.Dropout(0.1)(x)
 
     # Reshape x to be a 3D tensor
-    x = layers.Reshape((input_features, N), input_shape=(N, input_features))(x)
+    x = layers.Reshape((1, N), input_shape=(N, 1))(x)
     # x = layers.Reshape((input_features, round(N/16)), input_shape=(round(N/16), input_features))(x)
 
     # Add timeDistributed dense layers

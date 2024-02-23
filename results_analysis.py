@@ -21,6 +21,8 @@ import json
 import xlsxwriter
 import numpy as np 
 import matplotlib.pyplot as plt 
+import seaborn as sns
+import pandas as pd
 
 def store_ind_results_in_Excel(exp_config : Dict, results_dir : str = r"C:\Users\aralmeida\Downloads\LibreViewRawData\1yr_npy_files"):
     
@@ -55,7 +57,7 @@ def store_ind_results_in_Excel(exp_config : Dict, results_dir : str = r"C:\Users
         i = 0
 
         # Consider only folders, not .npy or .txt files
-        if ('npy' not in id) and ('txt' not in id) and ('svg' not in id) and ('png' not in id): 
+        if ('npy' not in id) and ('txt' not in id) and ('svg' not in id) and ('png' not in id) and ('TEST' not in id) and ('h5' not in id) and ('xls' not in id) and ('evaluation' not in id): 
         
             os.chdir(id)
 
@@ -360,7 +362,7 @@ def group_best_patients_metrics(exp_config : Dict, metrics : List = ['RMSE', 'MA
     for id in os.listdir(): 
 
         # Consider only folders, not .npy or .txt files
-        if ('npy' not in id) and ('txt' not in id) and ('svg' not in id) and ('png' not in id): 
+        if ('npy' not in id) and ('txt' not in id) and ('svg' not in id) and ('png' not in id) and ('TEST' not in id) and ('h5' not in id) and ('xls' not in id)and ('evaluation' not in id): 
         
             os.chdir(id)
 
@@ -782,7 +784,7 @@ def get_patient_wise_metrics(exp_config : Dict, grouped_metrics : Dict, patients
     for name in files: 
 
         # Only add names that are folders 
-        if ('.npy' not in name) and ('.svg' not in name) and  ('.png' not in name):
+        if ('.npy' not in name) and ('.svg' not in name) and  ('.png' not in name) and ('TEST' not in name) and ('h5' not in name) and ('xls' not in name)and ('evaluation' not in name):
         
             # Add the name 
             patients_ids.append(name)
@@ -865,7 +867,7 @@ def get_grouped_RMSEbased_best_metrics(exp_config : Dict, grouped_metrics : Dict
     for id in os.listdir():
 
         # Consider only folders, not .npy or .txt files
-        if ('npy' not in id) and ('txt' not in id) and ('svg' not in id) and ('png' not in id): 
+        if ('npy' not in id) and ('txt' not in id) and ('svg' not in id) and ('png' not in id) and ('TEST' not in id) and ('h5' not in id) and ('xls' not in id)and ('evaluation' not in id): 
                 patients_ids.append(id)
                 best_30min_model_dict[id] = {}
                 best_60min_model_dict[id] = {}
@@ -1032,7 +1034,7 @@ def get_grouped_ISO_and_Parkes_best_metrics(exp_config : Dict, grouped_metrics :
     for id in os.listdir():
 
         # Consider only folders, not .npy or .txt files
-        if ('npy' not in id) and ('txt' not in id) and ('svg' not in id) and ('png' not in id): 
+        if ('npy' not in id) and ('txt' not in id) and ('svg' not in id) and ('png' not in id) and ('TEST' not in id) and ('h5' not in id) and ('xls' not in id) and ('evaluation' not in id): 
                 patients_ids.append(id)
                 best_30min_model_dict[id] = {}
                 best_60min_model_dict[id] = {}
@@ -1538,3 +1540,201 @@ def get_XY_vectors_characterization(patients_ids : List, PH : int, unit : str = 
         cgm_patients_characteristics[patients_ids[i]]["Y"]["num_samples_with_hypo"] = Y_num_hypo_samples
 
     return cgm_patients_characteristics
+
+
+def get_patient_wise_fold_results(exp_config : Dict, results_dict : Dict, results_dir : str = r"C:\Users\aralmeida\Downloads\LibreViewRawData\1yr_npy_files") -> Dict: 
+    
+    """
+    This function returns a dictionary with the results of all folds for every patient. 
+    This function assumes that all the results are stored in its correspondant dictionary. 
+    Changes on the previously executed functions will likely affect this function. 
+
+    Args:
+    -----
+        exp_config : Dictionary with the experiment configuration to be analyzed.
+        results_dict : Dictionary with the results of the models for every patient (just to get the samples used to train the models)
+        results_dir :  Directory where the results are stored.
+       
+    Returns:
+    --------
+        patient_wise_fold_results : Dictionary with the results of all folds for every patient. 
+    """
+
+    os.chdir(results_dir)
+
+    patient_wise_fold_results = {}
+
+    # Iterate over the ID folders to generate the 4-folds 
+    for id in os.listdir(): 
+
+        # Counter 
+        i = 0
+
+        # Consider only folders, not .npy or .txt files
+        if ('npy' not in id) and ('txt' not in id) and ('svg' not in id) and ('png' not in id) and ('TEST' not in id) and ('h5' not in id) and ('xls' not in id) and ('evaluation' not in id): 
+        
+            os.chdir(id)
+
+            patient_wise_fold_results[id] = {}
+            patient_wise_fold_results[id]['samples'] = results_dict[id]['samples']
+
+            # Open json file
+            with open('results_dictionary.json') as json_file:
+                results = json.load(json_file)
+
+            # Iterate over PH to generate different Excel files depending on the PH (not comparable between them)
+            for PH in exp_config['PH']:
+
+                # Index to access the dictionary results will vary because the greater PH, the greater the index
+                if PH == 30:
+                    idx = 1
+                elif PH == 60:
+                    idx = 3
+
+                    # Itreate over the loss functions and write the results
+                    for loss in exp_config['loss_function']:
+
+                        for model in exp_config['model']:
+
+                            # Obtain key to access the correspondant result 
+                            key = 'multi_N{}_step1_PH{}_month-wise-4-folds_min-max_None_{}_ISO_loss'.format(exp_config['N'][0], PH, model, loss)
+
+                            patient_wise_fold_results[id][model] = {'RMSE': [results[key][model]['1-fold']["normal "]["RMSE"][idx],
+                                                                    results[key][model]['2-fold']["normal "]["RMSE"][idx],
+                                                                    results[key][model]['3-fold']["normal "]["RMSE"][idx],
+                                                                    results[key][model]['4-fold']["normal "]["RMSE"][idx]], 
+                                                                    'ISO' : [results[key][model]['1-fold']["normal "]["ISO"][idx],
+                                                                    results[key][model]['2-fold']["normal "]["ISO"][idx],
+                                                                    results[key][model]['3-fold']["normal "]["ISO"][idx],
+                                                                    results[key][model]['4-fold']["normal "]["ISO"][idx]], 
+                                                                    'PARKES' : [results[key][model]['1-fold']["normal "]["PARKES"][idx],
+                                                                    results[key][model]['2-fold']["normal "]["PARKES"][idx],
+                                                                    results[key][model]['3-fold']["normal "]["PARKES"][idx],
+                                                                    results[key][model]['4-fold']["normal "]["PARKES"][idx]]}
+                                                                    
+            os.chdir('..')
+    
+    return patient_wise_fold_results
+
+
+def plot_patient_per_patient_boxplot(patient_wise_results : Dict, metric : str, sorted_by : str = 'samples'):
+    
+    """ After the simulation of the DL model generation for 
+    all patients (currently n=29) has been done, this function can 
+    be executed to compare the different model performance depending on the patient. 
+    This boxplot plot the metric (inputted as arugument) for each patient. Patients 
+    are sorted by their available samples to train the models. Boxplots represent mean and
+    .std of the 4 folds for naive, LSTM, Stacked-LSTM and Dilated-1D-UNET models. 
+
+    Args:
+    -----
+        patient_wise_results : Dictionary containing the results for each patient separated per folds and models.
+        metric : Metric to be compared.
+        sorted_by : Parameter to sort the patients. Default is 'samples' (number of samples available to train the models).
+    """
+
+    # Sort the dictionary depending on the input parameter 
+#     match sorted_by: 
+#           case 'samples':
+#                   patient_wise_results = dict(sorted(patient_wise_results.items(), key=lambda item: item[1]['samples'], reverse=True))
+    
+    patient_wise_results = dict(sorted(patient_wise_results.items(), key=lambda item: item[1]['samples'], reverse=True))
+
+    DIL_60_rmse = []
+    stacked_60_rmse = []
+    naive_60_rmse = []
+    LSTM_60_rmse = []
+    samples = []
+
+    for id in patient_wise_results.keys():
+            DIL_60_rmse.append(patient_wise_results[id]['DIL-1D-UNET'][metric])
+
+            # Add in this step also samples
+            samples.append(patient_wise_results[id]['samples'])
+
+    # Convert rows to columns 
+    DIL_60_rmse = np.array(DIL_60_rmse).T
+    samples = np.array(samples).T
+
+    # Create a dataframe
+    DIL_60_rmse = pd.DataFrame(DIL_60_rmse, columns=patient_wise_results.keys()).assign(model='DIL-1D-UNET')
+
+    for id in patient_wise_results.keys():
+            stacked_60_rmse.append(patient_wise_results[id]['StackedLSTM'][metric])
+
+    # Convert rows to columns
+    stacked_60_rmse = np.array(stacked_60_rmse).T
+
+    # Create a dataframe
+    stacked_60_rmse = pd.DataFrame(stacked_60_rmse, columns=patient_wise_results.keys()).assign(model='StackedLSTM')
+
+    for id in patient_wise_results.keys():
+            naive_60_rmse.append(patient_wise_results[id]['naive'][metric])
+
+    # Convert rows to columns
+    naive_60_rmse = np.array(naive_60_rmse).T
+
+    # Create a dataframe
+    naive_60_rmse = pd.DataFrame(naive_60_rmse, columns=patient_wise_results.keys()).assign(model='naive')
+
+    for id in patient_wise_results.keys():
+            LSTM_60_rmse.append(patient_wise_results[id]['LSTM'][metric])
+
+    # Convert rows to columns
+    LSTM_60_rmse = np.array(LSTM_60_rmse).T
+
+    # Create a dataframe
+    LSTM_60_rmse = pd.DataFrame(LSTM_60_rmse, columns=patient_wise_results.keys()).assign(model='LSTM')
+
+    # Declare figure and set size 
+    fig = plt.figure()
+    fig.set_size_inches(20, 5)
+
+    # Concatenate and melt the dataframes to further plot them 
+    concat_models = pd.concat([DIL_60_rmse, stacked_60_rmse, naive_60_rmse, LSTM_60_rmse])
+
+    # Melt the dataframe
+    melt_models = pd.melt(concat_models, id_vars=['model'], var_name=['id'])
+
+    # Set color palette
+    palette = {'DIL-1D-UNET': 'blue', 'StackedLSTM': 'red', 'naive': 'green', 'LSTM': 'yellow'}
+
+    # Draw the boxplot
+    ax = sns.boxplot(x='id', y='value', data=melt_models, hue='model', palette=palette)
+
+    # Second axis 
+    ax2 = ax.twinx()
+
+    # Add a line patient per patient in the background with the "samples" variable 
+    ax2.plot(np.linspace(0, len(samples)-1, len(samples)), samples, 'o-', color='black', alpha=0.3)
+
+    ax.legend(loc='lower left')
+
+    # Add legend for the second axis 
+    ax2.legend(['Nº of available samples'], loc='upper right')
+
+    # Fill the background with a grey colour every patient 
+    for i in range(len(samples)):
+        if i % 2 == 0:
+                ax.axvspan(i-0.5, i+0.5, facecolor='darkgrey', alpha=0.3)
+
+    # Remove blank space on the left and right sides
+    ax.set_xlim(-0.5, len(samples)-0.5)
+
+    # When RMSE is evaluated, plot a dashed horizontal line in y = 32 with the text "state-of-the-art"
+    if metric == 'RMSE':
+        ax.axhline(y=32, color='black', linestyle='--')
+        ax.text(-0.2, 30.5, 'state-of-the-art', color = 'black')
+
+    # When PARKES is evaluated, plot a dashed horizontal line in y = 99, since it is the minimum set by the ISO 
+    elif metric == 'PARKES':
+        ax.axhline(y=99, color='black', linestyle='--')
+        ax.text(-0.2, 97, 'ISO 15197:2015', color = 'black')
+
+    # When ISO is evaluated, plot a dashed horizontal line in y = 95, since it is the minimum set by the ISO 
+    elif metric == 'ISO':
+        ax.axhline(y=95, color='black', linestyle='--')
+        ax.text(-0.2, 98, 'ISO 15197:2015', color = 'black')
+
+    # Set title 
+    plt.title('60 min ' + metric)

@@ -19,7 +19,7 @@ import os
 import json
 import pandas as pd
 import numpy as np
-from typing import Dict, Tuple
+from typing import Dict, Tuple, List 
 from matplotlib import pyplot as plt
 import pickle
 
@@ -1176,3 +1176,39 @@ def get_LibreView_CGM_X_Y_multistep(recordings : np.array, timestamps : np.array
     Y = Y.astype(np.float32)
 
     return X, Y, X_times, Y_times
+
+def generate_ranges_tags(Y: np.array, lower_threshold : int = 70, upper_threshold : int = 180) -> List: 
+    
+    """
+    This function generates a list with "hyper", "hypo" and "normal" tags based on
+    the glucose levels on the Y vector. This has been done to weight samples the preceed
+    hypoglycaemic events and hyperglycamic events more than samples that preceed
+    glucose sequences in the normal range. 
+
+    Args:
+    ----
+    Y : glucose levels output sequence to train the AI models.
+    lower_threshold : lower limit to consider normal glucose range. Default is 70 mg/dL.
+    upper_threshold : upper limit to consider normal glucose range. Default is 180 mg/dL. 
+
+    Returns:
+    -------
+    levels_tags : List of strings with "hyper", "hypo" and "normal" tags. 
+    
+    """
+
+    # Declare an empty list of the sice of the X and Y arrays
+    levels_tags = [None] * Y.shape[0]
+
+    # Loop over the Y array. 
+    for idx in range(Y.shape[0]):
+        
+        # Check if any of the values is above or below range. Othwersie, it is normal
+        if True in (np.unique(Y[idx,:]) > 180):
+            levels_tags[idx] = 'hyper'
+        elif True in (np.unique(Y[idx,:]) < 70):
+            levels_tags[idx] = 'hypo'
+        else : 
+            levels_tags[idx] = 'normal'
+    
+    return levels_tags
