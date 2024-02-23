@@ -67,6 +67,7 @@ Hi again! If you are here, it is assumed that you have basic knowledge of Python
 `conda install -c anaconda openpyxl`
 `conda install -c anaconda statsmodels`
 
+
 ### How to run the experiments 
 
 `python exp_launcher.py loss_functions_comparison --model_hyperparameters KERNEL_SIZE STRIDE --training_hyperparameters EPOCHS BATCH_SIZE LEARNING_RATE`
@@ -82,5 +83,7 @@ Go to the [TensorFlow website](https://www.tensorflow.org/install/source_windows
 `pip install tensorflow-gpu==2.6.0`
 
 `conda install -c conda-forge xlsxwriter`
+
+`conda install seaborn -c conda-forge`
 
 ## How to include your model in this framework: 
