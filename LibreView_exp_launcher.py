@@ -45,11 +45,14 @@ from training_configs import *
 epochs_default = 10
 batch_size_default = 2
 learning_rate_default = 0.0001
+epochs_default = 1
+batch_size_default = 1024
+learning_rate_default = 0.001
 
-kernel_size_default = 3
+kernel_size_default = 10
 tau_default = 1
 
-DATASET_PATH = r"C:\Users\aralmeida\Downloads\LibreViewRawData"
+DATASET_PATH = r"C:\Users\aralmeida\Downloads\LibreViewRawData-final_sims"
 
 # Parse command line arguments
 parser = argparse.ArgumentParser(prog='Train and Evaluate DL-based CGM Forecast models',
@@ -57,7 +60,15 @@ parser = argparse.ArgumentParser(prog='Train and Evaluate DL-based CGM Forecast 
 
 # Add the training configuration as a mandatory argument 
 parser.add_argument("training_config", help='Dictionaries with the configuration. (Modify \'training_configs.py\' as you wish)',
-                    choices=['big_test', 'loss_functions_comparison', 'test', 'stacked_LSTM_multi', 'LibreView-exp-1'])
+                    choices=['big_test', 'loss_functions_comparison', 'test', 'stacked_LSTM_multi', 'LibreView-exp-1', 'naive_exps'])
+
+# Add the input features as a mandatory argument 
+parser.add_argument("input_features", help='Input features to use in the model. Currently 1 means only CGM, and 2 means CGM and its derivative',
+                    choices=[1,2], type=int)
+
+# Add the weight samples (True or False) as a mandatory argument
+parser.add_argument("weight_samples", help='Weight the samples (hypo, hyper or normal range) in the loss function. The weights are hard-coded in \'main_libreview.py\' True or False',
+                    choices=['True', 'False'], type=str)
 
 # Add the training hyperparameters as optional arguments
 parser.add_argument("--training_hyperparameters", nargs=3, help='Use custom training hyperparameters', metavar=('EPOCHS', 'BATCH_SIZE', 'LEARNING_RATE'), default=[epochs_default, batch_size_default, learning_rate_default])
@@ -81,9 +92,17 @@ elif args.training_config == 'test':
     training_config = testing
 elif args.training_config == 'LibreView-exp-1':
     training_config = N_patients_N_models_DL
+elif args.training_config == 'naive_exps':
+    training_config = only_naive
 
 else:
     raise ValueError('The training configuration is not valid')
+
+# Catch the input features
+input_features = int(args.input_features)
+
+# Catch the weight samples
+weight_samples = args.weight_samples
 
 # Catch the training hyperparameters
 epochs = int(args.training_hyperparameters[0])
@@ -98,4 +117,4 @@ tau = int(args.model_hyperparameters[1])
 DATASET_PATH = args.dataset_folder[0]
 
 # Call the experiments launcher function
-launch_LibreView_experiments(training_config, kernel_size, tau, learning_rate, batch_size, epochs)
+launch_LibreView_experiments(training_config, input_features, weight_samples, kernel_size, tau, learning_rate, batch_size, epochs)

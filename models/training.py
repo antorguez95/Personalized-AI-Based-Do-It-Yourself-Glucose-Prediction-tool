@@ -367,7 +367,7 @@ def month_wise_4fold_cv(N : int, X: np.array, Y: np.array, X_times : np.array, t
         # We assume that if the key exists, so does the partition
         print("Month-wise 4-fold Cross Validation partition already done.") 
 
-def month_wise_LibreView_4fold_cv(X: np.array, Y: np.array, X_times : np.array, Y_times : np.array, N: int) -> Dict:
+def month_wise_LibreView_4fold_cv(X: np.array, Y: np.array, X_times : np.array, Y_times : np.array, levels_tags : np.array, N: int) -> Dict:
 
     """
     This function partitions the data in 4 folds. Each fold contains data from 3 months of the same year.
@@ -385,6 +385,7 @@ def month_wise_LibreView_4fold_cv(X: np.array, Y: np.array, X_times : np.array, 
         Y: output sequence.
         X_times: timestamps of the input sequence.
         Y_times: timestamps of the output sequence.
+        levels_tags: array with the tag ("hyper", "hypo", "normal") of each sample considering the Y sequence (prediction).        
         N: window size of the input data.
         shuffle: flag that indicates whether to shuffle the data or not.
         verbose: verbosity level. 
@@ -538,6 +539,7 @@ def train_model(sensor : Dict,
                 batch_size: int, 
                 lr: float,
                 fold : int,
+                sample_weights : np.array = None,
                 loss_function : str = 'root_mean_squared_error',
                 verbose : int = 1,
                 plot : bool = False) -> None: 
@@ -649,6 +651,7 @@ def train_model(sensor : Dict,
             batch_size=batch_size,
             epochs=epochs,
             callbacks= callbacks,
+            sample_weight=sample_weights,
             verbose=verbose
         )
 
@@ -698,7 +701,8 @@ def train_model(sensor : Dict,
     if verbose >= 1:
         print('\n\tEnd of the training. Model saved in {}\n'.format(dir))
     
-def month_wise_multi_input_LibreView_4fold_cv(X: np.array, Y: np.array, X_times : np.array, Y_times : np.array, N: int, input_features : int) -> Dict:
+def month_wise_multi_input_LibreView_4fold_cv(X: np.array, Y: np.array, X_times : np.array, Y_times : np.array, levels_tags: np.array,
+                                            N: int, input_features : int) -> Dict:
 
     """
     This function partitions the multi input data in 4 folds. Each fold contains data from 3 months of the same year.
@@ -716,6 +720,7 @@ def month_wise_multi_input_LibreView_4fold_cv(X: np.array, Y: np.array, X_times 
         Y: output sequence.
         X_times: timestamps of the input sequence.
         Y_times: timestamps of the output sequence.
+        levels_tags: array with the tag ("hyper", "hypo", "normal") of each sample considering the Y sequence (prediction).
         N: window size of the input data.
         input_features: number of input features.
 
@@ -726,23 +731,30 @@ def month_wise_multi_input_LibreView_4fold_cv(X: np.array, Y: np.array, X_times 
 
     """
 
-    # Declare the dictionary to intuitively access the folds 
     folds_dict = {'1-fold' : {'X_train' : {},
                             'Y_train' : {},
+                            'train_tags' : {},
                             'X_test' : {},
-                            'Y_test' : {}},
+                            'Y_test' : {},
+                            'test_tags' : {}},
                 '2-fold' : {'X_train' : {},
                             'Y_train' : {},
+                            'train_tags' : {},
                             'X_test' : {},
-                            'Y_test' : {}},            
+                            'Y_test' : {},
+                            'test_tags' : {}},            
                 '3-fold' : {'X_train' : {},
                             'Y_train' : {},
+                            'train_tags' : {},
                             'X_test' : {},
-                            'Y_test' : {}},
+                            'Y_test' : {},
+                            'test_tags' : {}},
                 '4-fold' : {'X_train' : {},
                             'Y_train' : {},
+                            'train_tags' : {},
                             'X_test' : {},
-                            'Y_test' : {}}}
+                            'Y_test' : {}, 
+                            'test_tags' : {}}}
 
     # Timestamp of the fold 1 is the first of the whole recording 
     fold1_first_timestamp = X_times[0][0]
@@ -780,6 +792,12 @@ def month_wise_multi_input_LibreView_4fold_cv(X: np.array, Y: np.array, X_times 
     Y_times_fold3 = Y_times[np.where((X_times[:,0] >= fold3_first_timestamp) & (Y_times[:,0] < fold4_first_timestamp))[0]]
     Y_times_fold4 = Y_times[np.where(X_times[:,0] >= fold4_first_timestamp)]
 
+    # Take the same instances from levels_tags
+    levels_tags_fold1 = levels_tags[np.where((X_times[:,0] >= fold1_first_timestamp) & (Y_times[:,0] < fold2_first_timestamp))[0]]
+    levels_tags_fold2 = levels_tags[np.where((X_times[:,0] >= fold2_first_timestamp) & (Y_times[:,0] < fold3_first_timestamp))[0]]
+    levels_tags_fold3 = levels_tags[np.where((X_times[:,0] >= fold3_first_timestamp) & (Y_times[:,0] < fold4_first_timestamp))[0]]
+    levels_tags_fold4 = levels_tags[np.where(X_times[:,0] >= fold4_first_timestamp)]
+
     lost_samples = len(X) - (len(X_fold1) + len(X_fold2) + len(X_fold3) + len(X_fold4))
 
     print("Discarded instances: %i" % (lost_samples))
@@ -807,24 +825,41 @@ def month_wise_multi_input_LibreView_4fold_cv(X: np.array, Y: np.array, X_times 
     Y_fold3 = np.reshape(Y_fold3, (Y_fold3.shape[0], Y_fold3.shape[1], 1))
     Y_fold4 = np.reshape(Y_fold4, (Y_fold4.shape[0], Y_fold4.shape[1], 1))
 
+    # Reshape levels_tags to 3D
+    levels_tags_fold1 = np.reshape(levels_tags_fold1, (levels_tags_fold1.shape[0], levels_tags_fold1.shape[1], 1))
+    levels_tags_fold2 = np.reshape(levels_tags_fold2, (levels_tags_fold2.shape[0], levels_tags_fold2.shape[1], 1))
+    levels_tags_fold3 = np.reshape(levels_tags_fold3, (levels_tags_fold3.shape[0], levels_tags_fold3.shape[1], 1))
+    levels_tags_fold4 = np.reshape(levels_tags_fold4, (levels_tags_fold4.shape[0], levels_tags_fold4.shape[1], 1))
+
     # Y_fold1_concat is a copy of Y_fold1
     Y_fold1_concat = Y_fold1
     Y_fold2_concat = Y_fold2
     Y_fold3_concat = Y_fold3
     Y_fold4_concat = Y_fold4
 
-    # For the sake of concatenation, add a replication of Y_fold the times needed to match the number of input features 
+    # For the sake of concatenation, add a replication of Y_fold and level tags the times needed to match the number of input features 
     for i in range(0, input_features-1):
         Y_fold1_concat = np.concatenate((Y_fold1_concat, Y_fold1), axis=2)
         Y_fold2_concat = np.concatenate((Y_fold2_concat, Y_fold2), axis=2)
         Y_fold3_concat = np.concatenate((Y_fold3_concat, Y_fold3), axis=2)
         Y_fold4_concat = np.concatenate((Y_fold4_concat, Y_fold4), axis=2)
 
+        levels_tags_fold1 = np.concatenate((levels_tags_fold1, levels_tags_fold1), axis=2)
+        levels_tags_fold2 = np.concatenate((levels_tags_fold2, levels_tags_fold2), axis=2)
+        levels_tags_fold3 = np.concatenate((levels_tags_fold3, levels_tags_fold3), axis=2)
+        levels_tags_fold4 = np.concatenate((levels_tags_fold4, levels_tags_fold4), axis=2)
+
     # Concatenate XY in the same array but in a different axis. Just once to shuflle later 
     XY_fold1 = np.concatenate((X_fold1, Y_fold1_concat), axis=1)
     XY_fold2 = np.concatenate((X_fold2, Y_fold2_concat), axis=1)
     XY_fold3 = np.concatenate((X_fold3, Y_fold3_concat), axis=1)
     XY_fold4 = np.concatenate((X_fold4, Y_fold4_concat), axis=1)
+
+    # Concatenate XY with the level tags 
+    XY_fold1 = np.concatenate((XY_fold1, levels_tags_fold1), axis=1)
+    XY_fold2 = np.concatenate((XY_fold2, levels_tags_fold2), axis=1)
+    XY_fold3 = np.concatenate((XY_fold3, levels_tags_fold3), axis=1)
+    XY_fold4 = np.concatenate((XY_fold4, levels_tags_fold4), axis=1)
 
     # Create the training sets for each fold 
     fold1_XY_train_set = np.concatenate((XY_fold1, XY_fold2, XY_fold3), axis=0)
@@ -838,54 +873,76 @@ def month_wise_multi_input_LibreView_4fold_cv(X: np.array, Y: np.array, X_times 
     np.random.shuffle(fold3_XY_train_set)
     np.random.shuffle(fold4_XY_train_set)
 
-    # Split the training sets into X and Y
+    # Split the training sets into X, Y and tags
     fold1_X_train = fold1_XY_train_set[:,0:N]
-    fold1_Y_train = fold1_XY_train_set[:,N:]
+    fold1_Y_train = fold1_XY_train_set[:,N:N+Y_fold1.shape[1]]
+    fold1_tags_train = fold1_XY_train_set[:,N+Y_fold1.shape[1]:]
 
     fold2_X_train = fold2_XY_train_set[:,0:N]
-    fold2_Y_train = fold2_XY_train_set[:,N:]
+    fold2_Y_train = fold2_XY_train_set[:,N:N+Y_fold1.shape[1]]
+    fold2_tags_train = fold2_XY_train_set[:,N+Y_fold1.shape[1]:]
 
     fold3_X_train = fold3_XY_train_set[:,0:N]
-    fold3_Y_train = fold3_XY_train_set[:,N:]
+    fold3_Y_train = fold3_XY_train_set[:,N:N+Y_fold1.shape[1]]
+    fold3_tags_train = fold3_XY_train_set[:,N+Y_fold1.shape[1]:]
 
     fold4_X_train = fold4_XY_train_set[:,0:N]
-    fold4_Y_train = fold4_XY_train_set[:,N:]
+    fold4_Y_train = fold4_XY_train_set[:,N:N+Y_fold1.shape[1]]
+    fold4_tags_train = fold4_XY_train_set[:,N+Y_fold1.shape[1]:]
 
-    # Drop the additional dimensions of Y 
+    # Drop the additional dimensions of Y and level tags 
     fold1_Y_train = fold1_Y_train[:,:,0]
     fold2_Y_train = fold2_Y_train[:,:,0]
     fold3_Y_train = fold3_Y_train[:,:,0]
     fold4_Y_train = fold4_Y_train[:,:,0]
+
+    fold1_tags_train = fold1_tags_train[:,:,0]
+    fold2_tags_train = fold2_tags_train[:,:,0]
+    fold3_tags_train = fold3_tags_train[:,:,0]
+    fold4_tags_train = fold4_tags_train[:,:,0]
 
     Y_fold1 = Y_fold1[:,:,0]
     Y_fold2 = Y_fold2[:,:,0]
     Y_fold3 = Y_fold3[:,:,0]
     Y_fold4 = Y_fold4[:,:,0]
 
+    levels_tags_fold1 = levels_tags_fold1[:,:,0]
+    levels_tags_fold2 = levels_tags_fold2[:,:,0]
+    levels_tags_fold3 = levels_tags_fold3[:,:,0]
+    levels_tags_fold4 = levels_tags_fold4[:,:,0]
+
     # Fill the dictionary fold-wise
     # 1-fold
-    folds_dict['1-fold']['X_train'] = fold1_X_train
-    folds_dict['1-fold']['Y_train'] = fold1_Y_train
-    folds_dict['1-fold']['X_test'] = X_fold4
-    folds_dict['1-fold']['Y_test'] = Y_fold4
+    folds_dict['1-fold']['X_train'] = fold1_X_train.astype('float32')
+    folds_dict['1-fold']['Y_train'] = fold1_Y_train.astype('float32')
+    folds_dict['1-fold']['X_test'] = X_fold4.astype('float32')
+    folds_dict['1-fold']['Y_test'] = Y_fold4.astype('float32')
+    folds_dict['1-fold']['train_tags'] = fold1_tags_train
+    folds_dict['1-fold']['test_tags'] = levels_tags_fold4
 
     # 2-fold
-    folds_dict['2-fold']['X_train'] = fold2_X_train
-    folds_dict['2-fold']['Y_train'] = fold2_Y_train
-    folds_dict['2-fold']['X_test'] = X_fold3
-    folds_dict['2-fold']['Y_test'] = Y_fold3
+    folds_dict['2-fold']['X_train'] = fold2_X_train.astype('float32')
+    folds_dict['2-fold']['Y_train'] = fold2_Y_train.astype('float32')
+    folds_dict['2-fold']['X_test'] = X_fold3.astype('float32')
+    folds_dict['2-fold']['Y_test'] = Y_fold3.astype('float32')
+    folds_dict['2-fold']['train_tags'] = fold2_tags_train
+    folds_dict['2-fold']['test_tags'] = levels_tags_fold3
 
     # 3-fold
-    folds_dict['3-fold']['X_train'] = fold3_X_train
-    folds_dict['3-fold']['Y_train'] = fold3_Y_train
-    folds_dict['3-fold']['X_test'] = X_fold2
-    folds_dict['3-fold']['Y_test'] = Y_fold2
+    folds_dict['3-fold']['X_train'] = fold3_X_train.astype('float32')
+    folds_dict['3-fold']['Y_train'] = fold3_Y_train.astype('float32')
+    folds_dict['3-fold']['X_test'] = X_fold2.astype('float32')
+    folds_dict['3-fold']['Y_test'] = Y_fold2.astype('float32')
+    folds_dict['3-fold']['train_tags'] = fold3_tags_train
+    folds_dict['3-fold']['test_tags'] = levels_tags_fold2
 
     # 4-fold
-    folds_dict['4-fold']['X_train'] = fold4_X_train
-    folds_dict['4-fold']['Y_train'] = fold4_Y_train
-    folds_dict['4-fold']['X_test'] = X_fold1
-    folds_dict['4-fold']['Y_test'] = Y_fold1
+    folds_dict['4-fold']['X_train'] = fold4_X_train.astype('float32')
+    folds_dict['4-fold']['Y_train'] = fold4_Y_train.astype('float32')
+    folds_dict['4-fold']['X_test'] = X_fold1.astype('float32')
+    folds_dict['4-fold']['Y_test'] = Y_fold1.astype('float32')
+    folds_dict['4-fold']['train_tags'] = fold4_tags_train
+    folds_dict['4-fold']['test_tags'] = levels_tags_fold1
 
     return folds_dict
 

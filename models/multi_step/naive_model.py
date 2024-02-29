@@ -20,7 +20,7 @@ from sensor_params import *
 from typing import *
 import copy
 
-def naive_model(X : np.array, pred_steps : int) -> np.array:
+def naive_model(X : np.array, input_feature : int, pred_steps : int) -> np.array:
     """Returns a naive model that predicts a sequence that it 
     is just the input array shifted a number of positions equal to
     Prediction Horizon (PH) / sampling period of the sensor.
@@ -29,6 +29,7 @@ def naive_model(X : np.array, pred_steps : int) -> np.array:
     Args:
     -----
         X (np.array): Input tensor.
+        input_feature (int): Number of features in the input tensor.
         pred_steps(int): Number of points to predict, that corresponds to: PH/sampling frequency of
         the sensor.
 
@@ -38,7 +39,12 @@ def naive_model(X : np.array, pred_steps : int) -> np.array:
     """
 
     # Take only the last PH/sensor["SAMPLE_PERIOD"] samples of the input array (Equivalent to make a prediction that is only a shift of the input array)
-    naive_prediction = copy.deepcopy(X)
-    naive_prediction = naive_prediction[:,-(round(pred_steps)):]
+    if input_feature ==  1:
+        naive_prediction = copy.deepcopy(X)
+        naive_prediction = naive_prediction[:,-(round(pred_steps)):]
+    
+    elif input_feature > 1:
+        naive_prediction = copy.deepcopy(X[:,:,0])
+        naive_prediction = naive_prediction[:,-(round(pred_steps)):]
 
     return naive_prediction

@@ -489,7 +489,7 @@ def time_lag(ground_truth : np.array, predictions : np.array, PH : int, pred_ste
 
     return time_lag
 
-def model_evaluation(N : int, PH : int, name : str, normalization : str,
+def model_evaluation(N : int, PH : int, name : str, normalization : str, input_features : int, 
                     X_test : np.array, Y_test : np.array, pred_steps : int, X : np.array,
                     loss_function : str, plot_results : bool = False) -> None: 
     """
@@ -511,6 +511,7 @@ def model_evaluation(N : int, PH : int, name : str, normalization : str,
         PH: prediction horizon
         name(str): name of the model
         normalization: string indicating the type of normalization applied to the data 
+        input_features: number of input features
         X_test: array with the input features of the test set
         Y_test: array with the ground truth of the test set
         pred_steps: number of predicted time steps, i.e., lenght of the output sequence
@@ -569,7 +570,7 @@ def model_evaluation(N : int, PH : int, name : str, normalization : str,
     elif 'naive' in name:
         
         # Naive model prediction (shift the input array)
-        Y_pred_norm = naive_model(X_test, round(pred_steps))
+        Y_pred_norm = naive_model(X_test, input_features, round(pred_steps))
     
         # If normalization was applied, denormalize the predictions 
         if normalization == 'min-max':

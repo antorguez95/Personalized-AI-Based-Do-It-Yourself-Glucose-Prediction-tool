@@ -79,15 +79,27 @@ testing = {'sensor' : [libreview_sensors],
                 }
 
 N_patients_N_models_DL = {'sensor' : [libreview_sensors],
-                'N' : [144], 
+                'N' : [96], 
+                'step' : [1], 
+                'PH' : [60],# [30, 60], 
+                'single_multi_step' : ['multi'],
+                'partition' : ['month-wise-4-folds'],
+                'normalization' : ['min-max'],
+                'under_over_sampling' : [None], 
+                'model' : ['naive', 'LSTM', 'StackedLSTM', 'DIL-1D-UNET'],#['naive', 'LSTM', 'StackedLSTM', 'DIL-1D-UNET'],# '1D-UNET', '1D-UNET-non-compres', 'DIL-1D-UNET', 'LSTM'],
+                'loss_function' : ['ISO_loss', 'root_mean_squared_error'], 
+                }
+
+only_naive = {'sensor' : [libreview_sensors],
+                'N' : [96], 
                 'step' : [1], 
                 'PH' : [30, 60], 
                 'single_multi_step' : ['multi'],
                 'partition' : ['month-wise-4-folds'],
                 'normalization' : ['min-max'],
                 'under_over_sampling' : [None], 
-                'model' : ['DIL-1D-UNET'],# ['naive', 'LSTM', 'StackedLSTM'],#['naive', 'LSTM', 'StackedLSTM', 'DIL-1D-UNET'],# '1D-UNET', '1D-UNET-non-compres', 'DIL-1D-UNET', 'LSTM'],
-                'loss_function' : ['ISO_loss', 'root_mean_squared_error'], 
-                }
+                'model' : ['naive'],
+                'loss_function' : ['root_mean_squared_error'], 
+                } 
 
 

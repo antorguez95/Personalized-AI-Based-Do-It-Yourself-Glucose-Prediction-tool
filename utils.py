@@ -1183,7 +1183,8 @@ def generate_ranges_tags(Y: np.array, lower_threshold : int = 70, upper_threshol
     This function generates a list with "hyper", "hypo" and "normal" tags based on
     the glucose levels on the Y vector. This has been done to weight samples the preceed
     hypoglycaemic events and hyperglycamic events more than samples that preceed
-    glucose sequences in the normal range. 
+    glucose sequences in the normal range. And also to evaluate if the prediction contains
+    hypoglycaemic or hyperglycemic events when the real data does.  
 
     Args:
     ----
@@ -1211,4 +1212,13 @@ def generate_ranges_tags(Y: np.array, lower_threshold : int = 70, upper_threshol
         else : 
             levels_tags[idx] = 'normal'
     
-    return levels_tags
+        # Convert List to np to further concatenate 
+        levels_tags_np = np.array(levels_tags)
+
+        # Add dimension to be able to conatenate with X and Y 
+        levels_tags_np = levels_tags_np[np.newaxis]
+
+        # Swap axes so dimensions match with X and Y  tensors
+        levels_tags_np = np.swapaxes(levels_tags_np, 0, 1)
+    
+    return levels_tags_np
