@@ -23,12 +23,17 @@ from shapely.geometry.polygon import Polygon
 import os
 import tensorflow as tf
 from typing import Dict
+from sklearn.metrics import confusion_matrix
+import seaborn as sns 
+import pandas as pd
 
 
 from models.training import ISO_adapted_loss
 from models.multi_step.naive_model import naive_model 
 
 from evaluation.multi_step.Parkes_EGA_boundaries_T1DM import *
+
+from utils import generate_ranges_tags
 
 
 def bgISOAcceptableZone(ground_truth : np.array, predictions: np.array,  fold : str, step : int, plot : bool = False) -> Tuple[int, bool]:
@@ -665,9 +670,6 @@ def model_evaluation(N : int, PH : int, name : str, normalization : str, input_f
         iso_percs.append(iso_perc_in)
         parkerAB_percs.append(parkerAB_perc)
     
-    # Store results in a dictionary to further add it to the results dictionary 
-    results = {'RMSE': rmse.tolist(), 'MAE': mae.tolist(), 'MAPE': mape.tolist(), 'ISO': iso_percs, 'PARKES': parkerAB_percs}#, 'time_lag' : time_lag.to_list()}
-
     # Plot histograms of predictions and ground truth 
     plt.figure(figsize = (10,5)) 
     plt.hist(Y_test.flatten(), bins=100, alpha=0.5)
@@ -711,6 +713,34 @@ def model_evaluation(N : int, PH : int, name : str, normalization : str, input_f
         plt.legend()
         # Save figure
         plt.savefig(name+'_sample'+str(i)+'.png', dpi=300, bbox_inches='tight') 
+
+    
+    # "Classification" metrics separating into "hyper", "hypo" and "normal" CGM ranges 
+    # First, generate the labels to compare the gorund truth to the predictions 
+    gt_tags = generate_ranges_tags(Y_test)
+    prediction_tags = generate_ranges_tags(Y_pred)
+
+    # Overall accuracy
+    acc = np.sum(gt_tags == prediction_tags)/len(gt_tags)
+
+    # TP rate of different ranges  
+    hypo_tp = np.sum((gt_tags == prediction_tags) & (gt_tags == 'hypo'))/np.sum(gt_tags == 'hypo')
+    hyper_tp = np.sum((gt_tags == prediction_tags) & (gt_tags == 'hyper'))/np.sum(gt_tags == 'hyper')
+    normal_tp = np.sum((gt_tags == prediction_tags) & (gt_tags == 'normal'))/np.sum(gt_tags == 'normal')
+
+    # Get and save confusion matrix 
+    cm = confusion_matrix(gt_tags, prediction_tags, labels = ['hypo', 'normal', 'hyper'])
+    df_cm = pd.DataFrame(cm, index = ['hypo', 'normal', 'hyper'], columns = ['hypo', 'normal', 'hyper'])
+    sns.heatmap(df_cm, annot=True, cmap='Blues', fmt='g')
+
+    # Save heatmap
+    plt.savefig('confusion_matrix.png', dpi = 300)
+    
+    # Store results in a dictionary to further add it to the results dictionary 
+    results = {'RMSE': rmse.tolist(), 'MAE': mae.tolist(), 'MAPE': mape.tolist(), 'ISO': iso_percs, 'PARKES': parkerAB_percs, 
+               'Accuracy' : acc, 'Hypo TP' : hypo_tp, 'Hyper TP' : hyper_tp, 'Normal TP' : normal_tp}#, 'time_lag' : time_lag.to_list()}
+
+
 
     return results  
 
