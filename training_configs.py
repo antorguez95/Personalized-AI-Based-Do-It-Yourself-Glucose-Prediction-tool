@@ -86,8 +86,8 @@ N_patients_N_models_DL = {'sensor' : [libreview_sensors],
                 'partition' : ['month-wise-4-folds'],
                 'normalization' : ['min-max'],
                 'under_over_sampling' : [None], 
-                'model' : ['naive', 'LSTM', 'StackedLSTM', 'DIL-1D-UNET'],#['naive', 'LSTM', 'StackedLSTM', 'DIL-1D-UNET'],# '1D-UNET', '1D-UNET-non-compres', 'DIL-1D-UNET', 'LSTM'],
-                'loss_function' : ['ISO_loss', 'root_mean_squared_error'], 
+                'model' : ['LSTM', 'StackedLSTM', 'DIL-1D-UNET'],
+                'loss_function' : ['ISO_loss'],#, 'root_mean_squared_error'], 
                 }
 
 only_naive = {'sensor' : [libreview_sensors],

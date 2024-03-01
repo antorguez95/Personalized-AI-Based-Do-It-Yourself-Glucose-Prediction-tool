@@ -1222,3 +1222,44 @@ def generate_ranges_tags(Y: np.array, lower_threshold : int = 70, upper_threshol
         levels_tags_np = np.swapaxes(levels_tags_np, 0, 1)
     
     return levels_tags_np
+
+def generate_weights_vector(levels_tags : np.array) -> np.array : 
+    """
+    Having the array with the levels tags (hyper, hypo and normal range), 
+    generates a vector with the weight associated to each level to train the 
+    DL models. This is done patient per patient and fold by fold, so the weights
+    are not fixed, but case sensitive (i.e., personalized).
+
+    Args:
+    -----
+    levels_tags : np.array with the levels tags (hyper, hypo and normal range).
+
+    Returns:
+    --------
+    weights_vector : np.array with the weights associated to each level to train the
+
+    """
+
+    hypo = np.count_nonzero(levels_tags == 'hypo')
+    hyper = np.count_nonzero(levels_tags == 'hyper')
+    normal = np.count_nonzero(levels_tags == 'normal')
+
+    prob_hypo = hypo/len(levels_tags)
+    prob_hyper = hyper/len(levels_tags)
+    prob_normal = normal/len(levels_tags)
+
+    # Dictionary with the weights associated to each sample
+    #ranges_weights = {'hypo' : 9, 'hyper' : 1, 'normal' : 3}
+    ranges_weights = {'hypo' : 2*(1/prob_hypo), 'hyper' : 1.1*(1/prob_hyper), 'normal' : 1/prob_normal}
+
+    # Declare the weights array BEFORE NORMALIZATION with the same dimension than the Y_train array 
+    weights = np.zeros(levels_tags.shape[0])
+
+    # Fill the weights array with the weights associated to each sample
+    for i in range(levels_tags.shape[0]):
+        if levels_tags[i] == 'hypo':
+            weights[i] = ranges_weights['hypo']
+        elif levels_tags[i] == 'hyper':
+            weights[i] = ranges_weights['hyper']
+        else:
+            weights[i] = ranges_weights['normal']

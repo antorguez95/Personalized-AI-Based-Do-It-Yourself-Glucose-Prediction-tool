@@ -13,7 +13,7 @@ sys.path.append("..")
 from libreview_utils import *
 from models.training import *
 from sensor_params import *
-from utils import get_LibreView_CGM_X_Y_multistep, undersample_normal_range_outputs
+from utils import get_LibreView_CGM_X_Y_multistep, undersample_normal_range_outputs, generate_ranges_tags, generate_weights_vector
 from training_configs import *
 
 # Multi step forecasting models and functions
@@ -176,6 +176,9 @@ def launch_LibreView_experiments(test : Dict, input_features : int, weighted_sam
                                                     else:   
                                                         raise ValueError("Only 'multi' step prediction is supported in the LibreView-extracted data")
                                                     
+                                                    # Generate the tags associated to each Y vector ("hyper", "hypo", "normal") depending of it it contains hyper, hypo or normal values
+                                                    levels_tags = generate_ranges_tags(Y)
+                                                    
                                                     # Data normalization
                                                     if normalization == 'min-max':
                                                         X_norm = (X - np.min(X))/(np.max(X) - np.min(X))
@@ -217,7 +220,7 @@ def launch_LibreView_experiments(test : Dict, input_features : int, weighted_sam
                                                         
                                                         # Month-wise 4-folds
                                                         if data_partition == 'month-wise-4-folds':                                                 
-                                                            training_cv_folds  = month_wise_multi_input_LibreView_4fold_cv(X_norm, Y_norm, X_times, Y_times, N, input_features)
+                                                            training_cv_folds  = month_wise_multi_input_LibreView_4fold_cv(X_norm, Y_norm, X_times, Y_times, levels_tags, N, input_features)
                                                         else: 
                                                             raise ValueError("Partition name not valid: currently 'month-wise-4-folds' is supported")
 
@@ -296,6 +299,12 @@ def launch_LibreView_experiments(test : Dict, input_features : int, weighted_sam
                                                                 
                                                                 # Get into the fold directory
                                                                 os.chdir(fold)
+
+                                                                # WEIGHTS COMPUTATION: Count the number of samples in each category
+                                                                if weighted_samples:
+                                                                    weights = generate_weights_vector(training_cv_folds[fold]['train_tags'])
+                                                                else:
+                                                                    weights = []
                                                                 
                                                                 # One model training per fold
                                                                 train_model(sensor,
@@ -308,6 +317,7 @@ def launch_LibreView_experiments(test : Dict, input_features : int, weighted_sam
                                                                             batch_size = batch_size,
                                                                             lr = lr,
                                                                             fold = id+"-"+model_name+"-"+fold,
+                                                                            sample_weights=weights, 
                                                                             loss_function = loss_function,
                                                                             verbose = 1 
                                                                             )
