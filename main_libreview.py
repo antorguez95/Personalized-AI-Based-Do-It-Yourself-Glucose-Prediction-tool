@@ -7,6 +7,7 @@ import matplotlib.pyplot as plt
 import openpyxl
 import pickle
 import json 
+from keras import backend as K
 
 sys.path.append("..")
 
@@ -94,8 +95,8 @@ def launch_LibreView_experiments(test : Dict, input_features : int, weighted_sam
         i = 0
 
         # Consider only folders, not .npy or .txt files
-        # if ('npy' not in id) and ('txt' not in id): 
-        if ('001' in id) and ('npy' not in id) and ('txt' not in id) : 
+        if ('npy' not in id) and ('txt' not in id): 
+        # if ('045' in id) and ('npy' not in id) and ('txt' not in id) : 
         
             # Get into the ID patient folder
             os.chdir(id)
@@ -377,6 +378,9 @@ def launch_LibreView_experiments(test : Dict, input_features : int, weighted_sam
                                                                     
                                                                     # Back to previous directory 
                                                                     os.chdir('../..')
+
+                                                                    # Clear session to avoid that models stop training earlier than desired
+                                                                    K.clear_session()
                                                         
                                                                 else: 
                                                                     raise ValueError("Only 'multi' step prediction is supported in the LibreView-extracted data")

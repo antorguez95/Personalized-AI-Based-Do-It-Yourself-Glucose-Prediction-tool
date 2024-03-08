@@ -755,7 +755,6 @@ def gen_PHs_boxplots(model_name : str, PH : int, iso_metrics : List, mse_metrics
     # Save figure 
     plt.savefig('boxplot_'+model_name+'_PH_'+str(PH)+'_min.png', format='png', dpi=1200)
 
-
 def get_patient_wise_metrics(exp_config : Dict, grouped_metrics : Dict, patients_data_folder : str = r"C:\Users\aralmeida\Downloads\LibreViewRawData\1yr_npy_files"): 
     
     """
@@ -1163,7 +1162,6 @@ def get_grouped_ISO_and_Parkes_best_metrics(exp_config : Dict, grouped_metrics :
     
     return best_30min_model_dict, best_60min_model_dict, patients_ids
 
-
 def get_global_MSEbased_graphics(PH : int, best_model_dict : Dict, ids : List) : 
     """
     Having the input of the PH to be studied and the dictionary with the best models
@@ -1541,7 +1539,6 @@ def get_XY_vectors_characterization(patients_ids : List, PH : int, unit : str = 
 
     return cgm_patients_characteristics
 
-
 def get_patient_wise_fold_results(exp_config : Dict, results_dict : Dict, results_dir : str = r"C:\Users\aralmeida\Downloads\LibreViewRawData\1yr_npy_files") -> Dict: 
     
     """
@@ -1615,7 +1612,6 @@ def get_patient_wise_fold_results(exp_config : Dict, results_dict : Dict, result
             os.chdir('..')
     
     return patient_wise_fold_results
-
 
 def plot_patient_per_patient_boxplot(patient_wise_results : Dict, metric : str, sorted_by : str = 'samples'):
     

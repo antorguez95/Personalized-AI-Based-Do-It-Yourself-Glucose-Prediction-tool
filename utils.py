@@ -1263,3 +1263,5 @@ def generate_weights_vector(levels_tags : np.array) -> np.array :
             weights[i] = ranges_weights['hyper']
         else:
             weights[i] = ranges_weights['normal']
+    
+    return weights

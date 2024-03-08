@@ -73,7 +73,6 @@ def ISO_adapted_loss(y_true: tf.Tensor, y_pred: tf.Tensor) -> tf.Tensor:
     
     # N is the maximum between 1 and y_true/100
     N = tf.math.maximum(y_true/100, 1)
-    # N = np.maximum(y_true/100, 1)
 
     # Error is prediction - true value
     e = y_pred - y_true
@@ -83,7 +82,6 @@ def ISO_adapted_loss(y_true: tf.Tensor, y_pred: tf.Tensor) -> tf.Tensor:
 
     # Squared the Error between true and predicted values
     e2 = tf.math.square(e_norm)
-    # e2 = np.square(e_norm)
 
     # K is a constant that multiplies admisible_sigma and upper_bound_error
     K = admisible_gamma/(tf.math.pow(upper_bound_error, 2*n) + KA.epsilon())
@@ -626,7 +624,8 @@ def train_model(sensor : Dict,
 
     # Define delta for early stopping depending on the loss function
     if loss_function == 'root_mean_squared_error':
-        delta = 0.05
+        #delta = 0.05
+        delta = 0.0001
     
     elif loss_function == 'ISO_loss':
         delta = 0.0001

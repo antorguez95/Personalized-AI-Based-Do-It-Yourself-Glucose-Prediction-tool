@@ -42,12 +42,12 @@ import argparse
 from main_libreview import launch_LibreView_experiments
 from training_configs import *
 
-epochs_default = 10
-batch_size_default = 2
+epochs_default = 20
+batch_size_default = 1
 learning_rate_default = 0.0001
-epochs_default = 1
-batch_size_default = 1024
-learning_rate_default = 0.001
+# epochs_default = 1
+# batch_size_default = 1024
+# learning_rate_default = 0.001
 
 kernel_size_default = 10
 tau_default = 1
