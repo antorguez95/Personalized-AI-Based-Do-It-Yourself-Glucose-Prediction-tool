@@ -1146,8 +1146,8 @@ def get_LibreView_CGM_X_Y_multistep(recordings : np.array, timestamps : np.array
         global_idx = starting_idx[i] 
 
     # Declare X an Y vector with all time and glucose concatenated data to further processing
-    X = np.zeros((len(X_init_list), N), dtype=np.float32)
-    Y = np.zeros((len(Y_init_list), round(prediction_horizon/glucose_sensor["SAMPLE_PERIOD"])), dtype=np.float32) # Check values on sensor_params.py and arch_params.py
+    X = np.zeros((len(X_init_list), N), dtype=np.float64)
+    Y = np.zeros((len(Y_init_list), round(prediction_horizon/glucose_sensor["SAMPLE_PERIOD"])), dtype=np.float64) # Check values on sensor_params.py and arch_params.py
     X_times = np.empty((len(X_init_list), N), dtype='datetime64[s]')
     Y_times = np.empty((len(Y_init_list), round(prediction_horizon/glucose_sensor["SAMPLE_PERIOD"])), dtype='datetime64[s]')
 
@@ -1171,9 +1171,9 @@ def get_LibreView_CGM_X_Y_multistep(recordings : np.array, timestamps : np.array
     np.save('X_times.npy', X_times)
     np.save('Y_times.npy', Y_times) 
 
-    # Convert np.arrays to float32 to convert them to Tensorflow tensors
-    X = X.astype(np.float32)
-    Y = Y.astype(np.float32)
+    # Convert np.arrays to float64 to convert them to Tensorflow tensors
+    X = X.astype(np.float64)
+    Y = Y.astype(np.float64)
 
     return X, Y, X_times, Y_times
 

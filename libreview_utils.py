@@ -175,7 +175,7 @@ def prepare_LibreView_data(dataset_path : str, save_dict : bool = True) -> Dict:
                         empty_array = np.empty((1)) # to be filled with the readings separately
                         
                         # Create the dictionary for every recording, date and sensor
-                        data_dict[id][s][r][download_date][MACs[i]] = {sensor_name : {"CGM" : {"reading" : np.empty((0)),
+                        data_dict[id][s][r][download_date][MACs[i]] = {sensor_name : {"CGM" : {"reading" : np.empty((0), dtype=np.float64),
                                                                         "timestamp" : np.empty((0))},#, dtype='datetime64[s]')},
                                                             "Escanned CGM" : {"reading" : np.empty((0)),
                                                                         "timestamp" : np.empty((0))},#, dtype='datetime64[s]')},
@@ -475,6 +475,9 @@ def generate_LibreView_npy_1yr_recordings(data_1yr_recordings : Dict):
                         # Read .npy files
                         recording = np.load('X_{}_{}_{}_CGM.npy'.format(id, older_recording_idx, sensor))
                         recording_timestamps = np.load('X_{}_{}_{}_CGM_timestamp.npy'.format(id, older_recording_idx, sensor), allow_pickle=True)
+
+                        # Convert recording tp float 64
+                        recording = recording.astype(np.float64)
 
                         # Take only the first year of data 
                         first_sample = recording_timestamps[0]

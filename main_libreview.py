@@ -80,6 +80,10 @@ def launch_LibreView_experiments(test : Dict, input_features : int, weighted_sam
 
     # Initial time
     t0 = time.time()
+
+    # Set Keras to float 64 to work with the ISO-loss function
+    tf.keras.backend.set_floatx('float64')
+    print("Keras float type: ", K.floatx())
     
     # From the .csv files. extract the oldest year and store them to load them separately 
     get_oldest_year_npys_from_LibreView_csv(dataset_path)
@@ -96,7 +100,7 @@ def launch_LibreView_experiments(test : Dict, input_features : int, weighted_sam
 
         # Consider only folders, not .npy or .txt files
         if ('npy' not in id) and ('txt' not in id): 
-        # if ('045' in id) and ('npy' not in id) and ('txt' not in id) : 
+        # if ('001' in id) and ('npy' not in id) and ('txt' not in id) : 
         
             # Get into the ID patient folder
             os.chdir(id)
@@ -154,7 +158,7 @@ def launch_LibreView_experiments(test : Dict, input_features : int, weighted_sam
                                                     cwd = os.getcwd()
                                                     
                                                     # If not created the directory correspondant with this configuration, create it
-                                                    subdirectory = r"\N{}\step{}\PH{}\{}\{}\norm_{}\{}_sampling\{}\{}".format(N, step, PH, single_multi_step,
+                                                    subdirectory = r"test\N{}\step{}\PH{}\{}\{}\norm_{}\{}_sampling\{}\{}".format(N, step, PH, single_multi_step,
                                                                                                                             data_partition, normalization, under_over_sampling, model_name, loss_function)
                                                     if not os.path.exists(cwd+subdirectory):
                                                         os.makedirs(cwd+subdirectory)
@@ -306,7 +310,7 @@ def launch_LibreView_experiments(test : Dict, input_features : int, weighted_sam
                                                                     weights = generate_weights_vector(training_cv_folds[fold]['train_tags'])
                                                                 else:
                                                                     weights = []
-                                                                
+
                                                                 # One model training per fold
                                                                 train_model(sensor,
                                                                             model,

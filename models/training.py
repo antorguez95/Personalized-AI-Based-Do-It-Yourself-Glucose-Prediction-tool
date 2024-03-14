@@ -67,9 +67,9 @@ def ISO_adapted_loss(y_true: tf.Tensor, y_pred: tf.Tensor) -> tf.Tensor:
 
     """
 
-    n = tf.constant(40.0, dtype=tf.float32) # iniciamos con 40
-    admisible_gamma = tf.constant(0.1, dtype=tf.float32)
-    upper_bound_error = tf.constant(14.0, dtype=tf.float32)
+    n = tf.constant(40.0, dtype=tf.float64) # iniciamos con 40
+    admisible_gamma = tf.constant(0.1, dtype=tf.float64)
+    upper_bound_error = tf.constant(14.0, dtype=tf.float64)
     
     # N is the maximum between 1 and y_true/100
     N = tf.math.maximum(y_true/100, 1)
@@ -912,34 +912,34 @@ def month_wise_multi_input_LibreView_4fold_cv(X: np.array, Y: np.array, X_times 
 
     # Fill the dictionary fold-wise
     # 1-fold
-    folds_dict['1-fold']['X_train'] = fold1_X_train.astype('float32')
-    folds_dict['1-fold']['Y_train'] = fold1_Y_train.astype('float32')
-    folds_dict['1-fold']['X_test'] = X_fold4.astype('float32')
-    folds_dict['1-fold']['Y_test'] = Y_fold4.astype('float32')
+    folds_dict['1-fold']['X_train'] = fold1_X_train.astype('float64')
+    folds_dict['1-fold']['Y_train'] = fold1_Y_train.astype('float64')
+    folds_dict['1-fold']['X_test'] = X_fold4.astype('float64')
+    folds_dict['1-fold']['Y_test'] = Y_fold4.astype('float64')
     folds_dict['1-fold']['train_tags'] = fold1_tags_train
     folds_dict['1-fold']['test_tags'] = levels_tags_fold4
 
     # 2-fold
-    folds_dict['2-fold']['X_train'] = fold2_X_train.astype('float32')
-    folds_dict['2-fold']['Y_train'] = fold2_Y_train.astype('float32')
-    folds_dict['2-fold']['X_test'] = X_fold3.astype('float32')
-    folds_dict['2-fold']['Y_test'] = Y_fold3.astype('float32')
+    folds_dict['2-fold']['X_train'] = fold2_X_train.astype('float64')
+    folds_dict['2-fold']['Y_train'] = fold2_Y_train.astype('float64')
+    folds_dict['2-fold']['X_test'] = X_fold3.astype('float64')
+    folds_dict['2-fold']['Y_test'] = Y_fold3.astype('float64')
     folds_dict['2-fold']['train_tags'] = fold2_tags_train
     folds_dict['2-fold']['test_tags'] = levels_tags_fold3
 
     # 3-fold
-    folds_dict['3-fold']['X_train'] = fold3_X_train.astype('float32')
-    folds_dict['3-fold']['Y_train'] = fold3_Y_train.astype('float32')
-    folds_dict['3-fold']['X_test'] = X_fold2.astype('float32')
-    folds_dict['3-fold']['Y_test'] = Y_fold2.astype('float32')
+    folds_dict['3-fold']['X_train'] = fold3_X_train.astype('float64')
+    folds_dict['3-fold']['Y_train'] = fold3_Y_train.astype('float64')
+    folds_dict['3-fold']['X_test'] = X_fold2.astype('float64')
+    folds_dict['3-fold']['Y_test'] = Y_fold2.astype('float64')
     folds_dict['3-fold']['train_tags'] = fold3_tags_train
     folds_dict['3-fold']['test_tags'] = levels_tags_fold2
 
     # 4-fold
-    folds_dict['4-fold']['X_train'] = fold4_X_train.astype('float32')
-    folds_dict['4-fold']['Y_train'] = fold4_Y_train.astype('float32')
-    folds_dict['4-fold']['X_test'] = X_fold1.astype('float32')
-    folds_dict['4-fold']['Y_test'] = Y_fold1.astype('float32')
+    folds_dict['4-fold']['X_train'] = fold4_X_train.astype('float64')
+    folds_dict['4-fold']['Y_train'] = fold4_Y_train.astype('float64')
+    folds_dict['4-fold']['X_test'] = X_fold1.astype('float64')
+    folds_dict['4-fold']['Y_test'] = Y_fold1.astype('float64')
     folds_dict['4-fold']['train_tags'] = fold4_tags_train
     folds_dict['4-fold']['test_tags'] = levels_tags_fold1
 
