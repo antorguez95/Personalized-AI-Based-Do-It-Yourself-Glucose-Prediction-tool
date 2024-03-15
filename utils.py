@@ -1228,7 +1228,9 @@ def generate_weights_vector(levels_tags : np.array) -> np.array :
     Having the array with the levels tags (hyper, hypo and normal range), 
     generates a vector with the weight associated to each level to train the 
     DL models. This is done patient per patient and fold by fold, so the weights
-    are not fixed, but case sensitive (i.e., personalized).
+    are not fixed, but case sensitive (i.e., personalized). If some of the ranges
+    (unlikely but sometimes happen with hypoglycaemic events) are not present, the
+    weights are adjusted to avoid division by zero.
 
     Args:
     -----
@@ -1244,9 +1246,20 @@ def generate_weights_vector(levels_tags : np.array) -> np.array :
     hyper = np.count_nonzero(levels_tags == 'hyper')
     normal = np.count_nonzero(levels_tags == 'normal')
 
-    prob_hypo = hypo/len(levels_tags)
-    prob_hyper = hyper/len(levels_tags)
-    prob_normal = normal/len(levels_tags)
+    if hypo != 0:
+        prob_hypo = hypo/len(levels_tags)
+    else: 
+        prob_hypo = 1 # will not have effect in the weights since hypo samples are not present 
+    
+    if hyper != 0:
+        prob_hyper = hyper/len(levels_tags)
+    else: 
+        prob_hyper = 1 # will not have effect in the weights since hyper samples are not present
+    
+    if normal != 0:
+        prob_normal = normal/len(levels_tags)
+    else: 
+        prob_normal = 1 # will not have effect in the weights since normal samples are not present
 
     # Dictionary with the weights associated to each sample
     #ranges_weights = {'hypo' : 9, 'hyper' : 1, 'normal' : 3}
