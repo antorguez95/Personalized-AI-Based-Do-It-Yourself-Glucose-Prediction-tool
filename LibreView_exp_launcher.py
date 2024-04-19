@@ -1,4 +1,4 @@
-# Copyright (C) 2023 Antonio J. Rodriguez-Almeida
+# Copyright (C) 2024 Antonio J. Rodriguez-Almeida
 # 
 # This file is part of T1DM_WARIFA.
 # 
@@ -45,9 +45,6 @@ from training_configs import *
 epochs_default = 20
 batch_size_default = 1
 learning_rate_default = 0.0001
-# epochs_default = 1
-# batch_size_default = 1024
-# learning_rate_default = 0.001
 
 kernel_size_default = 10
 tau_default = 1

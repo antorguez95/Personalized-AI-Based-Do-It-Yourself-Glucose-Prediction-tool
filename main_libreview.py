@@ -99,8 +99,10 @@ def launch_LibreView_experiments(test : Dict, input_features : int, weighted_sam
         i = 0
 
         # Consider only folders, not .npy or .txt files
-        if ('npy' not in id) and ('txt' not in id): 
+        # if ('npy' not in id) and ('txt' not in id) and ('ISO' not in id) and ('test' not in id):# and ('001') not in id: 
         # if ('001' in id) and ('npy' not in id) and ('txt' not in id) : 
+        if ('npy' not in id) and ('txt' not in id) and ('ISO' not in id) and ('test' not in id) and ('001' not in id) and ('003' not in id) and('004' not in id) and('007' not in id) and('008' not in id) and('011' not in id) and('013' not in id) and('014' not in id) and('015' not in id) and ('025' not in id) and ('026' not in id) and ('029' not in id) and ('039' not in id) and ('043' not in id):# and ('045' not in id):
+        # if ('npy' not in id) and ('txt' not in id) and ('ISO' not in id) and ('test' not in id) and (('062' in id) or ('063' in id) or ('065' in id) or ('067' in id) or ('068' in id)):      
         
             # Get into the ID patient folder
             os.chdir(id)
@@ -158,7 +160,7 @@ def launch_LibreView_experiments(test : Dict, input_features : int, weighted_sam
                                                     cwd = os.getcwd()
                                                     
                                                     # If not created the directory correspondant with this configuration, create it
-                                                    subdirectory = r"test\N{}\step{}\PH{}\{}\{}\norm_{}\{}_sampling\{}\{}".format(N, step, PH, single_multi_step,
+                                                    subdirectory = r"\N{}\step{}\PH{}\{}\{}\norm_{}\{}_sampling\{}\{}".format(N, step, PH, single_multi_step,
                                                                                                                             data_partition, normalization, under_over_sampling, model_name, loss_function)
                                                     if not os.path.exists(cwd+subdirectory):
                                                         os.makedirs(cwd+subdirectory)
@@ -310,7 +312,24 @@ def launch_LibreView_experiments(test : Dict, input_features : int, weighted_sam
                                                                     weights = generate_weights_vector(training_cv_folds[fold]['train_tags'])
                                                                 else:
                                                                     weights = []
-
+                                                                
+                                                                # SPECIAL CASE FOR CNN: conflicts using custom (ISO loss function) and sample weights (to be better fixed)
+                                                                if model_name == 'DIL-1D-UNET' and loss_function == 'ISO_loss':
+                                                                        if PH == 60: # hard-coded
+                                                                            weights_cnn = np.vstack((weights, weights, weights, weights))
+                                                                            weights_cnn = weights_cnn.T
+                                                                            weights_cnn = np.expand_dims(weights_cnn, axis = 2)
+                                                                            weights_cnn = np.swapaxes(weights_cnn, 1, 2)
+                                                                            weights = weights_cnn
+                                                                        if PH == 30: # hard-coded
+                                                                            weights_cnn = np.vstack((weights, weights))
+                                                                            weights_cnn = weights_cnn.T
+                                                                            weights_cnn = np.expand_dims(weights_cnn, axis = 2)
+                                                                            weights_cnn = np.swapaxes(weights_cnn, 1, 2)
+                                                                            weights = weights_cnn
+                                                                else: 
+                                                                    pass # weights do not need to be modified in LSTM and StackedLSTM models
+                                                                
                                                                 # One model training per fold
                                                                 train_model(sensor,
                                                                             model,
