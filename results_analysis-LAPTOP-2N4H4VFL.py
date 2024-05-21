@@ -221,108 +221,103 @@ def store_ind_results_in_Excel(exp_config : Dict, results_dir : str = r"C:\Users
                             text = "{:.2f}".format(iso_mean) + "±" + "{:.2f}".format(iso_std)
                             worksheet.write(9, 10, text)
                             
-                        elif loss == 'ISO_loss': 
-
-                            if model == 'naive': 
-                                pass
-
-                            else:                            
+                        elif loss == 'ISO_loss':                            
                             
-                                # RMSE
-                                worksheet.write(5, 3, results[key][model]['1-fold']["normal "]["RMSE"][idx]) # typo: space after normal to be corrected
-                                worksheet.write(6, 3, results[key][model]['2-fold']["normal "]["RMSE"][idx])
-                                worksheet.write(7, 3, results[key][model]['3-fold']["normal "]["RMSE"][idx])
-                                worksheet.write(8, 3, results[key][model]['4-fold']["normal "]["RMSE"][idx])
+                            # RMSE
+                            worksheet.write(5, 3, results[key][model]['1-fold']["normal "]["RMSE"][idx]) # typo: space after normal to be corrected
+                            worksheet.write(6, 3, results[key][model]['2-fold']["normal "]["RMSE"][idx])
+                            worksheet.write(7, 3, results[key][model]['3-fold']["normal "]["RMSE"][idx])
+                            worksheet.write(8, 3, results[key][model]['4-fold']["normal "]["RMSE"][idx])
 
-                                # MAE
-                                worksheet.write(5, 5, results[key][model]['1-fold']["normal "]["MAE"][idx])
-                                worksheet.write(6, 5, results[key][model]['2-fold']["normal "]["MAE"][idx])
-                                worksheet.write(7, 5, results[key][model]['3-fold']["normal "]["MAE"][idx])
-                                worksheet.write(8, 5, results[key][model]['4-fold']["normal "]["MAE"][idx])
+                            # MAE
+                            worksheet.write(5, 5, results[key][model]['1-fold']["normal "]["MAE"][idx])
+                            worksheet.write(6, 5, results[key][model]['2-fold']["normal "]["MAE"][idx])
+                            worksheet.write(7, 5, results[key][model]['3-fold']["normal "]["MAE"][idx])
+                            worksheet.write(8, 5, results[key][model]['4-fold']["normal "]["MAE"][idx])
 
-                                # MAPE
-                                worksheet.write(5, 7, results[key][model]['1-fold']["normal "]["MAPE"][idx])
-                                worksheet.write(6, 7, results[key][model]['2-fold']["normal "]["MAPE"][idx])
-                                worksheet.write(7, 7, results[key][model]['3-fold']["normal "]["MAPE"][idx])
-                                worksheet.write(8, 7, results[key][model]['4-fold']["normal "]["MAPE"][idx])
+                            # MAPE
+                            worksheet.write(5, 7, results[key][model]['1-fold']["normal "]["MAPE"][idx])
+                            worksheet.write(6, 7, results[key][model]['2-fold']["normal "]["MAPE"][idx])
+                            worksheet.write(7, 7, results[key][model]['3-fold']["normal "]["MAPE"][idx])
+                            worksheet.write(8, 7, results[key][model]['4-fold']["normal "]["MAPE"][idx])
 
-                                # % Parkes AB
-                                worksheet.write(5, 9, results[key][model]['1-fold']["normal "]["PARKES"][idx])
-                                worksheet.write(6, 9, results[key][model]['2-fold']["normal "]["PARKES"][idx])
-                                worksheet.write(7, 9, results[key][model]['3-fold']["normal "]["PARKES"][idx])
-                                worksheet.write(8, 9, results[key][model]['4-fold']["normal "]["PARKES"][idx])
+                            # % Parkes AB
+                            worksheet.write(5, 9, results[key][model]['1-fold']["normal "]["PARKES"][idx])
+                            worksheet.write(6, 9, results[key][model]['2-fold']["normal "]["PARKES"][idx])
+                            worksheet.write(7, 9, results[key][model]['3-fold']["normal "]["PARKES"][idx])
+                            worksheet.write(8, 9, results[key][model]['4-fold']["normal "]["PARKES"][idx])
 
-                                # % ISO
-                                worksheet.write(5, 11, results[key][model]['1-fold']["normal "]["ISO"][idx])
-                                worksheet.write(6, 11, results[key][model]['2-fold']["normal "]["ISO"][idx])
-                                worksheet.write(7, 11, results[key][model]['3-fold']["normal "]["ISO"][idx])
-                                worksheet.write(8, 11, results[key][model]['4-fold']["normal "]["ISO"][idx])
+                            # % ISO
+                            worksheet.write(5, 11, results[key][model]['1-fold']["normal "]["ISO"][idx])
+                            worksheet.write(6, 11, results[key][model]['2-fold']["normal "]["ISO"][idx])
+                            worksheet.write(7, 11, results[key][model]['3-fold']["normal "]["ISO"][idx])
+                            worksheet.write(8, 11, results[key][model]['4-fold']["normal "]["ISO"][idx])
 
-                                # Mean and std
-                                rmse_mean = np.mean([results[key][model]['1-fold']["normal "]["RMSE"][idx],
-                                                                results[key][model]['2-fold']["normal "]["RMSE"][idx],
-                                                                results[key][model]['3-fold']["normal "]["RMSE"][idx],
-                                                                results[key][model]['4-fold']["normal "]["RMSE"][idx]])
-                                
-                                rmse_std = np.std([results[key][model]['1-fold']["normal "]["RMSE"][idx],
-                                                                results[key][model]['2-fold']["normal "]["RMSE"][idx],
-                                                                results[key][model]['3-fold']["normal "]["RMSE"][idx],
-                                                                results[key][model]['4-fold']["normal "]["RMSE"][idx]])
-                                
-                                text = "{:.2f}".format(rmse_mean) + "±" + "{:.2f}".format(rmse_std)
-                                worksheet.write(9, 3, text)
+                            # Mean and std
+                            rmse_mean = np.mean([results[key][model]['1-fold']["normal "]["RMSE"][idx],
+                                                            results[key][model]['2-fold']["normal "]["RMSE"][idx],
+                                                            results[key][model]['3-fold']["normal "]["RMSE"][idx],
+                                                            results[key][model]['4-fold']["normal "]["RMSE"][idx]])
+                            
+                            rmse_std = np.std([results[key][model]['1-fold']["normal "]["RMSE"][idx],
+                                                            results[key][model]['2-fold']["normal "]["RMSE"][idx],
+                                                            results[key][model]['3-fold']["normal "]["RMSE"][idx],
+                                                            results[key][model]['4-fold']["normal "]["RMSE"][idx]])
+                            
+                            text = "{:.2f}".format(rmse_mean) + "±" + "{:.2f}".format(rmse_std)
+                            worksheet.write(9, 3, text)
 
-                                mae_mean  = np.mean([results[key][model]['1-fold']["normal "]["MAE"][idx],
-                                                                results[key][model]['2-fold']["normal "]["MAE"][idx],
-                                                                results[key][model]['3-fold']["normal "]["MAE"][idx],
-                                                                results[key][model]['4-fold']["normal "]["MAE"][idx]])
-                                
-                                mae_std  = np.std([results[key][model]['1-fold']["normal "]["MAE"][idx],
-                                                results[key][model]['2-fold']["normal "]["MAE"][idx],
-                                                results[key][model]['3-fold']["normal "]["MAE"][idx],
-                                                results[key][model]['4-fold']["normal "]["MAE"][idx]])
-                                
-                                text = "{:.2f}".format(mae_mean) + "±" + "{:.2f}".format(mae_std)
-                                worksheet.write(9, 5, text)
+                            mae_mean  = np.mean([results[key][model]['1-fold']["normal "]["MAE"][idx],
+                                                            results[key][model]['2-fold']["normal "]["MAE"][idx],
+                                                            results[key][model]['3-fold']["normal "]["MAE"][idx],
+                                                            results[key][model]['4-fold']["normal "]["MAE"][idx]])
+                            
+                            mae_std  = np.std([results[key][model]['1-fold']["normal "]["MAE"][idx],
+                                            results[key][model]['2-fold']["normal "]["MAE"][idx],
+                                            results[key][model]['3-fold']["normal "]["MAE"][idx],
+                                            results[key][model]['4-fold']["normal "]["MAE"][idx]])
+                            
+                            text = "{:.2f}".format(mae_mean) + "±" + "{:.2f}".format(mae_std)
+                            worksheet.write(9, 5, text)
 
-                                mape_mean = np.mean([results[key][model]['1-fold']["normal "]["MAPE"][idx],
-                                                                results[key][model]['2-fold']["normal "]["MAPE"][idx],
-                                                                results[key][model]['3-fold']["normal "]["MAPE"][idx],
-                                                                results[key][model]['4-fold']["normal "]["MAPE"][idx]])
-                                
-                                mape_std = np.std([results[key][model]['1-fold']["normal "]["MAPE"][idx],
-                                                                results[key][model]['2-fold']["normal "]["MAPE"][idx],
-                                                                results[key][model]['3-fold']["normal "]["MAPE"][idx],
-                                                                results[key][model]['4-fold']["normal "]["MAPE"][idx]])
-                                
-                                text = "{:.2f}".format(mape_mean) + "±" + "{:.2f}".format(mape_std)
-                                worksheet.write(9, 7, text)
+                            mape_mean = np.mean([results[key][model]['1-fold']["normal "]["MAPE"][idx],
+                                                            results[key][model]['2-fold']["normal "]["MAPE"][idx],
+                                                            results[key][model]['3-fold']["normal "]["MAPE"][idx],
+                                                            results[key][model]['4-fold']["normal "]["MAPE"][idx]])
+                            
+                            mape_std = np.std([results[key][model]['1-fold']["normal "]["MAPE"][idx],
+                                                            results[key][model]['2-fold']["normal "]["MAPE"][idx],
+                                                            results[key][model]['3-fold']["normal "]["MAPE"][idx],
+                                                            results[key][model]['4-fold']["normal "]["MAPE"][idx]])
+                            
+                            text = "{:.2f}".format(mape_mean) + "±" + "{:.2f}".format(mape_std)
+                            worksheet.write(9, 7, text)
 
-                                parkes_mean = np.mean([results[key][model]['1-fold']["normal "]["PARKES"][idx],
-                                                                results[key][model]['2-fold']["normal "]["PARKES"][idx],
-                                                                results[key][model]['3-fold']["normal "]["PARKES"][idx],
-                                                                results[key][model]['4-fold']["normal "]["PARKES"][idx]])
-                                
-                                parkes_std = np.std([results[key][model]['1-fold']["normal "]["PARKES"][idx],
-                                                                results[key][model]['2-fold']["normal "]["PARKES"][idx],
-                                                                results[key][model]['3-fold']["normal "]["PARKES"][idx],
-                                                                results[key][model]['4-fold']["normal "]["PARKES"][idx]])
-                                
-                                text = "{:.2f}".format(parkes_mean) + "±" + "{:.2f}".format(parkes_std)
-                                worksheet.write(9, 9, text)
+                            parkes_mean = np.mean([results[key][model]['1-fold']["normal "]["PARKES"][idx],
+                                                            results[key][model]['2-fold']["normal "]["PARKES"][idx],
+                                                            results[key][model]['3-fold']["normal "]["PARKES"][idx],
+                                                            results[key][model]['4-fold']["normal "]["PARKES"][idx]])
+                            
+                            parkes_std = np.std([results[key][model]['1-fold']["normal "]["PARKES"][idx],
+                                                            results[key][model]['2-fold']["normal "]["PARKES"][idx],
+                                                            results[key][model]['3-fold']["normal "]["PARKES"][idx],
+                                                            results[key][model]['4-fold']["normal "]["PARKES"][idx]])
+                            
+                            text = "{:.2f}".format(parkes_mean) + "±" + "{:.2f}".format(parkes_std)
+                            worksheet.write(9, 9, text)
 
-                                iso_mean = np.mean([results[key][model]['1-fold']["normal "]["ISO"][idx],
-                                                                results[key][model]['2-fold']["normal "]["ISO"][idx],
-                                                                results[key][model]['3-fold']["normal "]["ISO"][idx],
-                                                                results[key][model]['4-fold']["normal "]["ISO"][idx]])
-                                
-                                iso_std = np.std([results[key][model]['1-fold']["normal "]["ISO"][idx],
-                                                                results[key][model]['2-fold']["normal "]["ISO"][idx],
-                                                                results[key][model]['3-fold']["normal "]["ISO"][idx],
-                                                                results[key][model]['4-fold']["normal "]["ISO"][idx]])
-                                
-                                text = "{:.2f}".format(iso_mean) + "±" + "{:.2f}".format(iso_std)
-                                worksheet.write(9, 11, text)
+                            iso_mean = np.mean([results[key][model]['1-fold']["normal "]["ISO"][idx],
+                                                            results[key][model]['2-fold']["normal "]["ISO"][idx],
+                                                            results[key][model]['3-fold']["normal "]["ISO"][idx],
+                                                            results[key][model]['4-fold']["normal "]["ISO"][idx]])
+                            
+                            iso_std = np.std([results[key][model]['1-fold']["normal "]["ISO"][idx],
+                                                            results[key][model]['2-fold']["normal "]["ISO"][idx],
+                                                            results[key][model]['3-fold']["normal "]["ISO"][idx],
+                                                            results[key][model]['4-fold']["normal "]["ISO"][idx]])
+                            
+                            text = "{:.2f}".format(iso_mean) + "±" + "{:.2f}".format(iso_std)
+                            worksheet.write(9, 11, text)
 
                 # save excel file 
                 workbook.close()
@@ -462,73 +457,68 @@ def group_best_patients_metrics(exp_config : Dict, metrics : List = ['RMSE', 'MA
 
                         elif loss == 'ISO_loss':
 
-                            if model == 'naive': 
-                                pass
+                            rmse_mean = np.mean([results[key][model]['1-fold']["normal "]["RMSE"][idx],
+                                                results[key][model]['2-fold']["normal "]["RMSE"][idx],
+                                                results[key][model]['3-fold']["normal "]["RMSE"][idx],
+                                                results[key][model]['4-fold']["normal "]["RMSE"][idx]])  
+
+                            rmse_std = np.std([results[key][model]['1-fold']["normal "]["RMSE"][idx],
+                                                results[key][model]['2-fold']["normal "]["RMSE"][idx],
+                                                results[key][model]['3-fold']["normal "]["RMSE"][idx],
+                                                results[key][model]['4-fold']["normal "]["RMSE"][idx]])                       
+
+                            mae_mean  = np.mean([results[key][model]['1-fold']["normal "]["MAE"][idx],
+                                                            results[key][model]['2-fold']["normal "]["MAE"][idx],
+                                                            results[key][model]['3-fold']["normal "]["MAE"][idx],
+                                                            results[key][model]['4-fold']["normal "]["MAE"][idx]])
                             
-                            else: 
+                            mae_std  = np.std([results[key][model]['1-fold']["normal "]["MAE"][idx],
+                                            results[key][model]['2-fold']["normal "]["MAE"][idx],
+                                            results[key][model]['3-fold']["normal "]["MAE"][idx],
+                                            results[key][model]['4-fold']["normal "]["MAE"][idx]])
+                            
+                            mape_mean = np.mean([results[key][model]['1-fold']["normal "]["MAPE"][idx],
+                                                            results[key][model]['2-fold']["normal "]["MAPE"][idx],
+                                                            results[key][model]['3-fold']["normal "]["MAPE"][idx],
+                                                            results[key][model]['4-fold']["normal "]["MAPE"][idx]])
+                            
+                            mape_std = np.std([results[key][model]['1-fold']["normal "]["MAPE"][idx],
+                                                            results[key][model]['2-fold']["normal "]["MAPE"][idx],
+                                                            results[key][model]['3-fold']["normal "]["MAPE"][idx],
+                                                            results[key][model]['4-fold']["normal "]["MAPE"][idx]])
+                            
+                            parkes_mean = np.mean([results[key][model]['1-fold']["normal "]["PARKES"][idx],
+                                                            results[key][model]['2-fold']["normal "]["PARKES"][idx],
+                                                            results[key][model]['3-fold']["normal "]["PARKES"][idx],
+                                                            results[key][model]['4-fold']["normal "]["PARKES"][idx]])
+                            
+                            parkes_std = np.std([results[key][model]['1-fold']["normal "]["PARKES"][idx],
+                                                            results[key][model]['2-fold']["normal "]["PARKES"][idx],
+                                                            results[key][model]['3-fold']["normal "]["PARKES"][idx],
+                                                            results[key][model]['4-fold']["normal "]["PARKES"][idx]])
 
-                                rmse_mean = np.mean([results[key][model]['1-fold']["normal "]["RMSE"][idx],
-                                                    results[key][model]['2-fold']["normal "]["RMSE"][idx],
-                                                    results[key][model]['3-fold']["normal "]["RMSE"][idx],
-                                                    results[key][model]['4-fold']["normal "]["RMSE"][idx]])  
+                            iso_mean = np.mean([results[key][model]['1-fold']["normal "]["ISO"][idx],
+                                                            results[key][model]['2-fold']["normal "]["ISO"][idx],
+                                                            results[key][model]['3-fold']["normal "]["ISO"][idx],
+                                                            results[key][model]['4-fold']["normal "]["ISO"][idx]])
+                            
+                            iso_std = np.std([results[key][model]['1-fold']["normal "]["ISO"][idx],
+                                                            results[key][model]['2-fold']["normal "]["ISO"][idx],
+                                                            results[key][model]['3-fold']["normal "]["ISO"][idx],
+                                                            results[key][model]['4-fold']["normal "]["ISO"][idx]])
+                            
+                            
+                            grouped_metrics[model][str(PH)]["RMSE"]["ISO"]["mean"].append(rmse_mean)
+                            grouped_metrics[model][str(PH)]["MAPE"]["ISO"]["mean"].append(mape_mean)
+                            grouped_metrics[model][str(PH)]["MAE"]["ISO"]["mean"].append(mae_mean)
+                            grouped_metrics[model][str(PH)]["% Parkes AB"]["ISO"]["mean"].append(parkes_mean)
+                            grouped_metrics[model][str(PH)]["% ISO"]["ISO"]["mean"].append(iso_mean)
 
-                                rmse_std = np.std([results[key][model]['1-fold']["normal "]["RMSE"][idx],
-                                                    results[key][model]['2-fold']["normal "]["RMSE"][idx],
-                                                    results[key][model]['3-fold']["normal "]["RMSE"][idx],
-                                                    results[key][model]['4-fold']["normal "]["RMSE"][idx]])                       
-
-                                mae_mean  = np.mean([results[key][model]['1-fold']["normal "]["MAE"][idx],
-                                                                results[key][model]['2-fold']["normal "]["MAE"][idx],
-                                                                results[key][model]['3-fold']["normal "]["MAE"][idx],
-                                                                results[key][model]['4-fold']["normal "]["MAE"][idx]])
-                                
-                                mae_std  = np.std([results[key][model]['1-fold']["normal "]["MAE"][idx],
-                                                results[key][model]['2-fold']["normal "]["MAE"][idx],
-                                                results[key][model]['3-fold']["normal "]["MAE"][idx],
-                                                results[key][model]['4-fold']["normal "]["MAE"][idx]])
-                                
-                                mape_mean = np.mean([results[key][model]['1-fold']["normal "]["MAPE"][idx],
-                                                                results[key][model]['2-fold']["normal "]["MAPE"][idx],
-                                                                results[key][model]['3-fold']["normal "]["MAPE"][idx],
-                                                                results[key][model]['4-fold']["normal "]["MAPE"][idx]])
-                                
-                                mape_std = np.std([results[key][model]['1-fold']["normal "]["MAPE"][idx],
-                                                                results[key][model]['2-fold']["normal "]["MAPE"][idx],
-                                                                results[key][model]['3-fold']["normal "]["MAPE"][idx],
-                                                                results[key][model]['4-fold']["normal "]["MAPE"][idx]])
-                                
-                                parkes_mean = np.mean([results[key][model]['1-fold']["normal "]["PARKES"][idx],
-                                                                results[key][model]['2-fold']["normal "]["PARKES"][idx],
-                                                                results[key][model]['3-fold']["normal "]["PARKES"][idx],
-                                                                results[key][model]['4-fold']["normal "]["PARKES"][idx]])
-                                
-                                parkes_std = np.std([results[key][model]['1-fold']["normal "]["PARKES"][idx],
-                                                                results[key][model]['2-fold']["normal "]["PARKES"][idx],
-                                                                results[key][model]['3-fold']["normal "]["PARKES"][idx],
-                                                                results[key][model]['4-fold']["normal "]["PARKES"][idx]])
-
-                                iso_mean = np.mean([results[key][model]['1-fold']["normal "]["ISO"][idx],
-                                                                results[key][model]['2-fold']["normal "]["ISO"][idx],
-                                                                results[key][model]['3-fold']["normal "]["ISO"][idx],
-                                                                results[key][model]['4-fold']["normal "]["ISO"][idx]])
-                                
-                                iso_std = np.std([results[key][model]['1-fold']["normal "]["ISO"][idx],
-                                                                results[key][model]['2-fold']["normal "]["ISO"][idx],
-                                                                results[key][model]['3-fold']["normal "]["ISO"][idx],
-                                                                results[key][model]['4-fold']["normal "]["ISO"][idx]])
-                                
-                                
-                                grouped_metrics[model][str(PH)]["RMSE"]["ISO"]["mean"].append(rmse_mean)
-                                grouped_metrics[model][str(PH)]["MAPE"]["ISO"]["mean"].append(mape_mean)
-                                grouped_metrics[model][str(PH)]["MAE"]["ISO"]["mean"].append(mae_mean)
-                                grouped_metrics[model][str(PH)]["% Parkes AB"]["ISO"]["mean"].append(parkes_mean)
-                                grouped_metrics[model][str(PH)]["% ISO"]["ISO"]["mean"].append(iso_mean)
-
-                                grouped_metrics[model][str(PH)]["RMSE"]["ISO"]["std"].append(rmse_std)
-                                grouped_metrics[model][str(PH)]["MAPE"]["ISO"]["std"].append(mape_std)
-                                grouped_metrics[model][str(PH)]["MAE"]["ISO"]["std"].append(mae_std)
-                                grouped_metrics[model][str(PH)]["% Parkes AB"]["ISO"]["std"].append(parkes_std)
-                                grouped_metrics[model][str(PH)]["% ISO"]["ISO"]["std"].append(iso_std)  
+                            grouped_metrics[model][str(PH)]["RMSE"]["ISO"]["std"].append(rmse_std)
+                            grouped_metrics[model][str(PH)]["MAPE"]["ISO"]["std"].append(mape_std)
+                            grouped_metrics[model][str(PH)]["MAE"]["ISO"]["std"].append(mae_std)
+                            grouped_metrics[model][str(PH)]["% Parkes AB"]["ISO"]["std"].append(parkes_std)
+                            grouped_metrics[model][str(PH)]["% ISO"]["ISO"]["std"].append(iso_std)  
 
             os.chdir('..')
     
@@ -907,6 +897,7 @@ def get_grouped_RMSEbased_best_metrics(exp_config : Dict, grouped_metrics : Dict
         oldest_1yr_CGM = np.load('X.npy')
         shape = oldest_1yr_CGM.shape[0]
 
+    
         # Iterate over the metrics to generate one graph per metric 
         for metric in ['RMSE', 'MAPE', 'MAE']:
 
@@ -919,34 +910,28 @@ def get_grouped_RMSEbased_best_metrics(exp_config : Dict, grouped_metrics : Dict
                         
                         # Update the metric with each iteration
                         # 30 mins
-                        # curr_metric_30 = grouped_metrics[models]["30"][metric][loss]["mean"][i]
-                        # curr_loss_func_30 = loss
-                        # curr_model_30 = models
+                        curr_metric_30 = grouped_metrics[models]["30"][metric][loss]["mean"][i]
+                        curr_loss_func_30 = loss
+                        curr_model_30 = models
                         # 60 mins
-
-                        if models == 'naive': 
-                            curr_metric_60 = grouped_metrics[models]["60"][metric]["MSE"]["mean"][i]
-                            curr_loss_func_60 = "MSE"
-                            curr_model_60 = models
-                        else: 
-                            curr_metric_60 = grouped_metrics[models]["60"][metric][loss]["mean"][i]
-                            curr_loss_func_60 = loss
-                            curr_model_60 = models
+                        curr_metric_60 = grouped_metrics[models]["60"][metric][loss]["mean"][i]
+                        curr_loss_func_60 = loss
+                        curr_model_60 = models
 
                         if counter_30 == 0 and counter_60 == 0: 
                             
-                            # best_metric_30 = curr_metric_30
-                            # best_loss_func_30 = curr_loss_func_30
-                            # best_model_30 = curr_model_30
+                            best_metric_30 = curr_metric_30
+                            best_loss_func_30 = curr_loss_func_30
+                            best_model_30 = curr_model_30
 
                             best_metric_60 = curr_metric_60
                             best_loss_func_60 = curr_loss_func_60
                             best_model_60 = curr_model_60
 
-                            # best_30min_model_dict[patients_ids[i]]["samples"] = shape 
-                            # best_30min_model_dict[patients_ids[i]][metric]["best_model"] = best_model_30
-                            # best_30min_model_dict[patients_ids[i]][metric]["best_loss"] = best_loss_func_30
-                            # best_30min_model_dict[patients_ids[i]][metric]["best_value"] = best_metric_30
+                            best_30min_model_dict[patients_ids[i]]["samples"] = shape 
+                            best_30min_model_dict[patients_ids[i]][metric]["best_model"] = best_model_30
+                            best_30min_model_dict[patients_ids[i]][metric]["best_loss"] = best_loss_func_30
+                            best_30min_model_dict[patients_ids[i]][metric]["best_value"] = best_metric_30
 
                             best_60min_model_dict[patients_ids[i]]["samples"] = shape
                             best_60min_model_dict[patients_ids[i]][metric]["best_model"] = best_model_60
@@ -959,29 +944,29 @@ def get_grouped_RMSEbased_best_metrics(exp_config : Dict, grouped_metrics : Dict
                         else:
                             
                             # For 30 mins
-                            # if curr_metric_30 < best_metric_30:
-                            #     best_metric_30 = curr_metric_30
-                            #     best_loss_func_30 = curr_loss_func_30
-                            #     best_model_30 = curr_model_30
+                            if curr_metric_30 < best_metric_30:
+                                best_metric_30 = curr_metric_30
+                                best_loss_func_30 = curr_loss_func_30
+                                best_model_30 = curr_model_30
 
-                                # best_30min_model_dict[patients_ids[i]]["samples"] = shape 
-                                # best_30min_model_dict[patients_ids[i]][metric]["best_model"] = best_model_30
-                                # best_30min_model_dict[patients_ids[i]][metric]["best_loss"] = best_loss_func_30                            
-                                # best_30min_model_dict[patients_ids[i]][metric]["best_value"] = best_metric_30
+                                best_30min_model_dict[patients_ids[i]]["samples"] = shape 
+                                best_30min_model_dict[patients_ids[i]][metric]["best_model"] = best_model_30
+                                best_30min_model_dict[patients_ids[i]][metric]["best_loss"] = best_loss_func_30                            
+                                best_30min_model_dict[patients_ids[i]][metric]["best_value"] = best_metric_30
 
-                                # counter_30 = counter_30+1
+                                counter_30 = counter_30+1
 
-                            # else:
-                            #     best_metric_30 = best_metric_30 
-                            #     best_loss_func_30 = best_loss_func_30
-                            #     best_model_30 = best_model_30
+                            else:
+                                best_metric_30 = best_metric_30 
+                                best_loss_func_30 = best_loss_func_30
+                                best_model_30 = best_model_30
             
-                            #     best_30min_model_dict[patients_ids[i]]["samples"] = shape 
-                            #     best_30min_model_dict[patients_ids[i]][metric]["best_model"] = best_model_30
-                            #     best_30min_model_dict[patients_ids[i]][metric]["best_loss"] = best_loss_func_30
-                            #     best_30min_model_dict[patients_ids[i]][metric]["best_value"] = best_metric_30
+                                best_30min_model_dict[patients_ids[i]]["samples"] = shape 
+                                best_30min_model_dict[patients_ids[i]][metric]["best_model"] = best_model_30
+                                best_30min_model_dict[patients_ids[i]][metric]["best_loss"] = best_loss_func_30
+                                best_30min_model_dict[patients_ids[i]][metric]["best_value"] = best_metric_30
 
-                                # counter_30 = counter_30+1
+                                counter_30 = counter_30+1
                             
                             # For 60 mins
                             if curr_metric_60 < best_metric_60:
@@ -1088,70 +1073,64 @@ def get_grouped_ISO_and_Parkes_best_metrics(exp_config : Dict, grouped_metrics :
                     for loss in ["MSE", "ISO"]: # harcoded: the studied loss functions 
                         
                         # Update the metric with each iteration
-                        # # 30 mins
-                        # curr_metric_30 = grouped_metrics[models]["30"][metric][loss]["mean"][i]
-                        # curr_loss_func_30 = loss
-                        # curr_model_30 = models
+                        # 30 mins
+                        curr_metric_30 = grouped_metrics[models]["30"][metric][loss]["mean"][i]
+                        curr_loss_func_30 = loss
+                        curr_model_30 = models
                         # 60 mins
-
-                        if models == 'naive':
-                            curr_metric_60 = grouped_metrics[models]["60"][metric]["MSE"]["mean"][i]
-                            curr_loss_func_60 = "MSE"
-                            curr_model_60 = models  
-                        else:                          
-                            curr_metric_60 = grouped_metrics[models]["60"][metric][loss]["mean"][i]
-                            curr_loss_func_60 = loss
-                            curr_model_60 = models
+                        curr_metric_60 = grouped_metrics[models]["60"][metric][loss]["mean"][i]
+                        curr_loss_func_60 = loss
+                        curr_model_60 = models
 
                         if counter_30 == 0 and counter_60 == 0: 
                             
-                            # best_metric_30 = curr_metric_30
-                            # best_loss_func_30 = curr_loss_func_30
-                            # best_model_30 = curr_model_30
+                            best_metric_30 = curr_metric_30
+                            best_loss_func_30 = curr_loss_func_30
+                            best_model_30 = curr_model_30
 
                             best_metric_60 = curr_metric_60
                             best_loss_func_60 = curr_loss_func_60
                             best_model_60 = curr_model_60
 
-                            # best_30min_model_dict[patients_ids[i]]["samples"] = shape 
-                            # best_30min_model_dict[patients_ids[i]][metric]["best_model"] = best_model_30
-                            # best_30min_model_dict[patients_ids[i]][metric]["best_loss"] = best_loss_func_30
-                            # best_30min_model_dict[patients_ids[i]][metric]["best_value"] = best_metric_30
+                            best_30min_model_dict[patients_ids[i]]["samples"] = shape 
+                            best_30min_model_dict[patients_ids[i]][metric]["best_model"] = best_model_30
+                            best_30min_model_dict[patients_ids[i]][metric]["best_loss"] = best_loss_func_30
+                            best_30min_model_dict[patients_ids[i]][metric]["best_value"] = best_metric_30
 
                             best_60min_model_dict[patients_ids[i]]["samples"] = shape
                             best_60min_model_dict[patients_ids[i]][metric]["best_model"] = best_model_60
                             best_60min_model_dict[patients_ids[i]][metric]["best_loss"] = best_loss_func_60
                             best_60min_model_dict[patients_ids[i]][metric]["best_value"] = best_metric_60
 
-                            # counter_30 = counter_30+1
+                            counter_30 = counter_30+1
                             counter_60 = counter_60+1
 
                         else:
                             
                             # For 30 mins
-                            # if curr_metric_30 > best_metric_30:
-                                # best_metric_30 = curr_metric_30
-                                # best_loss_func_30 = curr_loss_func_30
-                                # best_model_30 = curr_model_30
+                            if curr_metric_30 > best_metric_30:
+                                best_metric_30 = curr_metric_30
+                                best_loss_func_30 = curr_loss_func_30
+                                best_model_30 = curr_model_30
 
-                                # best_30min_model_dict[patients_ids[i]]["samples"] = shape 
-                                # best_30min_model_dict[patients_ids[i]][metric]["best_model"] = best_model_30
-                                # best_30min_model_dict[patients_ids[i]][metric]["best_loss"] = best_loss_func_30                            
-                                # best_30min_model_dict[patients_ids[i]][metric]["best_value"] = best_metric_30
+                                best_30min_model_dict[patients_ids[i]]["samples"] = shape 
+                                best_30min_model_dict[patients_ids[i]][metric]["best_model"] = best_model_30
+                                best_30min_model_dict[patients_ids[i]][metric]["best_loss"] = best_loss_func_30                            
+                                best_30min_model_dict[patients_ids[i]][metric]["best_value"] = best_metric_30
 
-                                # counter_30 = counter_30+1
+                                counter_30 = counter_30+1
 
-                            # else:
-                            #     best_metric_30 = best_metric_30 
-                            #     best_loss_func_30 = best_loss_func_30
-                            #     best_model_30 = best_model_30
+                            else:
+                                best_metric_30 = best_metric_30 
+                                best_loss_func_30 = best_loss_func_30
+                                best_model_30 = best_model_30
             
-                            #     best_30min_model_dict[patients_ids[i]]["samples"] = shape 
-                            #     best_30min_model_dict[patients_ids[i]][metric]["best_model"] = best_model_30
-                            #     best_30min_model_dict[patients_ids[i]][metric]["best_loss"] = best_loss_func_30
-                            #     best_30min_model_dict[patients_ids[i]][metric]["best_value"] = best_metric_30
+                                best_30min_model_dict[patients_ids[i]]["samples"] = shape 
+                                best_30min_model_dict[patients_ids[i]][metric]["best_model"] = best_model_30
+                                best_30min_model_dict[patients_ids[i]][metric]["best_loss"] = best_loss_func_30
+                                best_30min_model_dict[patients_ids[i]][metric]["best_value"] = best_metric_30
 
-                            #     counter_30 = counter_30+1
+                                counter_30 = counter_30+1
                             
                             # For 60 mins
                             if curr_metric_60 > best_metric_60:
@@ -1612,17 +1591,12 @@ def get_patient_wise_fold_results(exp_config : Dict, results_dict : Dict, result
                     # Itreate over the loss functions and write the results
                     for loss in exp_config['loss_function']:
 
-                        patient_wise_fold_results[id][loss] = {}
-
                         for model in exp_config['model']:
 
-                            if model == 'naive':
-                                key = 'multi_N{}_step1_PH{}_month-wise-4-folds_min-max_None_{}_root_mean_squared_error'.format(exp_config['N'][0], PH, model, loss)
-                            else: 
-                                # Obtain key to access the correspondant result 
-                                key = 'multi_N{}_step1_PH{}_month-wise-4-folds_min-max_None_{}_{}'.format(exp_config['N'][0], PH, model, loss)
+                            # Obtain key to access the correspondant result 
+                            key = 'multi_N{}_step1_PH{}_month-wise-4-folds_min-max_None_{}_ISO_loss'.format(exp_config['N'][0], PH, model, loss)
 
-                            patient_wise_fold_results[id][loss][model] = {'RMSE': [results[key][model]['1-fold']["normal "]["RMSE"][idx],
+                            patient_wise_fold_results[id][model] = {'RMSE': [results[key][model]['1-fold']["normal "]["RMSE"][idx],
                                                                     results[key][model]['2-fold']["normal "]["RMSE"][idx],
                                                                     results[key][model]['3-fold']["normal "]["RMSE"][idx],
                                                                     results[key][model]['4-fold']["normal "]["RMSE"][idx]], 
@@ -1633,38 +1607,13 @@ def get_patient_wise_fold_results(exp_config : Dict, results_dict : Dict, result
                                                                     'PARKES' : [results[key][model]['1-fold']["normal "]["PARKES"][idx],
                                                                     results[key][model]['2-fold']["normal "]["PARKES"][idx],
                                                                     results[key][model]['3-fold']["normal "]["PARKES"][idx],
-                                                                    results[key][model]['4-fold']["normal "]["PARKES"][idx]], 
-                                                                    'MAE' : [results[key][model]['1-fold']["normal "]["MAE"][idx],
-                                                                    results[key][model]['2-fold']["normal "]["MAE"][idx],
-                                                                    results[key][model]['3-fold']["normal "]["MAE"][idx],
-                                                                    results[key][model]['4-fold']["normal "]["MAE"][idx]],
-                                                                    'MAPE' : [results[key][model]['1-fold']["normal "]["MAPE"][idx],
-                                                                    results[key][model]['2-fold']["normal "]["MAPE"][idx],
-                                                                    results[key][model]['3-fold']["normal "]["MAPE"][idx],
-                                                                    results[key][model]['4-fold']["normal "]["MAPE"][idx]]#,
-                                                                    # 'Hypo TP' : [results[key][model]['1-fold']["normal "]["Hypo TP"],
-                                                                    # results[key][model]['2-fold']["normal "]["Hypo TP"],
-                                                                    # results[key][model]['3-fold']["normal "]["Hypo TP"],
-                                                                    # results[key][model]['4-fold']["normal "]["Hypo TP"]],
-                                                                    # 'Hyper TP' : [results[key][model]['1-fold']["normal "]["Hyper TP"],
-                                                                    # results[key][model]['2-fold']["normal "]["Hyper TP"],
-                                                                    # results[key][model]['3-fold']["normal "]["Hyper TP"],
-                                                                    # results[key][model]['4-fold']["normal "]["Hyper TP"]],
-                                                                    # 'Normal TP' : [results[key][model]['1-fold']["normal "]["Normal TP"],
-                                                                    # results[key][model]['2-fold']["normal "]["Normal TP"],
-                                                                    # results[key][model]['3-fold']["normal "]["Normal TP"],
-                                                                    # results[key][model]['4-fold']["normal "]["Normal TP"]], 
-                                                                    # 'Accuracy' : [results[key][model]['1-fold']["normal "]["Accuracy"],
-                                                                    # results[key][model]['2-fold']["normal "]["Accuracy"],
-                                                                    # results[key][model]['3-fold']["normal "]["Accuracy"],
-                                                                    # results[key][model]['4-fold']["normal "]["Accuracy"]]
-                                                                    }
+                                                                    results[key][model]['4-fold']["normal "]["PARKES"][idx]]}
                                                                     
             os.chdir('..')
     
     return patient_wise_fold_results
 
-def plot_patient_per_patient_boxplot(patient_wise_results : Dict, metric : str, loss_function : str, sorted_by : str = 'samples'):
+def plot_patient_per_patient_boxplot(patient_wise_results : Dict, metric : str, sorted_by : str = 'samples'):
     
     """ After the simulation of the DL model generation for 
     all patients (currently n=29) has been done, this function can 
@@ -1677,7 +1626,6 @@ def plot_patient_per_patient_boxplot(patient_wise_results : Dict, metric : str, 
     -----
         patient_wise_results : Dictionary containing the results for each patient separated per folds and models.
         metric : Metric to be compared.
-        loss_function: "ISO_loss" or "root_mean_squared_error"
         sorted_by : Parameter to sort the patients. Default is 'samples' (number of samples available to train the models).
     """
 
@@ -1695,7 +1643,7 @@ def plot_patient_per_patient_boxplot(patient_wise_results : Dict, metric : str, 
     samples = []
 
     for id in patient_wise_results.keys():
-            DIL_60_rmse.append(patient_wise_results[id][loss_function]['DIL-1D-UNET'][metric])
+            DIL_60_rmse.append(patient_wise_results[id]['DIL-1D-UNET'][metric])
 
             # Add in this step also samples
             samples.append(patient_wise_results[id]['samples'])
@@ -1708,7 +1656,7 @@ def plot_patient_per_patient_boxplot(patient_wise_results : Dict, metric : str, 
     DIL_60_rmse = pd.DataFrame(DIL_60_rmse, columns=patient_wise_results.keys()).assign(model='DIL-1D-UNET')
 
     for id in patient_wise_results.keys():
-            stacked_60_rmse.append(patient_wise_results[id][loss_function]['StackedLSTM'][metric])
+            stacked_60_rmse.append(patient_wise_results[id]['StackedLSTM'][metric])
 
     # Convert rows to columns
     stacked_60_rmse = np.array(stacked_60_rmse).T
@@ -1717,7 +1665,7 @@ def plot_patient_per_patient_boxplot(patient_wise_results : Dict, metric : str, 
     stacked_60_rmse = pd.DataFrame(stacked_60_rmse, columns=patient_wise_results.keys()).assign(model='StackedLSTM')
 
     for id in patient_wise_results.keys():
-            naive_60_rmse.append(patient_wise_results[id]['ISO_loss']['naive'][metric])
+            naive_60_rmse.append(patient_wise_results[id]['naive'][metric])
 
     # Convert rows to columns
     naive_60_rmse = np.array(naive_60_rmse).T
@@ -1726,7 +1674,7 @@ def plot_patient_per_patient_boxplot(patient_wise_results : Dict, metric : str, 
     naive_60_rmse = pd.DataFrame(naive_60_rmse, columns=patient_wise_results.keys()).assign(model='naive')
 
     for id in patient_wise_results.keys():
-            LSTM_60_rmse.append(patient_wise_results[id][loss_function]['LSTM'][metric])
+            LSTM_60_rmse.append(patient_wise_results[id]['LSTM'][metric])
 
     # Convert rows to columns
     LSTM_60_rmse = np.array(LSTM_60_rmse).T
@@ -1746,7 +1694,7 @@ def plot_patient_per_patient_boxplot(patient_wise_results : Dict, metric : str, 
 
     # Set color palette
     palette = {'DIL-1D-UNET': 'blue', 'StackedLSTM': 'red', 'naive': 'green', 'LSTM': 'yellow'}
-    
+
     # Draw the boxplot
     ax = sns.boxplot(x='id', y='value', data=melt_models, hue='model', palette=palette)
 
@@ -1757,9 +1705,6 @@ def plot_patient_per_patient_boxplot(patient_wise_results : Dict, metric : str, 
     ax2.plot(np.linspace(0, len(samples)-1, len(samples)), samples, 'o-', color='black', alpha=0.3)
 
     ax.legend(loc='lower left')
-
-    # Add y label for ax2
-    ax2.set_ylabel('Nº of available instances')
 
     # Add legend for the second axis 
     ax2.legend(['Nº of available samples'], loc='upper right')
@@ -1789,9 +1734,3 @@ def plot_patient_per_patient_boxplot(patient_wise_results : Dict, metric : str, 
 
     # Set title 
     plt.title('60 min ' + metric)
-
-    # Add grid with horizontal black lines 
-    ax.yaxis.grid(True, color='black')
-
-    # Save figure 
-    plt.savefig('60min_' + metric + loss_function + '.svg', format='svg', dpi=1200, bbox_inches='tight')

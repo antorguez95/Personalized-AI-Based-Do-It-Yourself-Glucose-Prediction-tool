@@ -99,10 +99,10 @@ def launch_LibreView_experiments(test : Dict, input_features : int, weighted_sam
         i = 0
 
         # Consider only folders, not .npy or .txt files
-        # if ('npy' not in id) and ('txt' not in id) and ('ISO' not in id) and ('test' not in id):# and ('001') not in id: 
+        # if ('npy' not in id) and ('txt' not in id) and ('ISO' not in id) and ('test' not in id):
         # if ('001' in id) and ('npy' not in id) and ('txt' not in id) : 
-        if ('npy' not in id) and ('txt' not in id) and ('ISO' not in id) and ('test' not in id) and ('001' not in id) and ('003' not in id) and('004' not in id) and('007' not in id) and('008' not in id) and('011' not in id) and('013' not in id) and('014' not in id) and('015' not in id) and ('025' not in id) and ('026' not in id) and ('029' not in id) and ('039' not in id) and ('043' not in id):# and ('045' not in id):
-        # if ('npy' not in id) and ('txt' not in id) and ('ISO' not in id) and ('test' not in id) and (('062' in id) or ('063' in id) or ('065' in id) or ('067' in id) or ('068' in id)):      
+        # if ('npy' not in id) and ('txt' not in id) and ('ISO' not in id) and ('test' not in id) and ('001' not in id) and ('003' not in id) and('004' not in id) and('007' not in id) and('008' not in id) and('011' not in id) and('013' not in id) and('014' not in id) and('015' not in id) and ('025' not in id) and ('026' not in id) and ('029' not in id) and ('039' not in id) and ('043' not in id):# and ('045' not in id):
+        if ('npy' not in id) and ('txt' not in id) and ('ISO' not in id) and ('test' not in id) and (('001' in id) or ('003' in id) or ('004' in id)):      
         
             # Get into the ID patient folder
             os.chdir(id)
