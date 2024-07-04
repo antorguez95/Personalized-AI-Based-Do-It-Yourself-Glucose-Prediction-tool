@@ -1,6 +1,8 @@
 import numpy as np 
 import matplotlib.pyplot as plt
 import statsmodels.api as sm
+from typing import List
+import tensorflow as tf
 
 def cgm_data_summary_figure(id : str, sensor : str, num_blocks : int, cgm_data : np.array, cgm_timestamps : np.array, sensor_sampling_period : int,
                             pred_steps : int, N : int, prediction : np.array, pred_rmse : np.array,
@@ -462,3 +464,202 @@ def cgm_data_summary_figure(id : str, sensor : str, num_blocks : int, cgm_data :
     plt.text(0.35, 0.05, 'Average Glucose: ' + str(round(cgm_mean, 2)) + ' ± ' + str(round(cgm_std, 2)) + ' ' + unit, fontsize=14, weight='bold', transform=axs[1,1].transAxes)
 
     plt.savefig('app_CGM_' + visualization_range +  '_analysis_and_prediction.svg', format='svg', dpi=1200)
+
+
+def get_prediction_graphic(X : np.array, X_norm : np.array, predicted_points : int, X_times : np.array, rmse : List, unit : str, model : tf.keras.Model, 
+                           N : int = 96, step : int =  1): 
+    """
+    This function generates and save two plots taking the last day available of a given 
+    user, if it uploads enough and reliable data to generate a CGM prediction until the 
+    next 30'. The first plot shows the last 96 samples of the user's data and the AI
+    (one day), together with the prediction. The second subplot is a zoommed version of
+    the first one
+
+    Args: 
+    -----
+        X : un-normalized training vector to perform de-normalization
+        X_norm : vector from which the last day of the user's data (96 samples) will be extracted and denormalized
+        predicted_points : Number of samples to predict. Depends on the PH and the sensor sampling period
+        X_times : Timestamps from which the timestamps of the last day are extracted
+        rmse : List with the RMSE corresponding to the user's 4-fold cross-validation for each predicted instant. Its lengths should be equal to the number of predicted points
+        unit : Unit of the CGM data. Can be 'mg/dL' or 'mmol/L'
+        N : input window length. Default: 96 (see paper)
+        step : step to generate the dataset to train de models. Default: 1 (see paper)
+        
+    """
+
+    # Extract timestamps to plot to the user in the unzoommed and zoommed plot 
+    # Unzommed plot
+    first_daymonth = str(X_times[-1][0])[5:10]
+    first_hour_minute = str(X_times[-1][0])[11:16]
+    first_daymonth, first_hour_minute
+
+    second_daymonth = str(X_times[-1][31])[5:10]
+    second_hour_minute = str(X_times[-1][31])[11:16]
+
+    third_daymonth = str(X_times[-1][63])[5:10]
+    third_hour_minute = str(X_times[-1][63])[11:16]
+
+    last_daymonth = str(X_times[-1][-1])[5:10]
+    last_hour_minute = str(X_times[-1][-1])[11:16]
+    last_daymonth, last_hour_minute
+
+    # Zommed plot 
+    nine_daymonth = str(X_times[-1][-2])[5:10]
+    nine_hour_minute = str(X_times[-1][-2])[11:16]
+
+    eight_daymonth = str(X_times[-1][-3])[5:10]
+    eight_hour_minute = str(X_times[-1][-3])[11:16]
+
+    seven_daymonth = str(X_times[-1][-4])[5:10]
+    seven_hour_minute = str(X_times[-1][-4])[11:16]
+
+    six_daymonth = str(X_times[-1][-5])[5:10]
+    six_hour_minute = str(X_times[-1][-5])[11:16]
+
+    five_daymonth = str(X_times[-1][-6])[5:10]
+    five_hour_minute = str(X_times[-1][-6])[11:16]
+
+    four_daymonth = str(X_times[-1][-7])[5:10]
+    four_hour_minute = str(X_times[-1][-7])[11:16]
+
+    three_daymonth = str(X_times[-1][-8])[5:10]
+    three_hour_minute = str(X_times[-1][-8])[11:16]
+
+    two_daymonth = str(X_times[-1][-9])[5:10]
+    two_hour_minute = str(X_times[-1][-9])[11:16]
+
+    one_daymonth = str(X_times[-1][-10])[5:10]
+    one_hour_minute = str(X_times[-1][-10])[11:16]
+
+    # Load the last day of the data
+    last_day = X_norm[-96:,0,:]
+
+    # Make the prediction
+    prediction = model.predict(last_day[np.newaxis,:,:])
+
+    # Denorm last_day and prediction (assuming min-max normalization)
+    last_day_denorm = last_day*(np.max(X) - np.min(X)) + np.min(X)
+    last_day_denorm = last_day_denorm[:,0]
+    prediction_denorm = prediction*(np.max(X) - np.min(X)) + np.min(X)
+    prediction_denorm = prediction_denorm[0]
+
+    ######################## FIGURES OF PREDICTION (UNZOOMMED AND ZOOMMED) ############################
+    fig, axs= plt.subplots(2, 1, figsize=(15,15))
+
+    ####### FIGURE GENERAL PARAMS #########
+    # Set San Serif font and Font size 
+    plt.rcParams.update({'font.size': 12})
+    plt.rcParams['font.family'] = 'Arial'
+
+    # Plot the last 144 samples
+    axs[0].plot(color = 'darkkhaki', alpha = 0.5)
+
+    # Set x and y labels
+    axs[0].set_ylabel('CGM ' + '(' + unit + ')')
+
+    axs[0].plot(last_day_denorm, label = 'Last samples', marker='o')
+    axs[0].plot(np.linspace(N-1,N-1+round(predicted_points), round(predicted_points)), prediction_denorm, color = 'red', marker='o', label = 'AI prediction', alpha=1)
+
+    # Fill with the prediction with the RMSE values 
+    axs[0].fill_between(np.linspace(N-1,N-1+round(predicted_points), round(predicted_points), dtype=int), prediction_denorm-rmse, prediction_denorm+rmse, color='red', alpha=0.2)
+
+    # Set title 
+    axs[0].set_title('30 minutes AI prediction using your last 24 hours of CGM data', fontsize=12)
+
+    # Remove X ticks labels 
+    axs[0].set_xticklabels([])
+
+    # Set background of the first 96 samples of one colour depending on the range of the CGM
+    axs[0].axhspan(0, 54, xmin=0, xmax=95/98, facecolor='red', alpha=0.25)
+    axs[0].axhspan(54, 70, xmin=0, xmax=95/98, facecolor='yellow', alpha=0.25)
+    axs[0].axhspan(70, 180, xmin=0, xmax=95/98, facecolor='green', alpha=0.25)
+    axs[0].axhspan(180, 250, xmin=0, xmax=95/98, facecolor='yellow', alpha=0.25)
+    axs[0].axhspan(250, 400, xmin=0, xmax=95/98, facecolor='red', alpha=0.25)
+
+    # Set a different bakground for the AI prediction 
+    axs[0].axhspan(0, 400, xmin=95/98, xmax=1, facecolor='teal', alpha=0.20)
+
+    # Vertical line to separate real data from prediction 
+    axs[0].axvline(x=95, ymin=0, ymax=400, color='darkcyan', linestyle='--', alpha=0.75)
+
+    # Set horizontal line in the second part of the plot with the different CGM ranges 
+    axs[0].axhline(y=54, xmin=95/98, xmax=1,  color='red', linestyle='--', alpha=0.40)
+    axs[0].axhline(y=70, xmin=95/98, xmax=1, color='yellow', linestyle='--', alpha=0.40)
+    axs[0].axhline(y=180, xmin=95/98, xmax=1, color='yellow', linestyle='--', alpha=0.40)
+    axs[0].axhline(y=250, xmin=95/98, xmax=1, color='red', linestyle='--', alpha=0.40)
+
+    # Add x ticks positions
+    axs[0].set_xticks(np.linspace(0, 95, 4, dtype=int))
+
+    # Set X ticks labels 
+    axs[0].set_xticklabels([first_daymonth+"\n"+first_hour_minute, second_daymonth+"\n"+second_hour_minute,third_daymonth+"\n"+third_hour_minute, last_daymonth+"\n"+last_hour_minute])
+
+    # Set pad in x labels 
+    axs[0].tick_params(axis='x', pad=10)
+
+    # Remove white spaces in the x and y axis
+    axs[0].set_xlim([0, 98])
+    axs[0].set_ylim([0, 400])
+
+    # Plot the last DAY (96 SAMPLES)
+    axs[1].plot(color = 'k', alpha = 0.5)
+
+    # Set x and y labels
+    axs[1].set_ylabel('CGM ' + '(' + unit + ')')
+
+    # Remove X ticks labels
+    axs[1].set_xticklabels([])
+
+    axs[1].axhspan(0, 54, xmin=0, xmax=9.65/12, facecolor='red', alpha=0.18)
+    axs[1].axhspan(54, 70, xmin=0, xmax=9.65/12, facecolor='yellow', alpha=0.18)
+    axs[1].axhspan(70, 180, xmin=0, xmax=9.65/12, facecolor='green', alpha=0.18)
+    axs[1].axhspan(180, 250, xmin=0, xmax=9.65/12, facecolor='yellow', alpha=0.18)
+    axs[1].axhspan(250, 400, xmin=0, xmax=9.65/12, facecolor='red', alpha=0.18)
+
+    # Vertical line to separate real data from prediction 
+    axs[1].axvline(x=10, ymin=0, ymax=400, color='darkcyan', linestyle='--', alpha=0.75)
+
+    # Extract the last window of real data used to predict the next hour 
+    # Samples to make zoom
+    N_zoom = 10
+
+    axs[1].plot(np.linspace(0, N_zoom-1, N_zoom, dtype=int), last_day_denorm[-10:], marker='o', label = 'Last samples')
+    axs[1].plot(np.linspace(N_zoom, N_zoom+predicted_points, predicted_points, dtype=int), prediction_denorm, color = 'red', marker='o',label = 'AI prediction', alpha=1)
+
+    # Fill with the prediction with the RMSE values 
+    axs[1].fill_between(np.linspace(N_zoom, N_zoom+predicted_points, predicted_points, dtype=int), prediction_denorm-rmse, prediction_denorm+rmse, color='red', alpha=0.2)
+
+    # Set x labels 
+    axs[1].set_xticklabels([one_daymonth+"\n"+one_hour_minute, two_daymonth+"\n"+two_hour_minute, three_daymonth+"\n"+three_hour_minute,
+                            four_daymonth+"\n"+four_hour_minute, five_daymonth+"\n"+five_hour_minute, six_daymonth+"\n"+six_hour_minute,
+                            seven_daymonth+"\n"+seven_hour_minute,eight_daymonth+"\n"+eight_hour_minute,
+                            nine_daymonth+"\n"+nine_hour_minute, last_daymonth+"\n"+last_hour_minute, "in 15'", "in 30'"])
+
+    # Set pad in x labels 
+    axs[1].tick_params(axis='x', pad=10)
+
+    # Add text in the first and last sample with data and time 
+    axs[1].text(11.25, 415, "Your AI prediction\nfor the next 30'", fontsize=12, weight='bold', horizontalalignment='center', verticalalignment='center')#, bbox=dict(facecolor='white', alpha=0.5)
+
+
+    # Set a different bakground for the AI prediction 
+    axs[1].axhspan(0, 400, xmin=9.65/12, xmax=1, facecolor='teal', alpha=0.20)
+
+    # Set horizontal line in the second part of the plot with the different CGM ranges 
+    axs[1].axhline(y=54, xmin=9.65/12, xmax=1,  color='red', linestyle='--', alpha=0.40)
+    axs[1].axhline(y=70, xmin=9.65/12, xmax=1, color='yellow', linestyle='--', alpha=0.40)
+    axs[1].axhline(y=180, xmin=9.65/12, xmax=1, color='yellow', linestyle='--', alpha=0.40)
+    axs[1].axhline(y=250, xmin=9.65/12, xmax=1, color='red', linestyle='--', alpha=0.40)
+
+    # Set title 
+    axs[1].set_title("Zoom in your last 2h 30'", fontsize=12)
+
+    # Set Y limit between 0 and 400
+    axs[1].set_ylim([0, 400])
+
+    # Set one tick per sample 
+    axs[1].set_xticks(np.linspace(0, N_zoom+predicted_points, N_zoom+predicted_points, dtype=int))
+
+    # Save figure
+    plt.savefig('your_last_prediction.png', dpi=300, bbox_inches='tight') 

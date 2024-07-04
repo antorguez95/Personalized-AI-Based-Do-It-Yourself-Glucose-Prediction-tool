@@ -123,15 +123,19 @@ def bgISOAcceptableZone(ground_truth : np.array, predictions: np.array,  fold : 
     if plot == True:
 
         # Figure
-        plt.figure()
+        plt.figure(figsize=(5,5))
 
         # Set X and Y limits
         plt.xlim([0,550])
         plt.ylim([-90,90])
 
         # Set X and Y labels
-        plt.xlabel('Glucose concentration (mg/dl)')
-        plt.ylabel('Difference')
+        plt.xlabel('Glucose reference (mg/dL)', fontsize=14)
+        plt.ylabel('Prediction error (mg/dL)', fontsize=14)
+
+        # Set X and Y label size
+        plt.xticks(fontsize=10)
+        plt.yticks(fontsize=10)
 
         # Plot boundaries in the figure
         plt.plot(region_x,regionUp_y, '--r')
@@ -141,14 +145,15 @@ def bgISOAcceptableZone(ground_truth : np.array, predictions: np.array,  fold : 
         plt.plot(ground_truth, error,'b.')
     
         # Insert the percentage in within the acceptable range white background in the text box
-        plt.text(0.05, 0.95, 'Percentage in: ' + str(round(percentage_in,2)) + '%', transform=plt.gca().transAxes, fontsize=14,
+        plt.text(0.05, 0.95, 'Percentage in acceptable zone: ' + str(round(percentage_in,2)) + '%', transform=plt.gca().transAxes, fontsize=14,
             verticalalignment='top', bbox=dict(facecolor='white', alpha=0.8))
 
         # Set title 
         plt.title('ISO 15197:2015 for ' + str(step+1) + ' time step')
         
         # Save the figure
-        plt.savefig(str(fold)+'_ISO15197.png', dpi=300, bbox_inches='tight')
+        #plt.savefig(str(fold)+'_ISO15197.svg', dpi=600, bbox_inches='tight')
+        plt.savefig('fig3a.svg', dpi=600, bbox_inches='tight')
     
     return percentage_in, percentages_out, acceptability
  
@@ -407,15 +412,19 @@ def parkes_EGA_chart(ground_truth : np.array, predictions : np.array, fold : str
     units_mg_dl = True
     
     # Plot Parker Chart  
-    plt.figure()
+    plt.figure(figsize=(5,5))
 
     # Set X and Y limits
     plt.xlim([0,550])
     plt.ylim([0,550]) 
 
     # Set X an Y labels
-    plt.xlabel('Glucose prediction (mg/dl)')
-    plt.ylabel('Glucose reference (mg/dl)')
+    plt.xlabel('Glucose reference (mg/dL)', fontsize=14)
+    plt.ylabel('Prediction error (mg/dL)', fontsize=14)
+
+    # Set X and Y label size
+    plt.xticks(fontsize=10)
+    plt.yticks(fontsize=10)
 
     # Plot boundaries
     plt.plot(regionA_x,regionA_y, '-k')
@@ -459,7 +468,8 @@ def parkes_EGA_chart(ground_truth : np.array, predictions : np.array, fold : str
     plt.title('Parkes Error Grid Analysis for ' + str(step+1) + ' time step')
 
     # Save the figure
-    plt.savefig(str(fold)+'_ParkerGrid.png', dpi=300, bbox_inches='tight')
+    # plt.savefig(str(fold)+'_ParkerGrid.svg', dpi=600, bbox_inches='tight')
+    plt.savefig('fig3b.svg', dpi=600, bbox_inches='tight')
 
     return percentage_AB, percentage_values, points_in_regions
 

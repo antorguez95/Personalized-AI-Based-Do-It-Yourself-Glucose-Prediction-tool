@@ -703,7 +703,7 @@ def store_global_results_in_Excel(grouped_metrics : Dict, exp_config : Dict):
 
 def gen_PHs_boxplots(model_name : str, PH : int, iso_metrics : List, mse_metrics : List, legend : bool): 
 
-    fig, ax1 = plt.subplots(figsize=(4, 4))
+    fig, ax1 = plt.subplots(figsize=(3, 3))
 
     metrics = ['RMSE', 'MAE', 'MAPE', 'Parkes', 'ISO']
 
@@ -726,44 +726,48 @@ def gen_PHs_boxplots(model_name : str, PH : int, iso_metrics : List, mse_metrics
     # fig.suptitle(text, fontsize=16, fontweight='bold')
     
     ax1.boxplot(mse_metrics, positions=np.arange(len(metrics))+space,
-            boxprops=dict(facecolor='tab:orange'), **box_param)
-
+            boxprops=dict(facecolor='tab:gray'), **box_param)
     
-    # Second axis to plot metrics with different range
-    ax2 = ax1.twinx()
-
-    ax2.boxplot(iso_metrics, positions=np.arange(len(metrics))-space,
-                boxprops=dict(facecolor='tab:blue'), **box_param)
-    
-    # Set y limits in both axis
-    ax1.set_ylim(0, 105)
-    ax2.set_ylim(0, 105) # For ISO AND Parkes %
+    ax1.set_ylim(0, 55)
 
     # Set X ticks
-    labelsize = 6
+    labelsize = 8
     ax1.set_xticks(np.arange(len(metrics)))
     ax1.set_xticklabels(metrics, fontsize=20)
     ax1.tick_params(axis='x', labelsize=labelsize)
-    
-    # Set Y ticks and labels 
-    ax1.set_ylabel('MAPE, MAE, RMSE', fontsize=7)
-    ax2.set_ylabel('Parkes and ISO %', fontsize=7)
-     
+
     # Set size to the Y labels 
-    ax1.tick_params(axis='y', labelsize=8)
-    ax2.tick_params(axis='y', labelsize=8)
-    
-    # Set legend 
-    if legend:
-        ax1.plot([], c='tab:blue', label='ISO')
-        ax1.plot([], c='tab:orange', label='MSE')
-        ax1.legend(fontsize=labelsize)
-        
+    ax1.tick_params(axis='y', labelsize=9)
+
     # Vertical line bewteen MAPE and Parkes
     ax1.axvline(x=2.5, c='black', linestyle='--')
 
+    # Set legend 
+    if legend:
+        ax1.plot([], c='tab:green', label='ISO-adapted loss')
+        ax1.plot([], c='tab:grey', label='MSE')
+        # ax1.legend(fontsize=labelsize)
+        ax1.legend(fontsize=7.5, loc='upper left')
+
+    # Second axis to plot metrics with different range
+    ax2 = ax1.twinx()
+
+    # Set y limits in both axis
+    
+    ax2.boxplot(iso_metrics, positions=np.arange(len(metrics))-space,
+                boxprops=dict(facecolor='tab:green'), **box_param)
+
+    ax2.set_ylim(0, 105) # For ISO AND Parkes %
+    
+    # Set Y ticks and labels 
+    # ax1.set_ylabel('MAPE, MAE, RMSE', fontsize=7)
+    # ax2.set_ylabel('Parkes and ISO %', fontsize=7)
+     
+    # Set size to the Y labels 
+    ax2.tick_params(axis='y', labelsize=9)
+       
     # Save figure 
-    plt.savefig('boxplot_'+model_name+'_PH_'+str(PH)+'_min.png', format='png', dpi=1200)
+    plt.savefig('boxplot_'+model_name+'_PH_'+str(PH)+'_min.svg', format='svg', dpi=1200)
 
 def get_patient_wise_metrics(exp_config : Dict, grouped_metrics : Dict, patients_data_folder : str = r"C:\Users\aralmeida\Downloads\LibreViewRawData\1yr_npy_files"): 
     
@@ -880,16 +884,29 @@ def get_grouped_RMSEbased_best_metrics(exp_config : Dict, grouped_metrics : Dict
                 patients_ids.append(id)
                 best_30min_model_dict[id] = {}
                 best_60min_model_dict[id] = {}
+    
+    #####################################
+    # Remove '008' '011' and '007' from list 
+    # del best_30min_model_dict['008']
+    # # del best_30min_model_dict['011']
+    # del best_30min_model_dict['007']
+    # del best_60min_model_dict['008']
+    # del best_60min_model_dict['011']
+    # del best_60min_model_dict['007']
+    # patients_ids.remove('008')
+    # patients_ids.remove('011')
+    # patients_ids.remove('007')
+    #####################################
 
     # For the metric that are better of they are lower (RMSE, MAE, MAPE)
     for i in range(len(patients_ids)): #num of available patients 
 
         # Fill the dictionaries once per patientd (ID)
-        best_30min_model_dict[patients_ids[i]] = {"samples" : 0, 
-                                        "best_model_weights" : "",
-                                        "RMSE": {"best_model" : "", "best_loss" : 0, "best_value" : 0}, 
-                                        "MAPE": {"best_model" : "", "best_loss" : 0, "best_value" : 0},
-                                        "MAE": {"best_model" : "", "best_loss" : 0, "best_value" : 0}}
+        # best_30min_model_dict[patients_ids[i]] = {"samples" : 0, 
+        #                                 "best_model_weights" : "",
+        #                                 "RMSE": {"best_model" : "", "best_loss" : 0, "best_value" : 0}, 
+        #                                 "MAPE": {"best_model" : "", "best_loss" : 0, "best_value" : 0},
+        #                                 "MAE": {"best_model" : "", "best_loss" : 0, "best_value" : 0}}
 
         best_60min_model_dict[patients_ids[i]] = {"samples" : 0,
                                             "best_model_weights" : "",
@@ -918,16 +935,17 @@ def get_grouped_RMSEbased_best_metrics(exp_config : Dict, grouped_metrics : Dict
                     for loss in ["ISO", "MSE"]: # harcoded: the studied loss functions 
                         
                         # Update the metric with each iteration
-                        # 30 mins
-                        # curr_metric_30 = grouped_metrics[models]["30"][metric][loss]["mean"][i]
-                        # curr_loss_func_30 = loss
-                        # curr_model_30 = models
                         # 60 mins
 
+                        # Naive is different because it doesn't have a loss function
                         if models == 'naive': 
                             curr_metric_60 = grouped_metrics[models]["60"][metric]["MSE"]["mean"][i]
                             curr_loss_func_60 = "MSE"
                             curr_model_60 = models
+
+                            # curr_metric_30 = grouped_metrics[models]["30"][metric]["MSE"]["mean"][i]
+                            # curr_loss_func_30 = "MSE"
+                            # curr_model_30 = models
                         else: 
                             curr_metric_60 = grouped_metrics[models]["60"][metric][loss]["mean"][i]
                             curr_loss_func_60 = loss
@@ -954,22 +972,22 @@ def get_grouped_RMSEbased_best_metrics(exp_config : Dict, grouped_metrics : Dict
                             best_60min_model_dict[patients_ids[i]][metric]["best_value"] = best_metric_60
 
                             counter_30 = counter_30+1
-                            counter_60 = counter_60+1
+                            # counter_60 = counter_60+1
 
                         else:
                             
-                            # For 30 mins
+                            # # For 30 mins
                             # if curr_metric_30 < best_metric_30:
                             #     best_metric_30 = curr_metric_30
                             #     best_loss_func_30 = curr_loss_func_30
                             #     best_model_30 = curr_model_30
 
-                                # best_30min_model_dict[patients_ids[i]]["samples"] = shape 
-                                # best_30min_model_dict[patients_ids[i]][metric]["best_model"] = best_model_30
-                                # best_30min_model_dict[patients_ids[i]][metric]["best_loss"] = best_loss_func_30                            
-                                # best_30min_model_dict[patients_ids[i]][metric]["best_value"] = best_metric_30
+                            #     best_30min_model_dict[patients_ids[i]]["samples"] = shape 
+                            #     best_30min_model_dict[patients_ids[i]][metric]["best_model"] = best_model_30
+                            #     best_30min_model_dict[patients_ids[i]][metric]["best_loss"] = best_loss_func_30                            
+                            #     best_30min_model_dict[patients_ids[i]][metric]["best_value"] = best_metric_30
 
-                                # counter_30 = counter_30+1
+                            #     counter_30 = counter_30+1
 
                             # else:
                             #     best_metric_30 = best_metric_30 
@@ -981,7 +999,7 @@ def get_grouped_RMSEbased_best_metrics(exp_config : Dict, grouped_metrics : Dict
                             #     best_30min_model_dict[patients_ids[i]][metric]["best_loss"] = best_loss_func_30
                             #     best_30min_model_dict[patients_ids[i]][metric]["best_value"] = best_metric_30
 
-                                # counter_30 = counter_30+1
+                            #     counter_30 = counter_30+1
                             
                             # For 60 mins
                             if curr_metric_60 < best_metric_60:
@@ -1052,7 +1070,7 @@ def get_grouped_ISO_and_Parkes_best_metrics(exp_config : Dict, grouped_metrics :
                 patients_ids.append(id)
                 best_30min_model_dict[id] = {}
                 best_60min_model_dict[id] = {}
-
+    
     # For the metric that are better of they are lower (RMSE, MAE, MAPE)
     for i in range(len(patients_ids)): #num of available patients 
 
@@ -1098,10 +1116,18 @@ def get_grouped_ISO_and_Parkes_best_metrics(exp_config : Dict, grouped_metrics :
                             curr_metric_60 = grouped_metrics[models]["60"][metric]["MSE"]["mean"][i]
                             curr_loss_func_60 = "MSE"
                             curr_model_60 = models  
+
+                            # curr_metric_30 = grouped_metrics[models]["30"][metric]["MSE"]["mean"][i]
+                            # curr_loss_func_30 = "MSE"
+                            # curr_model_30 = models  
                         else:                          
                             curr_metric_60 = grouped_metrics[models]["60"][metric][loss]["mean"][i]
                             curr_loss_func_60 = loss
                             curr_model_60 = models
+
+                            # curr_metric_30 = grouped_metrics[models]["30"][metric][loss]["mean"][i]
+                            # curr_loss_func_30 = loss
+                            # curr_model_30 = models
 
                         if counter_30 == 0 and counter_60 == 0: 
                             
@@ -1123,23 +1149,23 @@ def get_grouped_ISO_and_Parkes_best_metrics(exp_config : Dict, grouped_metrics :
                             best_60min_model_dict[patients_ids[i]][metric]["best_loss"] = best_loss_func_60
                             best_60min_model_dict[patients_ids[i]][metric]["best_value"] = best_metric_60
 
-                            # counter_30 = counter_30+1
+                            counter_30 = counter_30+1
                             counter_60 = counter_60+1
 
                         else:
                             
-                            # For 30 mins
+                            # # For 30 mins
                             # if curr_metric_30 > best_metric_30:
-                                # best_metric_30 = curr_metric_30
-                                # best_loss_func_30 = curr_loss_func_30
-                                # best_model_30 = curr_model_30
+                            #     best_metric_30 = curr_metric_30
+                            #     best_loss_func_30 = curr_loss_func_30
+                            #     best_model_30 = curr_model_30
 
-                                # best_30min_model_dict[patients_ids[i]]["samples"] = shape 
-                                # best_30min_model_dict[patients_ids[i]][metric]["best_model"] = best_model_30
-                                # best_30min_model_dict[patients_ids[i]][metric]["best_loss"] = best_loss_func_30                            
-                                # best_30min_model_dict[patients_ids[i]][metric]["best_value"] = best_metric_30
+                            #     best_30min_model_dict[patients_ids[i]]["samples"] = shape 
+                            #     best_30min_model_dict[patients_ids[i]][metric]["best_model"] = best_model_30
+                            #     best_30min_model_dict[patients_ids[i]][metric]["best_loss"] = best_loss_func_30                            
+                            #     best_30min_model_dict[patients_ids[i]][metric]["best_value"] = best_metric_30
 
-                                # counter_30 = counter_30+1
+                            #     counter_30 = counter_30+1
 
                             # else:
                             #     best_metric_30 = best_metric_30 
@@ -1609,62 +1635,62 @@ def get_patient_wise_fold_results(exp_config : Dict, results_dict : Dict, result
                 elif PH == 60:
                     idx = 3
 
-                    # Itreate over the loss functions and write the results
-                    for loss in exp_config['loss_function']:
+                # Itreate over the loss functions and write the results
+                for loss in exp_config['loss_function']:
 
-                        patient_wise_fold_results[id][loss] = {}
+                    patient_wise_fold_results[id][loss] = {}
 
-                        for model in exp_config['model']:
+                    for model in exp_config['model']:
 
-                            if model == 'naive':
-                                key = 'multi_N{}_step1_PH{}_month-wise-4-folds_min-max_None_{}_root_mean_squared_error'.format(exp_config['N'][0], PH, model, loss)
-                            else: 
-                                # Obtain key to access the correspondant result 
-                                key = 'multi_N{}_step1_PH{}_month-wise-4-folds_min-max_None_{}_{}'.format(exp_config['N'][0], PH, model, loss)
+                        if model == 'naive':
+                            key = 'multi_N{}_step1_PH{}_month-wise-4-folds_min-max_None_{}_root_mean_squared_error'.format(exp_config['N'][0], PH, model, loss)
+                        else: 
+                            # Obtain key to access the correspondant result 
+                            key = 'multi_N{}_step1_PH{}_month-wise-4-folds_min-max_None_{}_{}'.format(exp_config['N'][0], PH, model, loss)
 
-                            patient_wise_fold_results[id][loss][model] = {'RMSE': [results[key][model]['1-fold']["normal "]["RMSE"][idx],
-                                                                    results[key][model]['2-fold']["normal "]["RMSE"][idx],
-                                                                    results[key][model]['3-fold']["normal "]["RMSE"][idx],
-                                                                    results[key][model]['4-fold']["normal "]["RMSE"][idx]], 
-                                                                    'ISO' : [results[key][model]['1-fold']["normal "]["ISO"][idx],
-                                                                    results[key][model]['2-fold']["normal "]["ISO"][idx],
-                                                                    results[key][model]['3-fold']["normal "]["ISO"][idx],
-                                                                    results[key][model]['4-fold']["normal "]["ISO"][idx]], 
-                                                                    'PARKES' : [results[key][model]['1-fold']["normal "]["PARKES"][idx],
-                                                                    results[key][model]['2-fold']["normal "]["PARKES"][idx],
-                                                                    results[key][model]['3-fold']["normal "]["PARKES"][idx],
-                                                                    results[key][model]['4-fold']["normal "]["PARKES"][idx]], 
-                                                                    'MAE' : [results[key][model]['1-fold']["normal "]["MAE"][idx],
-                                                                    results[key][model]['2-fold']["normal "]["MAE"][idx],
-                                                                    results[key][model]['3-fold']["normal "]["MAE"][idx],
-                                                                    results[key][model]['4-fold']["normal "]["MAE"][idx]],
-                                                                    'MAPE' : [results[key][model]['1-fold']["normal "]["MAPE"][idx],
-                                                                    results[key][model]['2-fold']["normal "]["MAPE"][idx],
-                                                                    results[key][model]['3-fold']["normal "]["MAPE"][idx],
-                                                                    results[key][model]['4-fold']["normal "]["MAPE"][idx]]#,
-                                                                    # 'Hypo TP' : [results[key][model]['1-fold']["normal "]["Hypo TP"],
-                                                                    # results[key][model]['2-fold']["normal "]["Hypo TP"],
-                                                                    # results[key][model]['3-fold']["normal "]["Hypo TP"],
-                                                                    # results[key][model]['4-fold']["normal "]["Hypo TP"]],
-                                                                    # 'Hyper TP' : [results[key][model]['1-fold']["normal "]["Hyper TP"],
-                                                                    # results[key][model]['2-fold']["normal "]["Hyper TP"],
-                                                                    # results[key][model]['3-fold']["normal "]["Hyper TP"],
-                                                                    # results[key][model]['4-fold']["normal "]["Hyper TP"]],
-                                                                    # 'Normal TP' : [results[key][model]['1-fold']["normal "]["Normal TP"],
-                                                                    # results[key][model]['2-fold']["normal "]["Normal TP"],
-                                                                    # results[key][model]['3-fold']["normal "]["Normal TP"],
-                                                                    # results[key][model]['4-fold']["normal "]["Normal TP"]], 
-                                                                    # 'Accuracy' : [results[key][model]['1-fold']["normal "]["Accuracy"],
-                                                                    # results[key][model]['2-fold']["normal "]["Accuracy"],
-                                                                    # results[key][model]['3-fold']["normal "]["Accuracy"],
-                                                                    # results[key][model]['4-fold']["normal "]["Accuracy"]]
-                                                                    }
+                        patient_wise_fold_results[id][loss][model] = {'RMSE': [results[key][model]['1-fold']["normal "]["RMSE"][idx],
+                                                                results[key][model]['2-fold']["normal "]["RMSE"][idx],
+                                                                results[key][model]['3-fold']["normal "]["RMSE"][idx],
+                                                                results[key][model]['4-fold']["normal "]["RMSE"][idx]], 
+                                                                'ISO' : [results[key][model]['1-fold']["normal "]["ISO"][idx],
+                                                                results[key][model]['2-fold']["normal "]["ISO"][idx],
+                                                                results[key][model]['3-fold']["normal "]["ISO"][idx],
+                                                                results[key][model]['4-fold']["normal "]["ISO"][idx]], 
+                                                                'PARKES' : [results[key][model]['1-fold']["normal "]["PARKES"][idx],
+                                                                results[key][model]['2-fold']["normal "]["PARKES"][idx],
+                                                                results[key][model]['3-fold']["normal "]["PARKES"][idx],
+                                                                results[key][model]['4-fold']["normal "]["PARKES"][idx]], 
+                                                                'MAE' : [results[key][model]['1-fold']["normal "]["MAE"][idx],
+                                                                results[key][model]['2-fold']["normal "]["MAE"][idx],
+                                                                results[key][model]['3-fold']["normal "]["MAE"][idx],
+                                                                results[key][model]['4-fold']["normal "]["MAE"][idx]],
+                                                                'MAPE' : [results[key][model]['1-fold']["normal "]["MAPE"][idx],
+                                                                results[key][model]['2-fold']["normal "]["MAPE"][idx],
+                                                                results[key][model]['3-fold']["normal "]["MAPE"][idx],
+                                                                results[key][model]['4-fold']["normal "]["MAPE"][idx]]#,
+                                                                # 'Hypo TP' : [results[key][model]['1-fold']["normal "]["Hypo TP"],
+                                                                # results[key][model]['2-fold']["normal "]["Hypo TP"],
+                                                                # results[key][model]['3-fold']["normal "]["Hypo TP"],
+                                                                # results[key][model]['4-fold']["normal "]["Hypo TP"]],
+                                                                # 'Hyper TP' : [results[key][model]['1-fold']["normal "]["Hyper TP"],
+                                                                # results[key][model]['2-fold']["normal "]["Hyper TP"],
+                                                                # results[key][model]['3-fold']["normal "]["Hyper TP"],
+                                                                # results[key][model]['4-fold']["normal "]["Hyper TP"]],
+                                                                # 'Normal TP' : [results[key][model]['1-fold']["normal "]["Normal TP"],
+                                                                # results[key][model]['2-fold']["normal "]["Normal TP"],
+                                                                # results[key][model]['3-fold']["normal "]["Normal TP"],
+                                                                # results[key][model]['4-fold']["normal "]["Normal TP"]], 
+                                                                # 'Accuracy' : [results[key][model]['1-fold']["normal "]["Accuracy"],
+                                                                # results[key][model]['2-fold']["normal "]["Accuracy"],
+                                                                # results[key][model]['3-fold']["normal "]["Accuracy"],
+                                                                # results[key][model]['4-fold']["normal "]["Accuracy"]]
+                                                                }
                                                                     
             os.chdir('..')
     
     return patient_wise_fold_results
 
-def plot_patient_per_patient_boxplot(patient_wise_results : Dict, metric : str, loss_function : str, sorted_by : str = 'samples'):
+def plot_patient_per_patient_boxplot(patient_wise_results : Dict, metric : str, loss_function : str, PH : int, sorted_by : str = 'samples'):
     
     """ After the simulation of the DL model generation for 
     all patients (currently n=29) has been done, this function can 
@@ -1678,6 +1704,7 @@ def plot_patient_per_patient_boxplot(patient_wise_results : Dict, metric : str, 
         patient_wise_results : Dictionary containing the results for each patient separated per folds and models.
         metric : Metric to be compared.
         loss_function: "ISO_loss" or "root_mean_squared_error"
+        PH : Prediction horizon to be studied.
         sorted_by : Parameter to sort the patients. Default is 'samples' (number of samples available to train the models).
     """
 
@@ -1772,10 +1799,18 @@ def plot_patient_per_patient_boxplot(patient_wise_results : Dict, metric : str, 
     # Remove blank space on the left and right sides
     ax.set_xlim(-0.5, len(samples)-0.5)
 
+    # ax.set_ylim(25, 70)
+
     # When RMSE is evaluated, plot a dashed horizontal line in y = 32 with the text "state-of-the-art"
     if metric == 'RMSE':
-        ax.axhline(y=32, color='black', linestyle='--')
-        ax.text(-0.2, 30.5, 'state-of-the-art', color = 'black')
+        if PH == 60:
+            ax.axhline(y=32, color='black', linestyle='--')
+            ax.text(-0.2, 30.5, 'state-of-the-art', color = 'black')
+        elif PH == 30:
+            ax.axhline(y=19, color='black', linestyle='--')
+            ax.text(-0.2, 18, 'state-of-the-art', color = 'black')
+        else: 
+            pass
 
     # When PARKES is evaluated, plot a dashed horizontal line in y = 99, since it is the minimum set by the ISO 
     elif metric == 'PARKES':
@@ -1788,10 +1823,10 @@ def plot_patient_per_patient_boxplot(patient_wise_results : Dict, metric : str, 
         ax.text(-0.2, 98, 'ISO 15197:2015', color = 'black')
 
     # Set title 
-    plt.title('60 min ' + metric)
+    plt.title(str(PH)+' min ' + metric)
 
     # Add grid with horizontal black lines 
     ax.yaxis.grid(True, color='black')
 
     # Save figure 
-    plt.savefig('60min_' + metric + loss_function + '.svg', format='svg', dpi=1200, bbox_inches='tight')
+    plt.savefig(str(PH)+'min_' + metric + loss_function + '.svg', format='svg', dpi=1200, bbox_inches='tight')
