@@ -3,6 +3,14 @@ import os
 import pickle
 import numpy as np 
 import pandas as pd
+from matplotlib import pyplot as plt
+import tensorflow as tf
+from models.training import ISO_adapted_loss
+from libreview_utils import create_LibreView_results_dictionary
+import json
+from sensor_params import *
+from evaluation.multi_step.evaluation import model_evaluation as multi_step_model_evaluation
+from utils import get_LibreView_CGM_X_Y_multistep
 
 set_of_libreview_keys = [["001", "001", "001", "2024"],
             ["003", "001", "001", "2024"],
@@ -588,3 +596,440 @@ def extract_test_set_from_test_data_dictionary(test_data_recordings : Dict, NUM_
             pass
     
     return test_data_recordings
+
+def final_model_test(test_data_recordings_final : Dict, PH : int, DL_models : List, NUM_OF_DAYS_TEST_SET : int, N : int = 96, step : int = 1) -> None:
+    """
+    This function performs the final model tests, given the test data recordings, and also the number 
+    of days of the test set. The model evaluation is the same as in main_libreview.py. N, step are parameters
+    derived from the previous step. Please, note that "libreview_sensors" is hardcoded now, but will be changed 
+    soon. 
+
+    Args: 
+    ----
+        test_data_recording_final : Dictionary containing the filtered test data recordings subject per subject 
+        PH : Prediction horizon (in minutes). Currently 30 and 60 have been tested. 
+        DL_models: DL models to be tested. (Currently, should be []'LSTM', 'StackedLSTM', 'DIL-1D-UNET'])
+        NUM_OF_DAYS_TEST_SET : Number of days of the test set.
+        N : Number of input steps. Default is 96. (According to previous steps)
+        step : Step between input steps. Default is 1. (According to previous steps)
+    
+    Returns: 
+    -------
+        None
+    """
+
+    # First, repeat X and Y generation for each subject and then preprocessing 
+    # Iterate over the subjects to generate X and Y test vectors
+    for key in test_data_recordings_final.keys():
+        for key2 in test_data_recordings_final[key]['001']['001']['2024'].keys():
+            for key3 in test_data_recordings_final[key]['001']['001']['2024'][key2].keys():
+
+                # Create dictionary to fill it with the results (one per patient) 
+                try:
+                    with open('test_results_dictionary.json', 'rb') as handle:
+                        test_results_dictionary = json.load(handle)
+                        print("Dictionary loaded.\n")
+                except:
+                    test_results_dictionary = {}
+                    print("Non-existing dictionary. A new one was created.\n")
+    
+                # Save CGM and timestamps in a variable 
+                recordings = test_data_recordings_final[key]['001']['001']['2024'][key2][key3]['CGM']['reading']
+                timestamps = test_data_recordings_final[key]['001']['001']['2024'][key2][key3]['CGM']['timestamp']
+
+                # Save number of available CGM test samples in dictionary 
+                test_data_recordings_final[key]['001']['001']['2024'][key2][key3]['CGM']['test_CGM_samples'] = recordings.shape
+
+                # Generate X and Y test 
+                X_test, Y_test, X_times, Y_times = get_LibreView_CGM_X_Y_multistep(recordings, timestamps, libreview_sensors, 
+                                            N, step, PH, plot = True, verbose = 0) 
+
+                # Min-max normalization
+                X_norm = (X_test - np.min(X_test))/(np.max(X_test) - np.min(X_test))
+                Y_norm = (Y_test - np.min(X_test))/(np.max(X_test) - np.min(X_test))        
+
+                # Get 1st derivative of X_norm
+                X_norm_der = np.diff(X_norm, axis = 1)
+
+                # Add the last point of X_norm_dev on the right of the array tp have same dimension than X_norm
+                X_norm_der = np.insert(X_norm_der, -1, X_norm_der[:,-1], axis = 1)
+
+                # Stack X_norm and X_norm_der
+                X_norm = np.dstack((X_norm, X_norm_der))
+
+                # Create a key depending on the number of test days 
+                test_key = str(NUM_OF_DAYS_TEST_SET)
+                test_results_dictionary[test_key] = {}
+                
+                # Go to the directory where the models are stored. Iterate over the three evaluated 
+                for DL_model in DL_models: 
+                    
+                    # Go to the correspondant directory 
+                    dir = r"C:\Users\aralmeida\Downloads\LibreViewRawData-final_sims\1yr_npy_files\{}\N96\step1\PH{}\multi\month-wise-4-folds\norm_min-max\None_sampling\{}\ISO_loss\1-yr_model\training".format(key, PH, DL_model)
+                    os.chdir(dir)
+
+                    # Load the model 
+                    name = "1yr-"+DL_model
+                    model = tf.keras.models.load_model(name+'.h5', custom_objects={'ISO_adapted_loss': ISO_adapted_loss})
+
+                    # Model evaluation 
+                    results_normal_eval = multi_step_model_evaluation(N, PH, name, "min-max", 2, X_norm, Y_norm, round(PH/15), X_test, "ISO_loss", plot_results=True)
+
+                    # Create a key depending on the number of test days 
+                    test_key = str(NUM_OF_DAYS_TEST_SET)
+                    
+                    # Save results in directory 
+                    test_results_dictionary[test_key][DL_model] = results_normal_eval
+
+                # Save updated dictionary 
+                with open('test_results_dictionary.json', 'w') as fp:
+                    json.dump(test_results_dictionary, fp) 
+
+
+def subject_per_subject_bar_diagram(test_data_recordings_final : Dict, metric : str, metric_LSTM : List, metric_StackedLSTM : List, metric_DIL_1D_UNET, PH : int, NUM_OF_DAYS_TEST_SET : int) -> None: 
+    """
+    Given the dictionary with the IDs of the included subjects and the name of the metric
+    evaluated, this function generates a bar diagram with the metric evaluated for each subject.
+
+    Args: 
+    -----
+        test_data_recordings : Dictionary with the test data recordings
+        metric : Name of the metric evaluated
+        metric_LSTM : List with the metric values for LSTM
+        metric_StackedLSTM : List with the metric values for Stacked LSTM
+        metric_DIL_1D_UNET : List with the metric values for DIL-1D-UNET
+        PH : Prediction horizon (in minutes). Currently 30 and 60 have been tested.
+        NUM_OF_DAYS_TEST_SET : Number of days included in the test set
+
+    Returns:
+    --------
+        None
+    """
+
+    # Plot all values of RMSE_LSTM in a bar diagram 
+
+    # Patient list (filled manually)
+    all_patient_list_sorted = ['004', '011', '029', '008', '015', '045', '025', '065', '067', '026', '060',
+                        '062', '039', '007', '048', '001', '014', '013', '046', '043', '051', '049',
+                        '063', '055', '061', '057', '003', '068', '058']
+
+    # Filter all patients with no test instances
+    filtered_patient_list = [x for x in all_patient_list_sorted if x in list(test_data_recordings_final.keys())]
+
+    filtered_patient_list
+
+    plt.figure(figsize=(17, 8.5))
+
+    # Set font to arial 
+    plt.rcParams['font.family'] = 'sans-serif'
+    plt.rcParams['font.sans-serif'] = 'Arial'
+
+    # Set text to bold
+    plt.rcParams['font.weight'] = 'bold'
+    plt.rcParams['axes.labelweight'] = 'bold'
+
+    # Grouped bar diagram for RMSE in LSTM, Stacked LSTM and DIL-1D-UNET
+    barWidth = 0.25
+
+    bars1 = metric_LSTM
+    bars2 = metric_StackedLSTM
+    bars3 = metric_DIL_1D_UNET
+
+    r1 = np.arange(len(bars1))
+    r2 = [x + barWidth for x in r1]
+    r3 = [x + barWidth for x in r2]
+
+    plt.bar(r1, bars1, color='b', width=barWidth, edgecolor='grey', label='LSTM')
+    plt.bar(r2, bars2, color='r', width=barWidth, edgecolor='grey', label='Stacked LSTM')
+    plt.bar(r3, bars3, color='g', width=barWidth, edgecolor='grey', label='DIL-1D-UNET')
+
+    # X labels are the filtered patient_list
+    plt.xticks(range(len(filtered_patient_list)), filtered_patient_list)
+
+    # Center the x ticks
+    plt.xlabel('Subject', fontweight='bold')
+
+    plt.legend()
+
+    if metric == 'RMSE': 
+        plt.ylabel('RMSE (mg/dL)', fontweight='bold')
+    elif metric == 'PARKES':
+        plt.ylabel('PARKES (%)', fontweight='bold')
+
+        # Add a dash line at 99% of the PARKES error
+        plt.axhline(y=99, color='black', linestyle='--', label='99% PARKES error')
+
+    elif metric == 'ISO':
+        plt.ylabel('ISO (%)', fontweight='bold')
+
+        # Add a dash line at 99% of the PARKES error  
+        plt.axhline(y=95, color='black', linestyle='--', label='99% PARKES error')
+
+    # Save the figure 
+    plt.savefig(metric+'PH-'+str(PH)+'min_'+str(NUM_OF_DAYS_TEST_SET)+ '_test.svg', dpi=1200)
+
+    plt.show()
+
+def final_DIY_models_test(data_dict : Dict, sensor_black_list : List, PH : int, NUM_OF_DAYS_TEST_SET : int,
+                        N : int = 96, step : int = 1,
+                        DL_models : List = ['LSTM', 'StackedLSTM', 'DIL-1D-UNET'],
+                        parent_dir : str = r"C:\Users\aralmeida\Downloads\LibreViewRawData-final_sims\1yr_npy_files",
+                        TEST_DATASET_PATH : str = r"C:\Users\aralmeida\Downloads\Datos sensor FSL 2024\Datos crudos excel 2024_adapted") ->  None: 
+    
+    """
+    This function performs the final tests with the DIY models trained within 1 year. In this function, data from the previous 
+    cross-validation step is used to filter the test data ny taking the sensor MACs. Thus, if a subject has changed his/her
+    sensor and no new data is provided, it will be discarded. The test data is also filtered by the sensor model.
+    Besides, if interruptions of lack in data samples imply that no test intances are generated, this subject will be also discarded.
+    Notice that the N, PH and NUM_OF_DAYS_TEST_SET will influence on this. The final test set is extracted from the test data dictionary.
+    Once the data is extracted, the evaluation is done as in main_libreview.py.
+
+    For more details about the specific steps, please refer to the specific functions inside this one. 
+
+    Args:
+    ----
+        data_dict: Dictionary with the CGM data after read the .csv files. 
+        sensor_black_list: List of sensors to be discarded from the dictionary.
+        PH : Prediction horizon (in minutes). Currently 30 and 60 have been tested. 
+        NUM_OF_DAYS_TEST_SET : Number of days of the test set. 
+        N : Number of input steps. Default is 96. (According to previous steps)
+        step : Step between input steps. Default is 1. (According to previous steps)
+        DL_models: DL models to be tested. Deafult: ['LSTM', 'StackedLSTM', 'DIL-1D-UNET']
+        parent_dir : Parent directory where the data is stored. Set by default but should be changed if someone wants to use it. 
+        TEST_DATASET_PATH : Path to the test dataset. Set by default but should be changed if someone wants to use it.
+    
+    Returns: 
+    -------
+        test_data_recordings: Dictionary with the final sequences of CGM readings and timestamps for the test set of containing NUM_OF_DAYS_TEST_SET. 
+
+    """
+
+    # Get the end dates of the training set 
+    subjects_end_training_dates = get_end_training_dates(parent_dir, TEST_DATASET_PATH)
+
+    # Extract the test data recordings 
+    test_data_recordings = extract_test_data_recordings(subjects_end_training_dates, data_dict)
+
+    # Filter subjects using sensor from the blacklist 
+    test_data_recordings = discard_data_from_sensor_black_list(test_data_recordings, sensor_black_list)
+
+    # Open the dicionary previously generated with the training and validation data 
+    os.chdir(parent_dir)
+
+    # Go to parent folder
+    os.chdir("..")
+
+    # Open libreview_1_yr_recordings pickle
+    with open('libreview_data_1yr_recordings.pickle', 'rb') as handle:
+        yr_data = pickle.load(handle)
+
+    # Back to the test set directory 
+    os.chdir(TEST_DATASET_PATH)
+
+    # Extract the MAC of the sensors from the subjects used in the previous step (4-folds cross validation)
+    data_with_1_yr_sensor_MAC = get_ID_sensor_MAC_pairs(yr_data)
+
+    # Inclusion criteria #1: Subjects that have the same sensor during the 1-year period to train the models
+    # Filter subjects that change their sensors to exclude then from the final test
+    test_data_recordings = filter_subjects_that_change_sensor(test_data_recordings, data_with_1_yr_sensor_MAC)
+
+    # Check if there are IDs completely empty to delete them
+    for i in range(0,len(set_of_libreview_keys)):      
+        if len(test_data_recordings[set_of_libreview_keys[i][0]][set_of_libreview_keys[i][1]][set_of_libreview_keys[i][2]][set_of_libreview_keys[i][3]]) == 0:
+
+            # Delete entry 
+            del test_data_recordings[set_of_libreview_keys[i][0]]
+
+    print("After filtering sensor changes: ", len(test_data_recordings.keys()))
+
+    # Get the IDs MACs peers for the test data 
+    data_test_sensor_MAC = get_ID_sensor_MAC_pairs(test_data_recordings)
+
+    # Remove, if exists, the overlapping data to test only with data not used in the training and validation sets
+    test_data_recordings = remove_training_data_from_test_set(test_data_recordings, subjects_end_training_dates, 1)
+
+    # Establishing the period of the test set (30, 90, 180, and 365 days in this work), extract the final test set
+    test_data_recordings = extract_test_set_from_test_data_dictionary(test_data_recordings, NUM_OF_DAYS_TEST_SET, 1)
+
+    # List to store the keys of the subjects with no test instances 
+    no_test_subjects = []
+
+    # Generate X and Y to see if there are subjects that do not provide any instances and delete them 
+    for key in test_data_recordings.keys():
+        for key2 in test_data_recordings[key]['001']['001']['2024'].keys():
+            for key3 in test_data_recordings[key]['001']['001']['2024'][key2].keys():
+
+                # # Create dictionary to fill it with the results (one per patient) 
+                # test_results_dictionary = create_LibreView_results_dictionary()
+    
+                # Save CGM and timestamps in a variable 
+                recordings = test_data_recordings[key]['001']['001']['2024'][key2][key3]['CGM']['reading']
+                timestamps = test_data_recordings[key]['001']['001']['2024'][key2][key3]['CGM']['timestamp']
+
+                # Generate X and Y test 
+                X_test, Y_test, X_times, Y_times = get_LibreView_CGM_X_Y_multistep(recordings, timestamps, libreview_sensors, 
+                                            N, step, PH, plot = True, verbose = 0) 
+
+                # Save number of available CGM test samples in dictionary 
+                test_data_recordings[key]['001']['001']['2024'][key2][key3]['CGM']['test_CGM_instances'] = X_test.shape[0]
+
+    for key in test_data_recordings.keys():
+        for key2 in test_data_recordings[key]['001']['001']['2024'].keys():
+            for key3 in test_data_recordings[key]['001']['001']['2024'][key2].keys():
+
+                if test_data_recordings[key]['001']['001']['2024'][key2][key3]['CGM']['test_CGM_instances'] == 0:
+
+                    no_test_subjects.append(key)
+
+    # Delete entry with no test instances
+    for i in range(0,len(no_test_subjects)):      
+        del test_data_recordings[no_test_subjects[i]]
+
+    print("After filtering because subject does not have test instances: ", len(test_data_recordings.keys()))
+
+    final_model_test(test_data_recordings, PH, DL_models, NUM_OF_DAYS_TEST_SET)
+
+    # Save the final test data recordings
+    with open('test_final_data_recordings.pickle', 'wb') as handle:
+        pickle.dump(test_data_recordings, handle, protocol=pickle.HIGHEST_PROTOCOL)
+
+    return test_data_recordings
+
+
+def group_and_save_metrics(test_data_recordings_final : Dict, DL_models : List, PH : int, NUM_OF_DAYS_TEST_SET : int) -> List:
+    
+    """
+    Group RMSE, Parkes and ISO metrics for LSTM, Stacked LSTM, DIL-1D-UNET and Naive models. 
+    Once this function is called, the results are saved in an Excel file an ready to be 
+    plotted through the use of Lists.  
+
+    Args:
+    ----
+        test_data_recordings_final : Dictionary containing the filtered test data recordings subject per subject 
+        DL_models : List with the DL models to be tested. 
+        PH : Prediction horizon (in minutes). Currently 30 and 60 have been tested.
+        NUM_OF_DAYS_TEST_SET : Number of days included in the test set.
+
+    Returns:
+    -------
+        RMSE_LSTM : List with the RMSE values for LSTM
+        RMSE_StackedLSTM : List with the RMSE values for Stacked LSTM
+        RMSE_DIL_1D_UNET : List with the RMSE values for DIL-1D-UNET
+        RMSE_naive : List with the RMSE values for Naive model
+        PARKES_LSTM : List with the PARKES values for LSTM
+        PARKES_StackedLSTM : List with the PARKES values for Stacked LSTM
+        PARKES_DIL_1D_UNET : List with the PARKES values for DIL-1D-UNET
+        PARKES_naive : List with the PARKES values for Naive model
+        ISO_LSTM : List with the ISO values for LSTM
+        ISO_StackedLSTM : List with the ISO values for Stacked LSTM
+        ISO_DIL_1D_UNET : List with the ISO values for DIL-1D-UNET
+        ISO_naive : List with the ISO values for Naive model   
+    """
+
+    # Group the RMSE of all patients
+    RMSE_LSTM = []
+    RMSE_StackedLSTM = []
+    RMSE_DIL_1D_UNET = []
+    RMSE_naive = []
+
+    PARKES_LSTM = []
+    PARKES_StackedLSTM = []
+    PARKES_DIL_1D_UNET = []
+    PARKES_naive = []
+
+    ISO_LSTM = []
+    ISO_StackedLSTM = []
+    ISO_DIL_1D_UNET = []
+    ISO_naive = []
+
+    for key in test_data_recordings_final.keys():
+                
+                # Go to the correspondant directory 
+                dir = r"C:\Users\aralmeida\Downloads\LibreViewRawData-final_sims\1yr_npy_files\{}\N96\step1\PH{}\multi\month-wise-4-folds\norm_min-max\None_sampling\{}\ISO_loss\1-yr_model\evaluation".format(key, PH, DL_models[2])
+                os.chdir(dir)
+
+                # Load dictionary
+                with open('test_results_dictionary.json', 'r') as fp:
+                    curr_results = json.load(fp)
+
+                # Index depending on the PH 
+                if PH == 30:
+                    idx = 1
+                if PH == 60:
+                    idx = 3
+                
+                # Append RMSE, Parkes, ISO
+                RMSE_LSTM.append(curr_results[str(NUM_OF_DAYS_TEST_SET)][DL_models[0]]['RMSE'][idx])
+                PARKES_LSTM.append(curr_results[str(NUM_OF_DAYS_TEST_SET)][DL_models[0]]['PARKES'][idx])
+                ISO_LSTM.append(curr_results[str(NUM_OF_DAYS_TEST_SET)][DL_models[0]]['ISO'][idx])
+
+                # Go to the correspondant directory 
+                dir = r"C:\Users\aralmeida\Downloads\LibreViewRawData-final_sims\1yr_npy_files\{}\N96\step1\PH{}\multi\month-wise-4-folds\norm_min-max\None_sampling\{}\ISO_loss\1-yr_model\evaluation".format(key, PH, DL_models[2])
+                os.chdir(dir)
+
+                # Load dictionary
+                with open('test_results_dictionary.json', 'r') as fp:
+                    curr_results = json.load(fp)
+
+                RMSE_StackedLSTM.append(curr_results[str(NUM_OF_DAYS_TEST_SET)][DL_models[1]]['RMSE'][idx])
+                PARKES_StackedLSTM.append(curr_results[str(NUM_OF_DAYS_TEST_SET)][DL_models[1]]['PARKES'][idx])
+                ISO_StackedLSTM.append(curr_results[str(NUM_OF_DAYS_TEST_SET)][DL_models[1]]['ISO'][idx])
+
+                # Go to the correspondant directory 
+                dir = r"C:\Users\aralmeida\Downloads\LibreViewRawData-final_sims\1yr_npy_files\{}\N96\step1\PH{}\multi\month-wise-4-folds\norm_min-max\None_sampling\{}\ISO_loss\1-yr_model\evaluation".format(key, PH, DL_models[2])
+                os.chdir(dir)
+
+                # Load dictionary
+                with open('test_results_dictionary.json', 'r') as fp:
+                    curr_results = json.load(fp)
+
+                RMSE_DIL_1D_UNET.append(curr_results[str(NUM_OF_DAYS_TEST_SET)][DL_models[2]]['RMSE'][idx])
+                PARKES_DIL_1D_UNET.append(curr_results[str(NUM_OF_DAYS_TEST_SET)][DL_models[2]]['PARKES'][idx])
+                ISO_DIL_1D_UNET.append(curr_results[str(NUM_OF_DAYS_TEST_SET)][DL_models[2]]['ISO'][idx])
+
+    # Calculate the mean RMSE for each model
+    mean_RMSE_LSTM = np.mean(RMSE_LSTM)
+    mean_RMSE_StackedLSTM = np.mean(RMSE_StackedLSTM)
+    mean_RMSE_DIL_1D_UNET = np.mean(RMSE_DIL_1D_UNET)
+
+    # Calculate the standard deviation of the RMSE for each model
+    std_RMSE_LSTM = np.std(RMSE_LSTM)
+    std_RMSE_StackedLSTM = np.std(RMSE_StackedLSTM)
+    std_RMSE_DIL_1D_UNET = np.std(RMSE_DIL_1D_UNET)
+
+    # Print mean and std of the metrics for each model 
+    print("\nRMSE LSTM: ", mean_RMSE_LSTM, "",  std_RMSE_LSTM)
+    print("RMSE Stacked LSTM: ", mean_RMSE_StackedLSTM, "", std_RMSE_StackedLSTM)
+    print("RMSE DIL-1D-UNET: ", mean_RMSE_DIL_1D_UNET, "", std_RMSE_DIL_1D_UNET)
+
+    # Calculate the mean Parkes for each model
+    mean_PARKES_LSTM = np.mean(PARKES_LSTM)
+    mean_PARKES_StackedLSTM = np.mean(PARKES_StackedLSTM)
+    mean_PARKES_DIL_1D_UNET = np.mean(PARKES_DIL_1D_UNET)
+
+    # Calculate the standard deviation of the Parkes for each model
+    std_PARKES_LSTM = np.std(PARKES_LSTM)
+    std_PARKES_StackedLSTM = np.std(PARKES_StackedLSTM)
+    std_PARKES_DIL_1D_UNET = np.std(PARKES_DIL_1D_UNET)
+
+    # Print mean and std of the metrics for each model
+    print("\nPARKES LSTM: ", mean_PARKES_LSTM, "",  std_PARKES_LSTM)
+    print("PARKES Stacked LSTM: ", mean_PARKES_StackedLSTM, "", std_PARKES_StackedLSTM)
+    print("PARKES DIL-1D-UNET: ", mean_PARKES_DIL_1D_UNET, "", std_PARKES_DIL_1D_UNET)
+
+    # Calculate the mean ISO for each model
+    mean_ISO_LSTM = np.mean(ISO_LSTM)
+    mean_ISO_StackedLSTM = np.mean(ISO_StackedLSTM)
+    mean_ISO_DIL_1D_UNET = np.mean(ISO_DIL_1D_UNET)
+
+    # Calculate the standard deviation of the ISO for each model
+    std_ISO_LSTM = np.std(ISO_LSTM)
+    std_ISO_StackedLSTM = np.std(ISO_StackedLSTM)
+    std_ISO_DIL_1D_UNET = np.std(ISO_DIL_1D_UNET)
+
+    # Print mean and std of the metrics for each model
+    print("\nISO LSTM: ", mean_ISO_LSTM, "",  std_ISO_LSTM)
+    print("ISO Stacked LSTM: ", mean_ISO_StackedLSTM, "", std_ISO_StackedLSTM)
+    print("ISO DIL-1D-UNET: ", mean_ISO_DIL_1D_UNET, "", std_ISO_DIL_1D_UNET)
+
+    return RMSE_LSTM, RMSE_StackedLSTM, RMSE_DIL_1D_UNET, PARKES_LSTM, PARKES_StackedLSTM, PARKES_DIL_1D_UNET, ISO_LSTM, ISO_StackedLSTM, ISO_DIL_1D_UNET

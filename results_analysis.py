@@ -57,7 +57,7 @@ def store_ind_results_in_Excel(exp_config : Dict, results_dir : str = r"C:\Users
         i = 0
 
         # Consider only folders, not .npy or .txt files
-        if ('npy' not in id) and ('txt' not in id) and ('svg' not in id) and ('png' not in id) and ('TEST' not in id) and ('h5' not in id) and ('xls' not in id) and ('evaluation' not in id): 
+        if ('npy' not in id) and ('txt' not in id) and ('svg' not in id) and ('png' not in id) and ('TEST' not in id) and ('h5' not in id) and ('xls' not in id) and ('evaluation' not in id) and ('pickle' not in id): 
         
             os.chdir(id)
 
@@ -367,7 +367,7 @@ def group_best_patients_metrics(exp_config : Dict, metrics : List = ['RMSE', 'MA
     for id in os.listdir(): 
 
         # Consider only folders, not .npy or .txt files
-        if ('npy' not in id) and ('txt' not in id) and ('svg' not in id) and ('png' not in id) and ('TEST' not in id) and ('h5' not in id) and ('xls' not in id)and ('evaluation' not in id): 
+        if ('npy' not in id) and ('txt' not in id) and ('svg' not in id) and ('png' not in id) and ('TEST' not in id) and ('h5' not in id) and ('xls' not in id)and ('evaluation' not in id) and ('pickle' not in id): 
         
             os.chdir(id)
 
@@ -769,7 +769,7 @@ def gen_PHs_boxplots(model_name : str, PH : int, iso_metrics : List, mse_metrics
     # Save figure 
     plt.savefig('boxplot_'+model_name+'_PH_'+str(PH)+'_min.svg', format='svg', dpi=1200)
 
-def get_patient_wise_metrics(exp_config : Dict, grouped_metrics : Dict, patients_data_folder : str = r"C:\Users\aralmeida\Downloads\LibreViewRawData\1yr_npy_files"): 
+def get_patient_wise_metrics(exp_config : Dict, grouped_metrics : Dict, patients_data_folder : str = r"C:\Users\aralmeida\Downloads\LibreViewRawData-final_sims\1yr_npy_files"): 
     
     """
     In order to gain insight about which patients are less or more "predictable"
@@ -846,7 +846,7 @@ def get_patient_wise_metrics(exp_config : Dict, grouped_metrics : Dict, patients
             plt.savefig('patient-wise_'+model + '_PH_' + str(PH) + '_min.png', dpi=1200) 
 
 def get_grouped_RMSEbased_best_metrics(exp_config : Dict, grouped_metrics : Dict,
-                                       patients_data_folder : str = r"C:\Users\aralmeida\Downloads\LibreViewRawData\1yr_npy_files"):
+                                       patients_data_folder : str = r"C:\Users\aralmeida\Downloads\LibreViewRawData-final_sims\1yr_npy_files"):
 
     """
     This functions analyses the best models for each patient and return a dictionary with 
@@ -880,7 +880,7 @@ def get_grouped_RMSEbased_best_metrics(exp_config : Dict, grouped_metrics : Dict
     for id in os.listdir():
 
         # Consider only folders, not .npy or .txt files
-        if ('npy' not in id) and ('txt' not in id) and ('svg' not in id) and ('png' not in id) and ('TEST' not in id) and ('h5' not in id) and ('xls' not in id)and ('evaluation' not in id): 
+        if ('npy' not in id) and ('txt' not in id) and ('svg' not in id) and ('png' not in id) and ('TEST' not in id) and ('h5' not in id) and ('xls' not in id)and ('evaluation' not in id) and ('pickle' not in id): 
                 patients_ids.append(id)
                 best_30min_model_dict[id] = {}
                 best_60min_model_dict[id] = {}
@@ -916,7 +916,7 @@ def get_grouped_RMSEbased_best_metrics(exp_config : Dict, grouped_metrics : Dict
 
         ####### HARCODED #######
         # Go to the id directory 
-        dir = 'C:\\Users\\aralmeida\\Downloads\\LibreViewRawData\\1yr_npy_files\\' + patients_ids[i] + '\\N144\step1\\PH30\\multi\\month-wise-4-folds\\norm_min-max\\None_sampling\\DIL-1D-UNET\\ISO_loss'
+        dir = 'C:\\Users\\aralmeida\\Downloads\\LibreViewRawData-final_sims\\1yr_npy_files\\' + patients_ids[i] + '\\N96\step1\\PH30\\multi\\month-wise-4-folds\\norm_min-max\\None_sampling\\DIL-1D-UNET\\ISO_loss'
         os.chdir(dir) 
         #######################
 
@@ -1032,7 +1032,7 @@ def get_grouped_RMSEbased_best_metrics(exp_config : Dict, grouped_metrics : Dict
     return best_30min_model_dict, best_60min_model_dict, patients_ids
 
 def get_grouped_ISO_and_Parkes_best_metrics(exp_config : Dict, grouped_metrics : Dict, 
-                                            patients_data_folder : str = r"C:\Users\aralmeida\Downloads\LibreViewRawData\1yr_npy_files"):
+                                            patients_data_folder : str = r"C:\Users\aralmeida\Downloads\LibreViewRawData-final_sims\1yr_npy_files"):
 
     """
     This functions analyses the best models for each patient and return a dictionary with 
@@ -1066,7 +1066,7 @@ def get_grouped_ISO_and_Parkes_best_metrics(exp_config : Dict, grouped_metrics :
     for id in os.listdir():
 
         # Consider only folders, not .npy or .txt files
-        if ('npy' not in id) and ('txt' not in id) and ('svg' not in id) and ('png' not in id) and ('TEST' not in id) and ('h5' not in id) and ('xls' not in id) and ('evaluation' not in id): 
+        if ('npy' not in id) and ('txt' not in id) and ('svg' not in id) and ('png' not in id) and ('TEST' not in id) and ('h5' not in id) and ('xls' not in id) and ('evaluation' not in id) and ('pickle' not in id): 
                 patients_ids.append(id)
                 best_30min_model_dict[id] = {}
                 best_60min_model_dict[id] = {}
@@ -1087,7 +1087,7 @@ def get_grouped_ISO_and_Parkes_best_metrics(exp_config : Dict, grouped_metrics :
 
         ####### HARCODED #######
         # Go to the id directory 
-        dir = 'C:\\Users\\aralmeida\\Downloads\\LibreViewRawData\\1yr_npy_files\\' + patients_ids[i] + '\\N144\step1\\PH30\\multi\\month-wise-4-folds\\norm_min-max\\None_sampling\\DIL-1D-UNET\\ISO_loss'
+        dir = 'C:\\Users\\aralmeida\\Downloads\\LibreViewRawData-final_sims\\1yr_npy_files\\' + patients_ids[i] + '\\N96\step1\\PH30\\multi\\month-wise-4-folds\\norm_min-max\\None_sampling\\DIL-1D-UNET\\ISO_loss'
         os.chdir(dir) 
         #######################
 
@@ -1586,7 +1586,7 @@ def get_XY_vectors_characterization(patients_ids : List, PH : int, unit : str = 
 
     return cgm_patients_characteristics
 
-def get_patient_wise_fold_results(exp_config : Dict, results_dict : Dict, results_dir : str = r"C:\Users\aralmeida\Downloads\LibreViewRawData\1yr_npy_files") -> Dict: 
+def get_patient_wise_fold_results(exp_config : Dict, results_dict : Dict, results_dir : str = r"C:\Users\aralmeida\Downloads\LibreViewRawData-final_sims\1yr_npy_files") -> Dict: 
     
     """
     This function returns a dictionary with the results of all folds for every patient. 
@@ -1615,7 +1615,7 @@ def get_patient_wise_fold_results(exp_config : Dict, results_dict : Dict, result
         i = 0
 
         # Consider only folders, not .npy or .txt files
-        if ('npy' not in id) and ('txt' not in id) and ('svg' not in id) and ('png' not in id) and ('TEST' not in id) and ('h5' not in id) and ('xls' not in id) and ('evaluation' not in id): 
+        if ('npy' not in id) and ('txt' not in id) and ('svg' not in id) and ('png' not in id) and ('TEST' not in id) and ('h5' not in id) and ('xls' not in id) and ('evaluation' not in id) and ('pickle' not in id): 
         
             os.chdir(id)
 
@@ -1769,13 +1769,27 @@ def plot_patient_per_patient_boxplot(patient_wise_results : Dict, metric : str, 
     concat_models = pd.concat([DIL_60_rmse, stacked_60_rmse, naive_60_rmse, LSTM_60_rmse])
 
     # Melt the dataframe
-    melt_models = pd.melt(concat_models, id_vars=['model'], var_name=['id'])
+    melt_models = pd.melt(concat_models, id_vars=['model'], var_name=['Subject ID'])
 
     # Set color palette
     palette = {'DIL-1D-UNET': 'blue', 'StackedLSTM': 'red', 'naive': 'green', 'LSTM': 'yellow'}
     
+    ax = sns.boxplot(x='Subject ID', y='value', data=melt_models, hue='model', palette=palette)
+
     # Draw the boxplot
-    ax = sns.boxplot(x='id', y='value', data=melt_models, hue='model', palette=palette)
+    if metric == 'RMSE':
+        y_label = 'RMSE (mg/dL)'
+    elif metric == 'MAPE':
+        y_label = 'MAPE (%)'
+    elif metric == 'MAE':
+        y_label = 'MAE (mg/dL)'
+    elif metric == 'PARKES':
+        y_label = 'ParkesAB (%)'
+    elif metric == 'ISO':
+        y_label = 'ISOZone (%)'
+
+    # Set y label 
+    ax.set_ylabel(y_label)
 
     # Second axis 
     ax2 = ax.twinx()
@@ -1786,7 +1800,7 @@ def plot_patient_per_patient_boxplot(patient_wise_results : Dict, metric : str, 
     ax.legend(loc='lower left')
 
     # Add y label for ax2
-    ax2.set_ylabel('Nº of available instances')
+    ax2.set_ylabel('Nº of available samples')
 
     # Add legend for the second axis 
     ax2.legend(['Nº of available samples'], loc='upper right')
@@ -1804,23 +1818,25 @@ def plot_patient_per_patient_boxplot(patient_wise_results : Dict, metric : str, 
     # When RMSE is evaluated, plot a dashed horizontal line in y = 32 with the text "state-of-the-art"
     if metric == 'RMSE':
         if PH == 60:
-            ax.axhline(y=32, color='black', linestyle='--')
-            ax.text(-0.2, 30.5, 'state-of-the-art', color = 'black')
+            # ax.axhline(y=32, color='black', linestyle='--')
+            # ax.text(-0.2, 30.5, 'state-of-the-art', color = 'black')
+            pass
         elif PH == 30:
-            ax.axhline(y=19, color='black', linestyle='--')
-            ax.text(-0.2, 18, 'state-of-the-art', color = 'black')
+            # ax.axhline(y=19, color='black', linestyle='--')
+            # ax.text(-0.2, 18, 'state-of-the-art', color = 'black')
+            pass
         else: 
             pass
 
     # When PARKES is evaluated, plot a dashed horizontal line in y = 99, since it is the minimum set by the ISO 
     elif metric == 'PARKES':
-        ax.axhline(y=99, color='black', linestyle='--')
-        ax.text(-0.2, 97, 'ISO 15197:2015', color = 'black')
+        ax.axhline(y=99.5, color='black', linestyle='--')
+        ax.text(-0.2, 100, 'ISO 15197:2015 compliance', color = 'black')
 
     # When ISO is evaluated, plot a dashed horizontal line in y = 95, since it is the minimum set by the ISO 
     elif metric == 'ISO':
-        ax.axhline(y=95, color='black', linestyle='--')
-        ax.text(-0.2, 98, 'ISO 15197:2015', color = 'black')
+        ax.axhline(y=95.5, color='black', linestyle='--')
+        ax.text(-0.2, 100, 'ISO 15197:2015 compliance', color = 'black')
 
     # Set title 
     plt.title(str(PH)+' min ' + metric)
