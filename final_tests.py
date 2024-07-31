@@ -42,6 +42,9 @@ set_of_libreview_keys = [["001", "001", "001", "2024"],
             ["067", "001", "001", "2024"],
             ["068", "001", "001", "2024"]]
 
+# set_of_libreview_keys = [
+#             ["068", "001", "001", "2024"]]
+
 
 def read_test_csv(dataset_path : str, save_dict : bool = True) -> Dict : 
 
@@ -624,15 +627,6 @@ def final_model_test(test_data_recordings_final : Dict, PH : int, DL_models : Li
         for key2 in test_data_recordings_final[key]['001']['001']['2024'].keys():
             for key3 in test_data_recordings_final[key]['001']['001']['2024'][key2].keys():
 
-                # Create dictionary to fill it with the results (one per patient) 
-                try:
-                    with open('test_results_dictionary.json', 'rb') as handle:
-                        test_results_dictionary = json.load(handle)
-                        print("Dictionary loaded.\n")
-                except:
-                    test_results_dictionary = {}
-                    print("Non-existing dictionary. A new one was created.\n")
-    
                 # Save CGM and timestamps in a variable 
                 recordings = test_data_recordings_final[key]['001']['001']['2024'][key2][key3]['CGM']['reading']
                 timestamps = test_data_recordings_final[key]['001']['001']['2024'][key2][key3]['CGM']['timestamp']
@@ -657,9 +651,29 @@ def final_model_test(test_data_recordings_final : Dict, PH : int, DL_models : Li
                 # Stack X_norm and X_norm_der
                 X_norm = np.dstack((X_norm, X_norm_der))
 
+                # Go to the ID directory to check if there is a dictionary. If not, create it.
+                dir = r"C:\Users\aralmeida\Downloads\LibreViewRawData-final_sims\1yr_npy_files\{}".format(key)
+                os.chdir(dir)                
+                
+                # Create dictionary to fill it with the results (one per patient) 
+                try:
+                    with open('test_results_dictionary.json', 'rb') as handle:
+                        test_results_dictionary = json.load(handle)
+                        print("Dictionary loaded.\n")
+                except:
+                    test_results_dictionary = {}
+                    print("Non-existing dictionary. A new one was created.\n")
+                
+                
                 # Create a key depending on the number of test days 
                 test_key = str(NUM_OF_DAYS_TEST_SET)
-                test_results_dictionary[test_key] = {}
+
+                # This is to not overwrite the results of the same test day duration with different PHs
+                if test_key not in test_results_dictionary.keys():
+                    test_results_dictionary[test_key] = {}
+                else: 
+                    pass
+                test_results_dictionary[test_key][PH] = {}
                 
                 # Go to the directory where the models are stored. Iterate over the three evaluated 
                 for DL_model in DL_models: 
@@ -677,16 +691,19 @@ def final_model_test(test_data_recordings_final : Dict, PH : int, DL_models : Li
 
                     # Create a key depending on the number of test days 
                     test_key = str(NUM_OF_DAYS_TEST_SET)
-                    
+                     
                     # Save results in directory 
-                    test_results_dictionary[test_key][DL_model] = results_normal_eval
+                    test_results_dictionary[test_key][PH][DL_model] = results_normal_eval
+                
+                # Back to the id directory 
+                dir = r"C:\Users\aralmeida\Downloads\LibreViewRawData-final_sims\1yr_npy_files\{}".format(key)
+                os.chdir(dir) 
 
                 # Save updated dictionary 
                 with open('test_results_dictionary.json', 'w') as fp:
                     json.dump(test_results_dictionary, fp) 
 
-
-def subject_per_subject_bar_diagram(test_data_recordings_final : Dict, metric : str, metric_LSTM : List, metric_StackedLSTM : List, metric_DIL_1D_UNET, PH : int, NUM_OF_DAYS_TEST_SET : int) -> None: 
+def subject_per_subject_bar_diagram(test_included_subjects : Dict, metric : str, metric_LSTM : List, metric_StackedLSTM : List, metric_DIL_1D_UNET, PH : int, NUM_OF_DAYS_TEST_SET : int) -> None: 
     """
     Given the dictionary with the IDs of the included subjects and the name of the metric
     evaluated, this function generates a bar diagram with the metric evaluated for each subject.
@@ -713,10 +730,8 @@ def subject_per_subject_bar_diagram(test_data_recordings_final : Dict, metric : 
                         '062', '039', '007', '048', '001', '014', '013', '046', '043', '051', '049',
                         '063', '055', '061', '057', '003', '068', '058']
 
-    # Filter all patients with no test instances
-    filtered_patient_list = [x for x in all_patient_list_sorted if x in list(test_data_recordings_final.keys())]
-
-    filtered_patient_list
+    # # Filter all patients with no test instances
+    # filtered_patient_list = [x for x in all_patient_list_sorted if x in list(test_data_recordings_final.keys())]
 
     plt.figure(figsize=(17, 8.5))
 
@@ -744,7 +759,7 @@ def subject_per_subject_bar_diagram(test_data_recordings_final : Dict, metric : 
     plt.bar(r3, bars3, color='g', width=barWidth, edgecolor='grey', label='DIL-1D-UNET')
 
     # X labels are the filtered patient_list
-    plt.xticks(range(len(filtered_patient_list)), filtered_patient_list)
+    plt.xticks(range(len(test_included_subjects)), test_included_subjects)
 
     # Center the x ticks
     plt.xlabel('Subject', fontweight='bold')
@@ -896,7 +911,7 @@ def final_DIY_models_test(data_dict : Dict, sensor_black_list : List, PH : int, 
     return test_data_recordings
 
 
-def group_and_save_metrics(test_data_recordings_final : Dict, DL_models : List, PH : int, NUM_OF_DAYS_TEST_SET : int) -> List:
+def group_and_save_metrics(included_subjects : List, DL_models : List, PH : int, NUM_OF_DAYS_TEST_SET : int) -> List:
     
     """
     Group RMSE, Parkes and ISO metrics for LSTM, Stacked LSTM, DIL-1D-UNET and Naive models. 
@@ -905,7 +920,7 @@ def group_and_save_metrics(test_data_recordings_final : Dict, DL_models : List, 
 
     Args:
     ----
-        test_data_recordings_final : Dictionary containing the filtered test data recordings subject per subject 
+        test_data_recordings_final : List containing the subjects included in the current experiment.  
         DL_models : List with the DL models to be tested. 
         PH : Prediction horizon (in minutes). Currently 30 and 60 have been tested.
         NUM_OF_DAYS_TEST_SET : Number of days included in the test set.
@@ -942,12 +957,15 @@ def group_and_save_metrics(test_data_recordings_final : Dict, DL_models : List, 
     ISO_DIL_1D_UNET = []
     ISO_naive = []
 
-    for key in test_data_recordings_final.keys():
+    # Convert to timedelta datatype for consistency with dictionary keys 
+    NUM_OF_DAYS_TEST_SET = np.timedelta64(NUM_OF_DAYS_TEST_SET, 'D')
+
+    for id in included_subjects:
                 
                 # Go to the correspondant directory 
-                dir = r"C:\Users\aralmeida\Downloads\LibreViewRawData-final_sims\1yr_npy_files\{}\N96\step1\PH{}\multi\month-wise-4-folds\norm_min-max\None_sampling\{}\ISO_loss\1-yr_model\evaluation".format(key, PH, DL_models[2])
+                dir = r"C:\Users\aralmeida\Downloads\LibreViewRawData-final_sims\1yr_npy_files\{}".format(id)
                 os.chdir(dir)
-
+                
                 # Load dictionary
                 with open('test_results_dictionary.json', 'r') as fp:
                     curr_results = json.load(fp)
@@ -957,35 +975,35 @@ def group_and_save_metrics(test_data_recordings_final : Dict, DL_models : List, 
                     idx = 1
                 if PH == 60:
                     idx = 3
-                
+                                    
                 # Append RMSE, Parkes, ISO
-                RMSE_LSTM.append(curr_results[str(NUM_OF_DAYS_TEST_SET)][DL_models[0]]['RMSE'][idx])
-                PARKES_LSTM.append(curr_results[str(NUM_OF_DAYS_TEST_SET)][DL_models[0]]['PARKES'][idx])
-                ISO_LSTM.append(curr_results[str(NUM_OF_DAYS_TEST_SET)][DL_models[0]]['ISO'][idx])
+                RMSE_LSTM.append(curr_results[str(NUM_OF_DAYS_TEST_SET)][str(PH)][DL_models[0]]['RMSE'][idx])
+                PARKES_LSTM.append(curr_results[str(NUM_OF_DAYS_TEST_SET)][str(PH)][DL_models[0]]['PARKES'][idx])
+                ISO_LSTM.append(curr_results[str(NUM_OF_DAYS_TEST_SET)][str(PH)][DL_models[0]]['ISO'][idx])
 
                 # Go to the correspondant directory 
-                dir = r"C:\Users\aralmeida\Downloads\LibreViewRawData-final_sims\1yr_npy_files\{}\N96\step1\PH{}\multi\month-wise-4-folds\norm_min-max\None_sampling\{}\ISO_loss\1-yr_model\evaluation".format(key, PH, DL_models[2])
+                dir = r"C:\Users\aralmeida\Downloads\LibreViewRawData-final_sims\1yr_npy_files\{}".format(id)
                 os.chdir(dir)
 
                 # Load dictionary
                 with open('test_results_dictionary.json', 'r') as fp:
                     curr_results = json.load(fp)
 
-                RMSE_StackedLSTM.append(curr_results[str(NUM_OF_DAYS_TEST_SET)][DL_models[1]]['RMSE'][idx])
-                PARKES_StackedLSTM.append(curr_results[str(NUM_OF_DAYS_TEST_SET)][DL_models[1]]['PARKES'][idx])
-                ISO_StackedLSTM.append(curr_results[str(NUM_OF_DAYS_TEST_SET)][DL_models[1]]['ISO'][idx])
+                RMSE_StackedLSTM.append(curr_results[str(NUM_OF_DAYS_TEST_SET)][str(PH)][DL_models[1]]['RMSE'][idx])
+                PARKES_StackedLSTM.append(curr_results[str(NUM_OF_DAYS_TEST_SET)][str(PH)][DL_models[1]]['PARKES'][idx])
+                ISO_StackedLSTM.append(curr_results[str(NUM_OF_DAYS_TEST_SET)][str(PH)][DL_models[1]]['ISO'][idx])
 
                 # Go to the correspondant directory 
-                dir = r"C:\Users\aralmeida\Downloads\LibreViewRawData-final_sims\1yr_npy_files\{}\N96\step1\PH{}\multi\month-wise-4-folds\norm_min-max\None_sampling\{}\ISO_loss\1-yr_model\evaluation".format(key, PH, DL_models[2])
+                dir = r"C:\Users\aralmeida\Downloads\LibreViewRawData-final_sims\1yr_npy_files\{}".format(id)
                 os.chdir(dir)
 
                 # Load dictionary
                 with open('test_results_dictionary.json', 'r') as fp:
                     curr_results = json.load(fp)
 
-                RMSE_DIL_1D_UNET.append(curr_results[str(NUM_OF_DAYS_TEST_SET)][DL_models[2]]['RMSE'][idx])
-                PARKES_DIL_1D_UNET.append(curr_results[str(NUM_OF_DAYS_TEST_SET)][DL_models[2]]['PARKES'][idx])
-                ISO_DIL_1D_UNET.append(curr_results[str(NUM_OF_DAYS_TEST_SET)][DL_models[2]]['ISO'][idx])
+                RMSE_DIL_1D_UNET.append(curr_results[str(NUM_OF_DAYS_TEST_SET)][str(PH)][DL_models[2]]['RMSE'][idx])
+                PARKES_DIL_1D_UNET.append(curr_results[str(NUM_OF_DAYS_TEST_SET)][str(PH)][DL_models[2]]['PARKES'][idx])
+                ISO_DIL_1D_UNET.append(curr_results[str(NUM_OF_DAYS_TEST_SET)][str(PH)][DL_models[2]]['ISO'][idx])
 
     # Calculate the mean RMSE for each model
     mean_RMSE_LSTM = np.mean(RMSE_LSTM)
@@ -1033,3 +1051,57 @@ def group_and_save_metrics(test_data_recordings_final : Dict, DL_models : List, 
     print("ISO DIL-1D-UNET: ", mean_ISO_DIL_1D_UNET, "", std_ISO_DIL_1D_UNET)
 
     return RMSE_LSTM, RMSE_StackedLSTM, RMSE_DIL_1D_UNET, PARKES_LSTM, PARKES_StackedLSTM, PARKES_DIL_1D_UNET, ISO_LSTM, ISO_StackedLSTM, ISO_DIL_1D_UNET
+
+def get_included_subjects(num_of_test_days : int, excluded_subjects: List, parent_dir : str = r"C:\Users\aralmeida\Downloads\LibreViewRawData-final_sims\1yr_npy_files") -> List: 
+    """
+    This function should be executed after the experiments of the given NUM_OF_DAYS_TEST_SET. 
+    With this parameter and the parent directory, this function returns a List
+    with the subjects to be plotted and analyzed for an speficic number of test days.
+    Notice that the list will vary in size and included patients when varying this paremeter.
+    Since previous experimentation was done with more subjects, that due to sensor changes 
+    are not now available, an excluded subject list is included to avoid this subjects, since they 
+    do not have test results.  
+
+    Args:
+    ----
+    NUM_OF_DAYS_TEST_SET : Number of DAYS of the test set. It has direct influence on the final list. 
+    excluded_subjects : List of subjects previously excluded from the final list.
+    parent_dir : Parent directory where the subjects folders are located.
+
+    Returns:
+    -------
+    test_included_subjects : List of included subjects in the current experiment. 
+
+    """
+
+    num_of_test_days = np.timedelta64(num_of_test_days, 'D')
+
+    # Iterate over the subjects folder to check if the NUM_TEST_DAYS is in their dictionary 
+    os.chdir(parent_dir)
+
+    # List of the subjects included in the current test DEPENDING ON THE NUMBER OF TEST DAYS SELECTED
+    test_included_subjects = []
+
+    for dir in os.listdir():
+        if ('.npy' not in dir) and ('svg' not in dir) and ('pickle' not in dir) and ('png' not in dir):
+            os.chdir(dir)
+
+            # Avoid excluded subjects
+            if dir in excluded_subjects:
+                pass
+            else: 
+            
+                # Open json dictionary of an included subject
+                with open('test_results_dictionary.json', 'r') as fp:
+                    test_result_dictionary = json.load(fp)
+
+                # Check if the NUM_TEST_DAYS is in dictionary to included in the test_included_subjects List
+                if str(num_of_test_days) in test_result_dictionary.keys():
+                    test_included_subjects.append(dir)
+                else: 
+                    pass
+            
+            # Back to parent directory 
+            os.chdir(parent_dir) 
+
+    return test_included_subjects

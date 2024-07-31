@@ -23,6 +23,8 @@ import numpy as np
 import matplotlib.pyplot as plt 
 import seaborn as sns
 import pandas as pd
+import matplotlib.patches as mpatches
+from matplotlib.lines import Line2D
 
 def store_ind_results_in_Excel(exp_config : Dict, results_dir : str = r"C:\Users\aralmeida\Downloads\LibreViewRawData\1yr_npy_files"):
     
@@ -722,7 +724,7 @@ def gen_PHs_boxplots(model_name : str, PH : int, iso_metrics : List, mse_metrics
     space = 0.15
 
     # Add title 
-    text = 'Model: ' + model_name + ' - PH = ' + str(PH) + ' min'
+    # text = 'Model: ' + model_name + ' - PH = ' + str(PH) + ' min'
     # fig.suptitle(text, fontsize=16, fontweight='bold')
     
     ax1.boxplot(mse_metrics, positions=np.arange(len(metrics))+space,
@@ -1106,7 +1108,7 @@ def get_grouped_ISO_and_Parkes_best_metrics(exp_config : Dict, grouped_metrics :
                     for loss in ["MSE", "ISO"]: # harcoded: the studied loss functions 
                         
                         # Update the metric with each iteration
-                        # # 30 mins
+                        # 30 mins
                         # curr_metric_30 = grouped_metrics[models]["30"][metric][loss]["mean"][i]
                         # curr_loss_func_30 = loss
                         # curr_model_30 = models
@@ -1117,32 +1119,32 @@ def get_grouped_ISO_and_Parkes_best_metrics(exp_config : Dict, grouped_metrics :
                             curr_loss_func_60 = "MSE"
                             curr_model_60 = models  
 
-                            # curr_metric_30 = grouped_metrics[models]["30"][metric]["MSE"]["mean"][i]
-                            # curr_loss_func_30 = "MSE"
-                            # curr_model_30 = models  
+                            curr_metric_30 = grouped_metrics[models]["30"][metric]["MSE"]["mean"][i]
+                            curr_loss_func_30 = "MSE"
+                            curr_model_30 = models  
                         else:                          
                             curr_metric_60 = grouped_metrics[models]["60"][metric][loss]["mean"][i]
                             curr_loss_func_60 = loss
                             curr_model_60 = models
 
-                            # curr_metric_30 = grouped_metrics[models]["30"][metric][loss]["mean"][i]
-                            # curr_loss_func_30 = loss
-                            # curr_model_30 = models
+                            curr_metric_30 = grouped_metrics[models]["30"][metric][loss]["mean"][i]
+                            curr_loss_func_30 = loss
+                            curr_model_30 = models
 
                         if counter_30 == 0 and counter_60 == 0: 
                             
-                            # best_metric_30 = curr_metric_30
-                            # best_loss_func_30 = curr_loss_func_30
-                            # best_model_30 = curr_model_30
+                            best_metric_30 = curr_metric_30
+                            best_loss_func_30 = curr_loss_func_30
+                            best_model_30 = curr_model_30
 
                             best_metric_60 = curr_metric_60
                             best_loss_func_60 = curr_loss_func_60
                             best_model_60 = curr_model_60
 
-                            # best_30min_model_dict[patients_ids[i]]["samples"] = shape 
-                            # best_30min_model_dict[patients_ids[i]][metric]["best_model"] = best_model_30
-                            # best_30min_model_dict[patients_ids[i]][metric]["best_loss"] = best_loss_func_30
-                            # best_30min_model_dict[patients_ids[i]][metric]["best_value"] = best_metric_30
+                            best_30min_model_dict[patients_ids[i]]["samples"] = shape 
+                            best_30min_model_dict[patients_ids[i]][metric]["best_model"] = best_model_30
+                            best_30min_model_dict[patients_ids[i]][metric]["best_loss"] = best_loss_func_30
+                            best_30min_model_dict[patients_ids[i]][metric]["best_value"] = best_metric_30
 
                             best_60min_model_dict[patients_ids[i]]["samples"] = shape
                             best_60min_model_dict[patients_ids[i]][metric]["best_model"] = best_model_60
@@ -1154,30 +1156,30 @@ def get_grouped_ISO_and_Parkes_best_metrics(exp_config : Dict, grouped_metrics :
 
                         else:
                             
-                            # # For 30 mins
-                            # if curr_metric_30 > best_metric_30:
-                            #     best_metric_30 = curr_metric_30
-                            #     best_loss_func_30 = curr_loss_func_30
-                            #     best_model_30 = curr_model_30
+                            # For 30 mins
+                            if curr_metric_30 > best_metric_30:
+                                best_metric_30 = curr_metric_30
+                                best_loss_func_30 = curr_loss_func_30
+                                best_model_30 = curr_model_30
 
-                            #     best_30min_model_dict[patients_ids[i]]["samples"] = shape 
-                            #     best_30min_model_dict[patients_ids[i]][metric]["best_model"] = best_model_30
-                            #     best_30min_model_dict[patients_ids[i]][metric]["best_loss"] = best_loss_func_30                            
-                            #     best_30min_model_dict[patients_ids[i]][metric]["best_value"] = best_metric_30
+                                best_30min_model_dict[patients_ids[i]]["samples"] = shape 
+                                best_30min_model_dict[patients_ids[i]][metric]["best_model"] = best_model_30
+                                best_30min_model_dict[patients_ids[i]][metric]["best_loss"] = best_loss_func_30                            
+                                best_30min_model_dict[patients_ids[i]][metric]["best_value"] = best_metric_30
 
-                            #     counter_30 = counter_30+1
+                                counter_30 = counter_30+1
 
-                            # else:
-                            #     best_metric_30 = best_metric_30 
-                            #     best_loss_func_30 = best_loss_func_30
-                            #     best_model_30 = best_model_30
+                            else:
+                                best_metric_30 = best_metric_30 
+                                best_loss_func_30 = best_loss_func_30
+                                best_model_30 = best_model_30
             
-                            #     best_30min_model_dict[patients_ids[i]]["samples"] = shape 
-                            #     best_30min_model_dict[patients_ids[i]][metric]["best_model"] = best_model_30
-                            #     best_30min_model_dict[patients_ids[i]][metric]["best_loss"] = best_loss_func_30
-                            #     best_30min_model_dict[patients_ids[i]][metric]["best_value"] = best_metric_30
+                                best_30min_model_dict[patients_ids[i]]["samples"] = shape 
+                                best_30min_model_dict[patients_ids[i]][metric]["best_model"] = best_model_30
+                                best_30min_model_dict[patients_ids[i]][metric]["best_loss"] = best_loss_func_30
+                                best_30min_model_dict[patients_ids[i]][metric]["best_value"] = best_metric_30
 
-                            #     counter_30 = counter_30+1
+                                counter_30 = counter_30+1
                             
                             # For 60 mins
                             if curr_metric_60 > best_metric_60:
@@ -1690,7 +1692,7 @@ def get_patient_wise_fold_results(exp_config : Dict, results_dict : Dict, result
     
     return patient_wise_fold_results
 
-def plot_patient_per_patient_boxplot(patient_wise_results : Dict, metric : str, loss_function : str, PH : int, sorted_by : str = 'samples'):
+def plot_patient_per_patient_boxplot(patient_wise_results : Dict, metric : str, loss_function : str, PH : int, legend: bool, sorted_by : str = 'samples'):
     
     """ After the simulation of the DL model generation for 
     all patients (currently n=29) has been done, this function can 
@@ -1705,6 +1707,7 @@ def plot_patient_per_patient_boxplot(patient_wise_results : Dict, metric : str, 
         metric : Metric to be compared.
         loss_function: "ISO_loss" or "root_mean_squared_error"
         PH : Prediction horizon to be studied.
+        legend : flag to plot the legend or not.
         sorted_by : Parameter to sort the patients. Default is 'samples' (number of samples available to train the models).
     """
 
@@ -1763,7 +1766,8 @@ def plot_patient_per_patient_boxplot(patient_wise_results : Dict, metric : str, 
 
     # Declare figure and set size 
     fig = plt.figure()
-    fig.set_size_inches(20, 5)
+    # fig.set_size_inches(20, 5) # LA BUENA
+    fig.set_size_inches(18, 5) # LA BUENA
 
     # Concatenate and melt the dataframes to further plot them 
     concat_models = pd.concat([DIL_60_rmse, stacked_60_rmse, naive_60_rmse, LSTM_60_rmse])
@@ -1772,7 +1776,7 @@ def plot_patient_per_patient_boxplot(patient_wise_results : Dict, metric : str, 
     melt_models = pd.melt(concat_models, id_vars=['model'], var_name=['Subject ID'])
 
     # Set color palette
-    palette = {'DIL-1D-UNET': 'blue', 'StackedLSTM': 'red', 'naive': 'green', 'LSTM': 'yellow'}
+    palette = {'DIL-1D-UNET': 'lightblue', 'StackedLSTM': 'lightsalmon', 'naive': 'silver', 'LSTM': 'yellow'}
     
     ax = sns.boxplot(x='Subject ID', y='value', data=melt_models, hue='model', palette=palette)
 
@@ -1789,7 +1793,7 @@ def plot_patient_per_patient_boxplot(patient_wise_results : Dict, metric : str, 
         y_label = 'ISOZone (%)'
 
     # Set y label 
-    ax.set_ylabel(y_label)
+    ax.set_ylabel(y_label, fontsize = 16)
 
     # Second axis 
     ax2 = ax.twinx()
@@ -1797,13 +1801,8 @@ def plot_patient_per_patient_boxplot(patient_wise_results : Dict, metric : str, 
     # Add a line patient per patient in the background with the "samples" variable 
     ax2.plot(np.linspace(0, len(samples)-1, len(samples)), samples, 'o-', color='black', alpha=0.3)
 
-    ax.legend(loc='lower left')
-
     # Add y label for ax2
-    ax2.set_ylabel('Nº of available samples')
-
-    # Add legend for the second axis 
-    ax2.legend(['Nº of available samples'], loc='upper right')
+    ax2.set_ylabel('Nº of available samples', fontsize = 16)
 
     # Fill the background with a grey colour every patient 
     for i in range(len(samples)):
@@ -1812,8 +1811,6 @@ def plot_patient_per_patient_boxplot(patient_wise_results : Dict, metric : str, 
 
     # Remove blank space on the left and right sides
     ax.set_xlim(-0.5, len(samples)-0.5)
-
-    # ax.set_ylim(25, 70)
 
     # When RMSE is evaluated, plot a dashed horizontal line in y = 32 with the text "state-of-the-art"
     if metric == 'RMSE':
@@ -1830,19 +1827,59 @@ def plot_patient_per_patient_boxplot(patient_wise_results : Dict, metric : str, 
 
     # When PARKES is evaluated, plot a dashed horizontal line in y = 99, since it is the minimum set by the ISO 
     elif metric == 'PARKES':
-        ax.axhline(y=99.5, color='black', linestyle='--')
-        ax.text(-0.2, 100, 'ISO 15197:2015 compliance', color = 'black')
+        ax.axhline(y=99, color='black', linestyle='--')
+        # ax.text(-0.2, 100, 'ISO 15197:2015 compliance', color = 'black')
+
+        # Change Y ticks depending on PH
+        if PH == 30: 
+            ax.set_yticks(np.arange(98, 100.5, 1))
+        elif PH == 60: 
+            ax.set_yticks(np.arange(86, 100.5, 2))
 
     # When ISO is evaluated, plot a dashed horizontal line in y = 95, since it is the minimum set by the ISO 
     elif metric == 'ISO':
-        ax.axhline(y=95.5, color='black', linestyle='--')
-        ax.text(-0.2, 100, 'ISO 15197:2015 compliance', color = 'black')
+        ax.axhline(y=95, color='black', linestyle='--')
+        # ax.text(-0.2, 100, 'ISO 15197:2015 compliance', color = 'black')
 
-    # Set title 
-    plt.title(str(PH)+' min ' + metric)
+    # Remove space from Y label to box 
+    ax.yaxis.labelpad = 0
 
     # Add grid with horizontal black lines 
     ax.yaxis.grid(True, color='black')
+
+    # Set X and Y ticks labels size
+    ax.tick_params(axis='x', labelsize=16)
+    ax.tick_params(axis='y', labelsize=16)
+    ax2.tick_params(axis='y', labelsize=16)
+
+    # Set X label size 
+    ax.set_xlabel('Subject ID', fontsize=16)
+
+    if legend == True:
+
+        ax.legend(loc='upper right')
+
+        # Merge both legends
+        handles, labels = ax.get_legend_handles_labels()
+
+        # Declare a handle with the grey -o marker 
+        grey_patch = mpatches.Patch(color='darkgrey', hatch='*', label='Nº of available samples')
+        grey_patch.set_hatch('o')
+
+        grey_point = Line2D([0], [0], label='Nº of available samples', marker='o', markersize=8, markeredgecolor='grey', markerfacecolor='grey', linestyle='-')
+
+        # Set line to grey 
+        grey_point.set_color('grey')
+
+        ax.legend(handles + [grey_point], labels + ['Nº of available samples'], loc='upper right', fontsize=15)
+
+    else: 
+
+        # Delete all legends 
+        ax.get_legend().remove()
+
+    # Tight layout 
+    plt.tight_layout()
 
     # Save figure 
     plt.savefig(str(PH)+'min_' + metric + loss_function + '.svg', format='svg', dpi=1200, bbox_inches='tight')

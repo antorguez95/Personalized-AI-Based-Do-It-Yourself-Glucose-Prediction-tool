@@ -152,8 +152,8 @@ def bgISOAcceptableZone(ground_truth : np.array, predictions: np.array,  fold : 
         plt.title('ISO 15197:2015 for ' + str(step+1) + ' time step')
         
         # Save the figure
-        #plt.savefig(str(fold)+'_ISO15197.svg', dpi=600, bbox_inches='tight')
-        plt.savefig('fig3a.svg', dpi=600, bbox_inches='tight')
+        plt.savefig(str(fold)+'_ISO15197.svg', dpi=600, bbox_inches='tight')
+        # plt.savefig('fig3a.svg', dpi=600, bbox_inches='tight')
     
     return percentage_in, percentages_out, acceptability
  
