@@ -466,7 +466,7 @@ def cgm_data_summary_figure(id : str, sensor : str, num_blocks : int, cgm_data :
     plt.savefig('app_CGM_' + visualization_range +  '_analysis_and_prediction.svg', format='svg', dpi=1200)
 
 
-def get_prediction_graphic(X : np.array, X_norm : np.array, predicted_points : int, X_times : np.array, rmse : List, unit : str, model : tf.keras.Model, 
+def get_prediction_graphic(X : np.array, X_norm : np.array, predicted_points : int, X_times : np.array, rmse : List, unit : str, prediction : np.array, 
                            N : int = 96, step : int =  1): 
     """
     This function generates and save two plots taking the last day available of a given 
@@ -490,59 +490,54 @@ def get_prediction_graphic(X : np.array, X_norm : np.array, predicted_points : i
 
     # Extract timestamps to plot to the user in the unzoommed and zoommed plot 
     # Unzommed plot
-    first_daymonth = str(X_times[-1][0])[5:10]
-    first_hour_minute = str(X_times[-1][0])[11:16]
+    first_daymonth = str(X_times[0])[5:10]
+    first_hour_minute = str(X_times[0])[11:16]
     first_daymonth, first_hour_minute
 
-    second_daymonth = str(X_times[-1][31])[5:10]
-    second_hour_minute = str(X_times[-1][31])[11:16]
+    second_daymonth = str(X_times[31])[5:10]
+    second_hour_minute = str(X_times[31])[11:16]
 
-    third_daymonth = str(X_times[-1][63])[5:10]
-    third_hour_minute = str(X_times[-1][63])[11:16]
+    third_daymonth = str(X_times[63])[5:10]
+    third_hour_minute = str(X_times[63])[11:16]
 
-    last_daymonth = str(X_times[-1][-1])[5:10]
-    last_hour_minute = str(X_times[-1][-1])[11:16]
+    last_daymonth = str(X_times[-1])[5:10]
+    last_hour_minute = str(X_times[-1])[11:16]
     last_daymonth, last_hour_minute
 
     # Zommed plot 
-    nine_daymonth = str(X_times[-1][-2])[5:10]
-    nine_hour_minute = str(X_times[-1][-2])[11:16]
+    nine_daymonth = str(X_times[-2])[5:10]
+    nine_hour_minute = str(X_times[-2])[11:16]
 
-    eight_daymonth = str(X_times[-1][-3])[5:10]
-    eight_hour_minute = str(X_times[-1][-3])[11:16]
+    eight_daymonth = str(X_times[-3])[5:10]
+    eight_hour_minute = str(X_times[-3])[11:16]
 
-    seven_daymonth = str(X_times[-1][-4])[5:10]
-    seven_hour_minute = str(X_times[-1][-4])[11:16]
+    seven_daymonth = str(X_times[-4])[5:10]
+    seven_hour_minute = str(X_times[-4])[11:16]
 
-    six_daymonth = str(X_times[-1][-5])[5:10]
-    six_hour_minute = str(X_times[-1][-5])[11:16]
+    six_daymonth = str(X_times[-5])[5:10]
+    six_hour_minute = str(X_times[-5])[11:16]
 
-    five_daymonth = str(X_times[-1][-6])[5:10]
-    five_hour_minute = str(X_times[-1][-6])[11:16]
+    five_daymonth = str(X_times[-6])[5:10]
+    five_hour_minute = str(X_times[-6])[11:16]
 
-    four_daymonth = str(X_times[-1][-7])[5:10]
-    four_hour_minute = str(X_times[-1][-7])[11:16]
+    four_daymonth = str(X_times[-7])[5:10]
+    four_hour_minute = str(X_times[-7])[11:16]
 
-    three_daymonth = str(X_times[-1][-8])[5:10]
-    three_hour_minute = str(X_times[-1][-8])[11:16]
+    three_daymonth = str(X_times[-8])[5:10]
+    three_hour_minute = str(X_times[-8])[11:16]
 
-    two_daymonth = str(X_times[-1][-9])[5:10]
-    two_hour_minute = str(X_times[-1][-9])[11:16]
+    two_daymonth = str(X_times[-9])[5:10]
+    two_hour_minute = str(X_times[-9])[11:16]
 
-    one_daymonth = str(X_times[-1][-10])[5:10]
-    one_hour_minute = str(X_times[-1][-10])[11:16]
+    one_daymonth = str(X_times[-10])[5:10]
+    one_hour_minute = str(X_times[-10])[11:16]
 
     # Load the last day of the data
-    last_day = X_norm[-96:,0,:]
-
-    # Make the prediction
-    prediction = model.predict(last_day[np.newaxis,:,:])
+    last_day = X_norm
 
     # Denorm last_day and prediction (assuming min-max normalization)
     last_day_denorm = last_day*(np.max(X) - np.min(X)) + np.min(X)
-    last_day_denorm = last_day_denorm[:,0]
     prediction_denorm = prediction*(np.max(X) - np.min(X)) + np.min(X)
-    prediction_denorm = prediction_denorm[0]
 
     ######################## FIGURES OF PREDICTION (UNZOOMMED AND ZOOMMED) ############################
     fig, axs= plt.subplots(2, 1, figsize=(15,15))
@@ -559,10 +554,10 @@ def get_prediction_graphic(X : np.array, X_norm : np.array, predicted_points : i
     axs[0].set_ylabel('CGM ' + '(' + unit + ')')
 
     axs[0].plot(last_day_denorm, label = 'Last samples', marker='o')
-    axs[0].plot(np.linspace(N-1,N-1+round(predicted_points), round(predicted_points)), prediction_denorm, color = 'red', marker='o', label = 'AI prediction', alpha=1)
+    axs[0].plot(np.linspace(N-1,N-1+round(predicted_points), round(predicted_points)), prediction_denorm[0,:], color = 'red', marker='o', label = 'AI prediction', alpha=1)
 
     # Fill with the prediction with the RMSE values 
-    axs[0].fill_between(np.linspace(N-1,N-1+round(predicted_points), round(predicted_points), dtype=int), prediction_denorm-rmse, prediction_denorm+rmse, color='red', alpha=0.2)
+    axs[0].fill_between(np.linspace(N-1,N-1+round(predicted_points), round(predicted_points), dtype=int), prediction_denorm[0,:]-rmse, prediction_denorm[0,:]+rmse, color='red', alpha=0.2)
 
     # Set title 
     axs[0].set_title('30 minutes AI prediction using your last 24 hours of CGM data', fontsize=12)
@@ -625,10 +620,10 @@ def get_prediction_graphic(X : np.array, X_norm : np.array, predicted_points : i
     N_zoom = 10
 
     axs[1].plot(np.linspace(0, N_zoom-1, N_zoom, dtype=int), last_day_denorm[-10:], marker='o', label = 'Last samples')
-    axs[1].plot(np.linspace(N_zoom, N_zoom+predicted_points, predicted_points, dtype=int), prediction_denorm, color = 'red', marker='o',label = 'AI prediction', alpha=1)
+    axs[1].plot(np.linspace(N_zoom, N_zoom+predicted_points, predicted_points, dtype=int), prediction_denorm[0,:], color = 'red', marker='o',label = 'AI prediction', alpha=1)
 
     # Fill with the prediction with the RMSE values 
-    axs[1].fill_between(np.linspace(N_zoom, N_zoom+predicted_points, predicted_points, dtype=int), prediction_denorm-rmse, prediction_denorm+rmse, color='red', alpha=0.2)
+    axs[1].fill_between(np.linspace(N_zoom, N_zoom+predicted_points, predicted_points, dtype=int), prediction_denorm[0,:]-rmse, prediction_denorm[0,:]+rmse, color='red', alpha=0.2)
 
     # Set x labels 
     axs[1].set_xticklabels([one_daymonth+"\n"+one_hour_minute, two_daymonth+"\n"+two_hour_minute, three_daymonth+"\n"+three_hour_minute,

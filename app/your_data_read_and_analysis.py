@@ -2,7 +2,7 @@ import os
 import pickle
 import numpy as np 
 import pandas as pd
-from typing import Dict, List 
+from typing import Dict, List, Tuple
 
 # Set of keys of all patients (41) to easily access their data in the Libreview files (more .csv files would imply changing this)
 set_of_libreview_keys = [["001", "001", "001", "12-6-2023"],
@@ -47,7 +47,7 @@ set_of_libreview_keys = [["001", "001", "001", "12-6-2023"],
             ["067", "001", "001", "6-9-2023"],
             ["068", "001", "001", "6-9-2023"]]
 
-def prepare_LibreView_data(your_data_path : str, save_dict : bool = False) -> Dict:
+def prepare_LibreView_data(your_data_path : str, first_time : bool, save_dict : bool = False) -> Dict:
     
     """
     Function to prepare the data stored in .csv from LibreView application
@@ -80,6 +80,7 @@ def prepare_LibreView_data(your_data_path : str, save_dict : bool = False) -> Di
     Args
     ----
         dataset_path : Path to the dataset directory
+        first_time : Flag to indicate if the data is being read for the first time.
         save_dict : Flag to save the dictionary in a .pickle file. Default is False.
 
     Returns
@@ -98,11 +99,12 @@ def prepare_LibreView_data(your_data_path : str, save_dict : bool = False) -> Di
     for filename in os.listdir(your_data_path) : 
 
         # Only iterate on the .csv files that contains patient's data 
-        if "pickle" in filename or ".npy" in filename: 
+        if first_time and ("pickle" in filename or ".npy" in filename or "uploaded" in filename) or first_time == False and ("pickle" in filename or ".npy" in filename) : 
             pass
         elif "ID" not in filename:
             raise ValueError("Ops! Something went wrong...It seems that you must upload your data again! If this issue persists, please contact the app administrator.")
-        else: 
+        else:
+            pass 
 
             # Prepare data 
             print("Reading and evaluating your data...")
@@ -537,7 +539,7 @@ def get_your_oldest_year_npys_from_LibreView_csv(dataset_path : str) -> bool:
             pass
 
     # This function is employed if you don't have your model. So this is the first time your data is read
-    your_libreview_data = prepare_LibreView_data(dataset_path)
+    your_libreview_data = prepare_LibreView_data(dataset_path, True)
 
     # Take only the T1DM patients with at least one year in a row of CGM data with the same sensor 
     your_data_1yr_recordings, data_suitability = get_your_1year_LibreView_recordings_dict(your_keys, your_libreview_data)
@@ -549,3 +551,86 @@ def get_your_oldest_year_npys_from_LibreView_csv(dataset_path : str) -> bool:
     generate_your_LibreView_npy_1yr_recordings(your_data_1yr_recordings)
 
     return data_suitability 
+
+def get_and_check_last_day_of_data (subject_keys : List, upload_dir: np.array) -> Tuple[np.array, np.array, bool]: 
+
+    """
+    Read and prepare the uploaded data in the subsequent uses of this module
+    (i.e., the first use and model generation have been already performed), 
+    extract the last day of data, and check if the user has uploaded a full
+    24h sequence of data to make the prediction. In case that there is a full
+    24 sequence with no interruptions (flag to True), the prediction will be
+    made. Otherwise (flag to False), the user will be notified that the prediction
+    can't be made.
+
+    Args:
+    ----
+    uploaded_dir: directory where tge (potentially) uploaded data is stored.
+    *** NOTE: Currently is a static directory for testing purposes, and only 
+    Libreview is supported. This function assumes only a few instances of data
+    uploaded, without sensor changes. Depending on the format of the filename,
+    the keys should be changed accordingly. 
+
+    Returns:
+    -------
+    last_day_of_cgm_data: np.array with the last day of data uploaded by the user.
+    last_day_of_data_timestamps: np.array with the timestamps of the last day of data uploaded by the user.
+    full_sequence: True if there are no interruptions in the uploaded data. False otherwise.
+
+    """
+
+    # Take the last day (24 hours) of the data to make the prediction
+    last_day_recording = {}
+
+    # Initialize the dictionary entries
+    last_day_recording[subject_keys[0]] = {}
+    last_day_recording[subject_keys[0]][subject_keys[1]] = {}
+    last_day_recording[subject_keys[0]][subject_keys[1]][subject_keys[2]] = {}
+    last_day_recording[subject_keys[0]][subject_keys[1]][subject_keys[2]][subject_keys[3]] = {}
+
+    # This function is employed if you don't have your model. So this is the first time your data is read. 
+    your_new_uploaded_data = prepare_LibreView_data(upload_dir, False) # NOTE: Assume the same name as the previous file, but with the date changed.
+
+    for key in your_new_uploaded_data[subject_keys[0]][subject_keys[1]][subject_keys[2]][subject_keys[3]].keys():
+        
+        # Initialize the entry regarding the MAC
+        last_day_recording [subject_keys[0]][subject_keys[1]][subject_keys[2]][subject_keys[3]][key] = {}
+
+        for key2 in your_new_uploaded_data[subject_keys[0]][subject_keys[1]][subject_keys[2]][subject_keys[3]][key].keys():
+
+            # In case there are not CGM entries (could happen)
+            if not your_new_uploaded_data[subject_keys[0]][subject_keys[1]][subject_keys[2]][subject_keys[3]][key][key2]["CGM"]["reading"].any():
+                pass
+            else: 
+
+                data_last_sample = your_new_uploaded_data[subject_keys[0]][subject_keys[1]][subject_keys[2]][subject_keys[3]][key][key2]["CGM"]["timestamp"][-1]
+
+                # Substract one day to the last sample 
+                one_day_before = data_last_sample - pd.DateOffset(days=1)
+
+    # Get the last day of the data
+    last_day_of_data = your_new_uploaded_data[subject_keys[0]][subject_keys[1]][subject_keys[2]][subject_keys[3]][key][key2]["CGM"]["reading"][your_new_uploaded_data[subject_keys[0]][subject_keys[1]][subject_keys[2]][subject_keys[3]][key][key2]["CGM"]["timestamp"] > one_day_before]
+
+    # Get the timestamps 
+    last_day_of_data_timestamps = your_new_uploaded_data[subject_keys[0]][subject_keys[1]][subject_keys[2]][subject_keys[3]][key][key2]["CGM"]["timestamp"][your_new_uploaded_data[subject_keys[0]][subject_keys[1]][subject_keys[2]][subject_keys[3]][key][key2]["CGM"]["timestamp"] > one_day_before]
+
+    if len(last_day_of_data) == 96: 
+        print("Nice! You have a full 24h sequence of data to make the prediction!")
+        
+        # Set flag to true to make the prediction
+        full_sequence = True 
+
+    else:
+        print("Sorry, but your last 24h of data contains interruptions, so we cannot provide a reliable glucose prediction")
+        print("Tray again later!") 
+        
+        # Set flag to false 
+        full_sequence = False
+
+        last_day_of_data = None
+        last_day_of_data_timestamps = None 
+
+    # Back to parent directory 
+    os.chdir("..")    
+
+    return last_day_of_data, last_day_of_data_timestamps, full_sequence  
