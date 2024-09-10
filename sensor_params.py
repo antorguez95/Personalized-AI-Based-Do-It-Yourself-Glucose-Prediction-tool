@@ -32,4 +32,13 @@ libreview_sensors = {
     "SAMPLE_PERIOD" : 15, 
 }
 
+# Mikael sensor
+freestyle_libre_3 = {
+    "NAME" : "mikael_sensor",
+    "CGM" : True,
+    "INSULIN" : True, 
+    "SAMPLE_PERIOD" : 5, #minutes between consecutive readings
+    }
+
+
 

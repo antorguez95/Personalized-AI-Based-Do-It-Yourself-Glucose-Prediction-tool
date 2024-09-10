@@ -10,7 +10,7 @@ def cgm_data_summary_figure(id : str, sensor : str, num_blocks : int, cgm_data :
                             ): 
     
     """
-    This function reads the user's CGM data ant plots a summary of the data. Depending on the 
+    This function reads the user's CGM data and plots a summary of the them. Depending on the 
     input parameters (chosen by the user in the application), a different personalized 
     visualization will be given. 
 
@@ -322,138 +322,138 @@ def cgm_data_summary_figure(id : str, sensor : str, num_blocks : int, cgm_data :
     # Remove the last subplots and center the ax[3,0]
     fig.delaxes(axs[3,1])
 
-    ###### FIGURE 7: LAST 144 SAMPLES, PLUS THE PREDICTION ######
+    # ###### FIGURE 7: LAST 144 SAMPLES, PLUS THE PREDICTION ######
 
-    # Store the last 144 samples of timestamps 
-    prediction_timestamps = cgm_timestamps[-144:]
+    # # Store the last 144 samples of timestamps 
+    # prediction_timestamps = cgm_timestamps[-144:]
 
-    # Extract the strings with the timestamps to print 
-    first_daymonth = str(prediction_timestamps[0].day) + '-' + str(prediction_timestamps[0].month)
-    first_hour_minute = str( prediction_timestamps[0].hour) + ':' + str(prediction_timestamps[0].minute)
-    last_daymonth = str(prediction_timestamps[-1].day) + '-' + str(prediction_timestamps[-1].month)
-    last_hour_minute = str( prediction_timestamps[-1].hour) + ':' + str(prediction_timestamps[-1].minute)
+    # # Extract the strings with the timestamps to print 
+    # first_daymonth = str(prediction_timestamps[0].day) + '-' + str(prediction_timestamps[0].month)
+    # first_hour_minute = str( prediction_timestamps[0].hour) + ':' + str(prediction_timestamps[0].minute)
+    # last_daymonth = str(prediction_timestamps[-1].day) + '-' + str(prediction_timestamps[-1].month)
+    # last_hour_minute = str( prediction_timestamps[-1].hour) + ':' + str(prediction_timestamps[-1].minute)
 
-    # Plot the last 144 samples
-    axs[3,0].plot(color = 'darkkhaki', alpha = 0.5)
+    # # Plot the last 144 samples
+    # axs[3,0].plot(color = 'darkkhaki', alpha = 0.5)
 
-    # Set x and y labels
-    axs[3,0].set_ylabel('CGM ' + '(' + unit + ')')
+    # # Set x and y labels
+    # axs[3,0].set_ylabel('CGM ' + '(' + unit + ')')
 
-    # Extract the last window of real data used to predict the next hour 
-    real_data = timeseries_vis[-144:]
+    # # Extract the last window of real data used to predict the next hour 
+    # real_data = timeseries_vis[-144:]
 
-    # Set background depends on the range of the CGM
-    prediction = np.array([60, 105, 120, 131])# This must be the sequence obtained by the model
+    # # Set background depends on the range of the CGM
+    # prediction = np.array([60, 105, 120, 131])# This must be the sequence obtained by the model
 
-    axs[3,0].plot(real_data, label = 'Last samples')
-    axs[3,0].plot(np.linspace(N-1,N-1+round(pred_steps), round(pred_steps)), prediction, color = 'red', label = 'AI prediction', alpha=1)
+    # axs[3,0].plot(real_data, label = 'Last samples')
+    # axs[3,0].plot(np.linspace(N-1,N-1+round(pred_steps), round(pred_steps)), prediction, color = 'red', label = 'AI prediction', alpha=1)
 
-    # Fill with the prediction with the RMSE values 
-    axs[3,0].fill_between(np.linspace(N-1,N-1+round(pred_steps), round(pred_steps), dtype=int), prediction-pred_rmse, prediction+pred_rmse, color='red', alpha=0.2)
+    # # Fill with the prediction with the RMSE values 
+    # axs[3,0].fill_between(np.linspace(N-1,N-1+round(pred_steps), round(pred_steps), dtype=int), prediction-pred_rmse, prediction+pred_rmse, color='red', alpha=0.2)
 
-    # Set title 
-    axs[3,0].set_title('60 minutes AI prediction using your last 36 hours of CGM data', fontsize=12)
+    # # Set title 
+    # axs[3,0].set_title('60 minutes AI prediction using your last 36 hours of CGM data', fontsize=12)
 
-    # Remove X ticks labels 
-    axs[3,0].set_xticklabels([])
+    # # Remove X ticks labels 
+    # axs[3,0].set_xticklabels([])
 
-    # Set background of the first 144 samples of one colour depending on the range of the CGM
-    axs[3,0].axhspan(0, 54, xmin=0, xmax=143/148, facecolor='red', alpha=0.25)
-    axs[3,0].axhspan(54, 70, xmin=0, xmax=143/148, facecolor='yellow', alpha=0.25)
-    axs[3,0].axhspan(70, 180, xmin=0, xmax=143/148, facecolor='green', alpha=0.25)
-    axs[3,0].axhspan(180, 250, xmin=0, xmax=143/148, facecolor='yellow', alpha=0.25)
-    axs[3,0].axhspan(250, 400, xmin=0, xmax=143/148, facecolor='red', alpha=0.25)
+    # # Set background of the first 144 samples of one colour depending on the range of the CGM
+    # axs[3,0].axhspan(0, 54, xmin=0, xmax=143/148, facecolor='red', alpha=0.25)
+    # axs[3,0].axhspan(54, 70, xmin=0, xmax=143/148, facecolor='yellow', alpha=0.25)
+    # axs[3,0].axhspan(70, 180, xmin=0, xmax=143/148, facecolor='green', alpha=0.25)
+    # axs[3,0].axhspan(180, 250, xmin=0, xmax=143/148, facecolor='yellow', alpha=0.25)
+    # axs[3,0].axhspan(250, 400, xmin=0, xmax=143/148, facecolor='red', alpha=0.25)
 
-    # Set a different bakground for the AI prediction 
-    axs[3,0].axhspan(0, 400, xmin=143/148, xmax=1, facecolor='teal', alpha=0.20)
+    # # Set a different bakground for the AI prediction 
+    # axs[3,0].axhspan(0, 400, xmin=143/148, xmax=1, facecolor='teal', alpha=0.20)
 
-    # Vertical line to separate real data from prediction 
-    axs[3,0].axvline(x=143, ymin=0, ymax=400, color='darkcyan', linestyle='--', alpha=0.75)
+    # # Vertical line to separate real data from prediction 
+    # axs[3,0].axvline(x=143, ymin=0, ymax=400, color='darkcyan', linestyle='--', alpha=0.75)
 
-    # Set horizontal line in the second part of the plot with the different CGM ranges 
-    axs[3,0].axhline(y=54, xmin=143/148, xmax=1,  color='red', linestyle='--', alpha=0.40)
-    axs[3,0].axhline(y=70, xmin=143/148, xmax=1, color='yellow', linestyle='--', alpha=0.40)
-    axs[3,0].axhline(y=180, xmin=143/148, xmax=1, color='yellow', linestyle='--', alpha=0.40)
-    axs[3,0].axhline(y=250, xmin=143/148, xmax=1, color='red', linestyle='--', alpha=0.40)
+    # # Set horizontal line in the second part of the plot with the different CGM ranges 
+    # axs[3,0].axhline(y=54, xmin=143/148, xmax=1,  color='red', linestyle='--', alpha=0.40)
+    # axs[3,0].axhline(y=70, xmin=143/148, xmax=1, color='yellow', linestyle='--', alpha=0.40)
+    # axs[3,0].axhline(y=180, xmin=143/148, xmax=1, color='yellow', linestyle='--', alpha=0.40)
+    # axs[3,0].axhline(y=250, xmin=143/148, xmax=1, color='red', linestyle='--', alpha=0.40)
 
-    # Set X labels 
-    axs[3,0].set_xticklabels([first_daymonth+"\n"+first_hour_minute, "", "", "", "", "", "", last_daymonth+"\n"+last_hour_minute])
+    # # Set X labels 
+    # axs[3,0].set_xticklabels([first_daymonth+"\n"+first_hour_minute, "", "", "", "", "", "", last_daymonth+"\n"+last_hour_minute])
 
-    # Set pad in x labels 
-    axs[3,0].tick_params(axis='x', pad=10)
+    # # Set pad in x labels 
+    # axs[3,0].tick_params(axis='x', pad=10)
 
-    # Remove white spaces in the x and y axis
-    axs[3,0].set_xlim([0, 148])
-    axs[3,0].set_ylim([0, 400])
+    # # Remove white spaces in the x and y axis
+    # axs[3,0].set_xlim([0, 148])
+    # axs[3,0].set_ylim([0, 400])
 
-    ###### FIGURE 7: FIGURE 6 ZOOM ######
-    # Plot the last 144 samples
-    axs[4,0].plot(color = 'k', alpha = 0.5)
+    # ###### FIGURE 7: FIGURE 6 ZOOM ######
+    # # Plot the last 144 samples
+    # axs[4,0].plot(color = 'k', alpha = 0.5)
 
-    # Set x and y labels
-    axs[4,0].set_ylabel('CGM ' + '(' + unit + ')')
+    # # Set x and y labels
+    # axs[4,0].set_ylabel('CGM ' + '(' + unit + ')')
 
-    # Remove X ticks labels
-    axs[4,0].set_xticklabels([])
+    # # Remove X ticks labels
+    # axs[4,0].set_xticklabels([])
 
-    axs[4,0].axhspan(0, 54, xmin=0, xmax=9.75/14, facecolor='red', alpha=0.18)
-    axs[4,0].axhspan(54, 70, xmin=0, xmax=9.75/14, facecolor='yellow', alpha=0.18)
-    axs[4,0].axhspan(70, 180, xmin=0, xmax=9.75/14, facecolor='green', alpha=0.18)
-    axs[4,0].axhspan(180, 250, xmin=0, xmax=9.75/14, facecolor='yellow', alpha=0.18)
-    axs[4,0].axhspan(250, 400, xmin=0, xmax=9.75/14, facecolor='red', alpha=0.18)
+    # axs[4,0].axhspan(0, 54, xmin=0, xmax=9.75/14, facecolor='red', alpha=0.18)
+    # axs[4,0].axhspan(54, 70, xmin=0, xmax=9.75/14, facecolor='yellow', alpha=0.18)
+    # axs[4,0].axhspan(70, 180, xmin=0, xmax=9.75/14, facecolor='green', alpha=0.18)
+    # axs[4,0].axhspan(180, 250, xmin=0, xmax=9.75/14, facecolor='yellow', alpha=0.18)
+    # axs[4,0].axhspan(250, 400, xmin=0, xmax=9.75/14, facecolor='red', alpha=0.18)
 
-    # Vertical line to separate real data from prediction 
-    axs[4,0].axvline(x=10, ymin=0, ymax=400, color='darkcyan', linestyle='--', alpha=0.75)
+    # # Vertical line to separate real data from prediction 
+    # axs[4,0].axvline(x=10, ymin=0, ymax=400, color='darkcyan', linestyle='--', alpha=0.75)
 
-    # Extract the last window of real data used to predict the next hour 
-    real_data = timeseries_vis[-10:]
+    # # Extract the last window of real data used to predict the next hour 
+    # real_data = timeseries_vis[-10:]
 
-    # Samples to make zoom
-    N_zoom = 10
+    # # Samples to make zoom
+    # N_zoom = 10
 
-    axs[4,0].plot(np.linspace(0, N_zoom-1, N_zoom, dtype=int), real_data, marker='o', label = 'Last samples')
-    axs[4,0].plot(np.linspace(N_zoom, N_zoom+pred_steps, pred_steps, dtype=int), prediction, color = 'red', marker='o',label = 'AI prediction', alpha=1)
+    # axs[4,0].plot(np.linspace(0, N_zoom-1, N_zoom, dtype=int), real_data, marker='o', label = 'Last samples')
+    # axs[4,0].plot(np.linspace(N_zoom, N_zoom+pred_steps, pred_steps, dtype=int), prediction, color = 'red', marker='o',label = 'AI prediction', alpha=1)
 
-    # Fill with the prediction with the RMSE values 
-    axs[4,0].fill_between(np.linspace(N_zoom, N_zoom+pred_steps, pred_steps, dtype=int), prediction-pred_rmse, prediction+pred_rmse, color='red', alpha=0.2)
+    # # Fill with the prediction with the RMSE values 
+    # axs[4,0].fill_between(np.linspace(N_zoom, N_zoom+pred_steps, pred_steps, dtype=int), prediction-pred_rmse, prediction+pred_rmse, color='red', alpha=0.2)
 
-    # Set x labels 
-    axs[4,0].set_xticklabels([first_daymonth+"\n"+first_hour_minute, "", "", "", "", "", "", "", "", last_daymonth+"\n"+last_hour_minute])
+    # # Set x labels 
+    # axs[4,0].set_xticklabels([first_daymonth+"\n"+first_hour_minute, "", "", "", "", "", "", "", "", last_daymonth+"\n"+last_hour_minute])
 
-    # Set pad in x labels 
-    axs[4,0].tick_params(axis='x', pad=10)
+    # # Set pad in x labels 
+    # axs[4,0].tick_params(axis='x', pad=10)
 
-    # Add text in the first and last sample with data and time 
-    axs[4,0].text(12.5, 300, 'Your AI prediction\nfor the next hour', fontsize=12, weight='bold', horizontalalignment='center', verticalalignment='center')#, bbox=dict(facecolor='white', alpha=0.5)
+    # # Add text in the first and last sample with data and time 
+    # axs[4,0].text(12.5, 300, 'Your AI prediction\nfor the next hour', fontsize=12, weight='bold', horizontalalignment='center', verticalalignment='center')#, bbox=dict(facecolor='white', alpha=0.5)
 
-    # Add text that indicates the user the prediction horizons
-    axs[4,0].text(11.5, -60, "in 30'", fontsize=12, weight='bold')
-    axs[4,0].text(13.5, -60, "in 60'", fontsize=12, weight='bold')
+    # # Add text that indicates the user the prediction horizons
+    # axs[4,0].text(11.5, -60, "in 30'", fontsize=12, weight='bold')
+    # axs[4,0].text(13.5, -60, "in 60'", fontsize=12, weight='bold')
 
-    # Set a different bakground for the AI prediction 
-    axs[4,0].axhspan(0, 400, xmin=9.75/14, xmax=1, facecolor='teal', alpha=0.20)
+    # # Set a different bakground for the AI prediction 
+    # axs[4,0].axhspan(0, 400, xmin=9.75/14, xmax=1, facecolor='teal', alpha=0.20)
 
-    # Set horizontal line in the second part of the plot with the different CGM ranges 
-    axs[4,0].axhline(y=54, xmin=9.75/14, xmax=1,  color='red', linestyle='--', alpha=0.40)
-    axs[4,0].axhline(y=70, xmin=9.75/14, xmax=1, color='yellow', linestyle='--', alpha=0.40)
-    axs[4,0].axhline(y=180, xmin=9.75/14, xmax=1, color='yellow', linestyle='--', alpha=0.40)
-    axs[4,0].axhline(y=250, xmin=9.75/14, xmax=1, color='red', linestyle='--', alpha=0.40)
+    # # Set horizontal line in the second part of the plot with the different CGM ranges 
+    # axs[4,0].axhline(y=54, xmin=9.75/14, xmax=1,  color='red', linestyle='--', alpha=0.40)
+    # axs[4,0].axhline(y=70, xmin=9.75/14, xmax=1, color='yellow', linestyle='--', alpha=0.40)
+    # axs[4,0].axhline(y=180, xmin=9.75/14, xmax=1, color='yellow', linestyle='--', alpha=0.40)
+    # axs[4,0].axhline(y=250, xmin=9.75/14, xmax=1, color='red', linestyle='--', alpha=0.40)
 
-    # Set title 
-    axs[4,0].set_title('Zoom in your last 2:30 hours', fontsize=12)
+    # # Set title 
+    # axs[4,0].set_title('Zoom in your last 2:30 hours', fontsize=12)
 
-    # Set Y limit between 0 and 400
-    axs[4,0].set_ylim([0, 400])
+    # # Set Y limit between 0 and 400
+    # axs[4,0].set_ylim([0, 400])
 
-    # Set one tick per sample 
-    axs[4,0].set_xticks(np.linspace(0, N_zoom+pred_steps, N_zoom+pred_steps, dtype=int))
+    # # Set one tick per sample 
+    # axs[4,0].set_xticks(np.linspace(0, N_zoom+pred_steps, N_zoom+pred_steps, dtype=int))
 
-    # Remove ax[4,1]
-    fig.delaxes(axs[4,1])
+    # # Remove ax[4,1]
+    # fig.delaxes(axs[4,1])
 
-    # Center and set size 
-    axs[3,0].set_position([0.300, 0.265, 0.400, 0.15])
-    axs[4,0].set_position([0.300, 0.075, 0.400, 0.15])
+    # # Center and set size 
+    # axs[3,0].set_position([0.300, 0.265, 0.400, 0.15])
+    # axs[4,0].set_position([0.300, 0.075, 0.400, 0.15])
 
     plt.text(1, 0.83, 'Useful information about YOU to understand your personalized AI-based model', fontsize=16, horizontalalignment='center', verticalalignment='center', transform=axs[2,0].transAxes)
 
