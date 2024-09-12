@@ -636,11 +636,14 @@ def model_evaluation(N : int, PH : int, name : str, normalization : str, input_f
     # os.chdir('..')
 
     # Create 'evaluation' folder is it does not exist 
-    if not os.path.exists(os.getcwd()+r"\evaluation"):
-        os.mkdir(os.getcwd()+r"\evaluation")
+    # if not os.path.exists(os.getcwd()+r"\evaluation"):
+    #     os.mkdir(os.getcwd()+r"\evaluation")
+    if not os.path.exists("evaluation"):
+        os.mkdir("evaluation")
 
     # Go to the evaluation folder
-    os.chdir(os.getcwd()+r"\evaluation")
+    # os.chdir(os.getcwd()+r"\evaluation")
+    os.chdir("evaluation")
 
     # Plot RMSE, MAE and MAPE for each time step
     plt.figure(figsize = (10,5))

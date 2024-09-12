@@ -590,7 +590,8 @@ def train_model(sensor : Dict,
     # Create directory if it has not been previously created
     if 'training' not in dir:  
         # Create directory to store the training parameters and results
-        training_path = r'\training'
+        # training_path = r'\training'
+        training_path = '/training'
         if not os.path.exists(dir+training_path):
             os.makedirs(dir+training_path)
         # Change to that directory 
@@ -690,12 +691,14 @@ def train_model(sensor : Dict,
 
     # Save the figure
     plt.savefig(dir+'/'+str(fold)+'_training_evolution.png')
+    # plt.savefig(str(fold)+'_training_evolution.png')
 
     # Model name (depends on the fold to train)
     model_name = '/'+str(fold) +'.h5'
     
     # Save the model
     model.save(dir+model_name)
+    # model.save(model_name)
 
     if verbose >= 1:
         print('\n\tEnd of the training. Model saved in {}\n'.format(dir))

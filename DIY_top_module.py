@@ -74,7 +74,39 @@ os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
 # WELCOME TO THE AI BASED DIY YOURSELF TOOL, UPLOAD YOUR DATA AND GET YOUR RESULTS
 # These welcome messages are shown just the first time the module is used (considering first time if the model hasn't been generated)
 if "Your_AI_CGM_predictor" not in os.listdir():
-    print("Welcome to the AI-based Do-It-Yourself glucose predictor!\n\n")
+    print("""\
+ __          __    _                                _                                                 _____        _                            _ 
+ \ \        / /   | |                              | |                                         /\    |_   _|      | |                          | |
+  \ \  /\  / /___ | |  ___  ___   _ __ ___    ___  | |_  ___    _   _   ___   _   _  _ __     /  \     | | ______ | |__    __ _  ___   ___   __| |
+   \ \/  \/ // _ \| | / __|/ _ \ | '_ ` _ \  / _ \ | __|/ _ \  | | | | / _ \ | | | || '__|   / /\ \    | ||______|| '_ \  / _` |/ __| / _ \ / _` |
+    \  /\  /|  __/| || (__| (_) || | | | | ||  __/ | |_| (_) | | |_| || (_) || |_| || |     / ____ \  _| |_       | |_) || (_| |\__ \|  __/| (_| |
+     \/  \/  \___||_| \___|\___/ |_| |_| |_| \___|  \__|\___/   \__, | \___/  \__,_||_|    /_/    \_\|_____|      |_.__/  \__,_||___/ \___| \__,_|
+                                                                 __/ |                                                                            
+                                                                |___/                                                                            
+    """)
+    
+    print("""\
+  _____               _____  _         __     __                             _   __ 
+ |  __ \             |_   _|| |        \ \   / /                            | | / _|
+ | |  | |  ___  ______ | |  | |_  ______\ \_/ /___   _   _  _ __  ___   ___ | || |_ 
+ | |  | | / _ \|______|| |  | __||______|\   // _ \ | | | || '__|/ __| / _ \| ||  _|
+ | |__| || (_) |      _| |_ | |_          | || (_) || |_| || |   \__ \|  __/| || |  
+ |_____/  \___/      |_____| \__|         |_| \___/  \__,_||_|   |___/ \___||_||_|  
+                                                                                                                                                                  
+    """)
+
+    print("""\    
+
+   _____  _                                                       _  _        _               
+  / ____|| |                                                     | |(_)      | |              
+ | |  __ | | _   _   ___  ___   ___   ___   _ __   _ __  ___   __| | _   ___ | |_  ___   _ __ 
+ | | |_ || || | | | / __|/ _ \ / __| / _ \ | '_ \ | '__|/ _ \ / _` || | / __|| __|/ _ \ | '__|
+ | |__| || || |_| || (__| (_) |\__ \|  __/ | |_) || |  |  __/| (_| || || (__ | |_| (_) || |   
+  \_____||_| \__,_| \___|\___/ |___/ \___| | .__/ |_|   \___| \__,_||_| \___| \__|\___/ |_|   
+                                           | |                                                
+                                           |_|                                                
+    """)
+
     print("Here, you will be able to have an in-depth analysis of your uploaded CGM data, as well as an AI-based prediction of your glucose level in the next hour!")
     print("\nThis module has been validated, but it is still work in progress. Currently, the following sensor models are supported:\n")
     print("\t- Freestyle Libre 2\n\t- FreeStyle LibreLink\n\t- LibreLink")
@@ -90,16 +122,14 @@ if "Your_AI_CGM_predictor" not in os.listdir():
     print("https://github.com/antorguez95/Personalized-AI-Based-Do-It-Yourself-Glucose-Prediction-tool")
 
     # First of all, the users is asked about the directory where the data is stored
-    print("Let's begin!\n1) If you haven't download your CGM data, please do it!\n")
-    print("2) Once you have your data, please, type the path where your data is stored (e.g., C:/Users/your_user/Downloads/your_data_folder):")
-    your_data_path = input()
-
-
+    print("\n\nLet's begin!\n1) If you haven't download your CGM data, please do it!\n")
+    print("2) Once you have your data, please, drop it in the /drop_your_data folder. Otherwise, we will not be able to generate your personalized AI-model!\n")
+    
     # Then, since the preprocesisng and the AI architecture depends on the sensor, the user is asked about the sensor he or she is using 
-    print("\nThank you! Now, please, type the letter corresponding to the glucose sensor model you are using:\n")
+    print("\nNow, please, type the letter corresponding to the glucose sensor model you are using:\n")
     print("a) Abbott - Freestyle Libre 2\nb) Abbott - FreeStyle LibreLink\nc) Abbott - LibreLink\n")
 
-    print("\n\n***ONLY Abbott sensors have been validated in this version of the tool.***") 
+    print("***ONLY Abbott sensors have been validated in this version of the tool.***") 
 
     ans = input()
 
@@ -118,7 +148,7 @@ if "Your_AI_CGM_predictor" not in os.listdir():
         print("\nSorry, but this tool does not support your sensor. We are currently working on the inclusion of more sensors.")
 
     # Now, the user is asked about the unit of the glucose data
-    print("\nPlease, type 'a' if the unit of your glucose data is in 'mg/d' or, 'b' if it is in 'mmol/L' instead\n")
+    print("\nPlease, type 'a' if the unit of your glucose data is in 'mg/dL' or, 'b' if it is in 'mmol/L' instead\n")
     ans = input()
 
     if ans == "a":
@@ -136,13 +166,20 @@ if "Your_AI_CGM_predictor" not in os.listdir():
         print("\nOh, Sorry! Move back to the previous step and make sure you introduce the right unit! We'll be waiting for you!")
         exit()
     
-    # your_data_path = os.getcwd()
-
     # Save unit for further uses
     np.save('unit.npy', unit)
 
     # Set Keras to float 64 to work with the ISO-loss function
     tf.keras.backend.set_floatx('float64')
+
+    your_data_path = "/CGM_forecasting/drop_your_data_here_and_see_your_pred"
+
+    ####################################
+    print(os.getcwd())
+    os.chdir(your_data_path)
+    #######################################
+
+    print("EN LA CARPETA DE LOS DATOS", os.listdir())
 
     if '.h5' not in os.listdir():
         print("Oh! It seems that you don't have your personalized-AI glucose predictor yet.\nNow, your data will be analyzed.")
@@ -205,6 +242,8 @@ if "Your_AI_CGM_predictor" not in os.listdir():
             # Load user's data and the associated timestamps 
             recordings = np.load('oldest_1yr_CGM.npy')
             timestamps = np.load('oldest_1yr_CGM_timestamp.npy', allow_pickle=True)
+
+            os.chdir("..")
 
             # If the directory "Your_AI_CGM_predictor" is not created, create it
             if "Your_AI_CGM_predictor" not in os.listdir():
@@ -287,7 +326,6 @@ if "Your_AI_CGM_predictor" not in os.listdir():
 
                 results_dictionary[fold] = results_normal_eval
 
-                # Back to fold directory 
                 os.chdir('../..')
 
             ######## END OF THE CODE RELATED TO THE AI FRAMEWORK ########
@@ -340,17 +378,29 @@ if "Your_AI_CGM_predictor" not in os.listdir():
             # Make a prediction using the last day (i.e., 96 samples) of the data to show it to the user
             print("Making a CGM prediction of your next 30 minutes using the last day oy the data you just provided...")
 
+           
             # Go to the directory where the best model is placed (depends on previous evaluation)
             os.chdir(best_model_key)
+
             os.chdir("training")
 
             # Load the model
             model = get_LSTM_multi_step(sensor, N=int(N), input_features = input_features, PH=PH) # Assumes LSTM
             model.load_weights(best_model_key+'.h5')
 
-            # Go back to "Your_AI_CGM_predictor" directory, where the model will be called further times and save model
-            os.chdir("../..")
+            # # Go back to "Your_AI_CGM_predictor" directory, where the model will be called further times and save model
+            # os.chdir("../..")
+            # model.save("your_AI_based_CGM_predictor.h5")
+
+            print(os.getcwd())
+            print(os.listdir())
+
+            # Go back to "drop_your_data_and_see_your_pred" directory, where the model will be called further times and save model
+            os.chdir("../../../drop_your_data_here_and_see_your_pred")
             model.save("your_AI_based_CGM_predictor.h5")
+
+            print("despues de entrar en la carpeta que tacale", os.getcwd())
+            print(os.listdir())
 
             # Load the last day of the data
             last_day_norm = X_norm[-96:,-1,:]

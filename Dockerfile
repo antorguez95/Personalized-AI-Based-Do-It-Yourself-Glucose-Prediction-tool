@@ -7,30 +7,31 @@ MAINTAINER Antonio Rodriguez <aralmeida@iuma.ulpgc.com>
 
 # Work directory 
 # WORKDIR ${.\testing_with_mirek}
-WORKDIR /code
+WORKDIR /CGM_forecasting
 
 # Copy the file containing the environment description 
-# COPY environment.yml ./
-COPY ./requirements.txt /code/requirements.txt
+COPY ./requirements.txt /CGM_forecasting/requirements.txt
 
-# Copy libraries 
-COPY ./app /code/src/app
-COPY ./evaluation/ /code/src/evaluation
-COPY ./models /code/src/models
-COPY ./utils.py /code/src/utils.py
-COPY ./sensor_params.py /code/src/sensor_params.py
-COPY ./training_configs.py /code/src/training_configs.py
-COPY ./your_AI_DIY_parameters.py /code/src/your_AI_DIY_parameters.py
+
+# Copy AI-based DIY module libraries  
+COPY ./app /CGM_forecasting/code/src/app
+COPY ./evaluation/ /CGM_forecasting/code/src/evaluation
+COPY ./models /CGM_forecasting/code/src/models
+COPY ./utils.py /CGM_forecasting/code/src/utils.py
+COPY ./sensor_params.py /CGM_forecasting/code/src/sensor_params.py
+COPY ./training_configs.py /CGM_forecasting/code/src/training_configs.py
+COPY ./your_AI_DIY_parameters.py /CGM_forecasting/code/src/your_AI_DIY_parameters.py
+COPY ./drop_your_data_here_and_see_your_pred /CGM_forecasting/drop_your_data_here_and_see_your_pred
+COPY ./here_is_your_prediction /CGM_forecasting/here_is_your_prediction
+
 
 # From conda create the environment and the required packages 
-# RUN pip
-# RUN conda env create -n diy_app_env -f environment.yml
-# To obtain the requirements.txt file : pip freeze > requirements.txt
+# To obtain the requirements.txt file : pip freeze > requirements.txt (some things were commented)
 RUN pip install --no-cache-dir -r requirements.txt 
 
-# Add the test file (only one)
-COPY ./DIY_top_module.py /code/src/DIY_top_module.py
+# Add the app top module file 
+COPY ./DIY_top_module.py /CGM_forecasting/code/src/DIY_top_module.py
 
-CMD ["python", "src/DIY_top_module.py"]
+CMD ["python", "code/src/DIY_top_module.py"]
 
 
