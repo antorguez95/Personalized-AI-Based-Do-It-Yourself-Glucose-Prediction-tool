@@ -99,7 +99,8 @@ def prepare_LibreView_data(your_data_path : str, first_time : bool, save_dict : 
     for filename in os.listdir(your_data_path) : 
 
         # Only iterate on the .csv files that contains patient's data 
-        if first_time and ("pickle" in filename or ".npy" in filename or "uploaded" in filename) or first_time == False and ("pickle" in filename or ".npy" in filename) : 
+        # if first_time and ("pickle" in filename or ".npy" in filename or "uploaded" in filename) or first_time == False and ("pickle" in filename or ".npy" in filename) : 
+        if first_time and ("pickle" in filename or ".npy" in filename) or first_time == False and ("pickle" in filename or ".npy" in filename  or "h5" in filename or "png" in filename) : 
             pass
         elif "ID" not in filename:
             raise ValueError("Ops! Something went wrong...It seems that you must upload your data again! If this issue persists, please contact the app administrator.")
@@ -496,7 +497,7 @@ def generate_your_LibreView_npy_1yr_recordings(data_1yr_recordings : Dict):
                         np.save('oldest_1yr_CGM.npy', recording_1yr)
                         np.save('oldest_1yr_CGM_timestamp.npy', recording_timestamps_1yr)
 
-def get_your_oldest_year_npys_from_LibreView_csv(dataset_path : str) -> bool: 
+def get_your_oldest_year_npys_from_LibreView_csv(dataset_path : str, first_time : bool) -> bool: 
 
     """
     From the raw .csv files obtained from your LibreView, this function 
@@ -516,6 +517,7 @@ def get_your_oldest_year_npys_from_LibreView_csv(dataset_path : str) -> bool:
     Args
     ----
         dataset_path : path where the .csv files are stored.
+        first_time : flag to indicate if user has previously uploaded his/her data. 
     
     Returns
     -------
@@ -539,7 +541,7 @@ def get_your_oldest_year_npys_from_LibreView_csv(dataset_path : str) -> bool:
             pass
 
     # This function is employed if you don't have your model. So this is the first time your data is read
-    your_libreview_data = prepare_LibreView_data(dataset_path, True)
+    your_libreview_data = prepare_LibreView_data(dataset_path, first_time)
 
     # Take only the T1DM patients with at least one year in a row of CGM data with the same sensor 
     your_data_1yr_recordings, data_suitability = get_your_1year_LibreView_recordings_dict(your_keys, your_libreview_data)

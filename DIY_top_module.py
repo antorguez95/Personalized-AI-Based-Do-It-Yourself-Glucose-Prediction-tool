@@ -41,6 +41,8 @@ Returns:
 """
 
 import os 
+# Avoid TensorFlow warnings
+os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
 import tensorflow as tf
 import sys
 import time
@@ -51,7 +53,6 @@ from models.multi_step.LSTMVanilla import get_model as get_LSTM_multi_step
 from evaluation.multi_step.evaluation import model_evaluation as multi_step_model_evaluation
 from utils import get_LibreView_CGM_X_Y_multistep, generate_ranges_tags, generate_weights_vector
 from app.app_visualization import *
-from typing import Tuple
 import warnings
 from your_AI_DIY_parameters import *
 
@@ -59,22 +60,17 @@ import matplotlib.pyplot as plt
 
 from sensor_params import *
 
-# # Go to the directory where the .csv is stored (TESTING PURPOSES)
-# os.chdir(r"C:\Users\aralmeida\Downloads\prueba_app_CGM")
-# # os.chdir(r"C:\Users\aralmeida\Downloads\prueba_app_CGM_ID_no_valido")
-# user_file = "ID001_S001_R001_glucose_12-6-2023.csv" # Testing, integration could be different 
-# # user_file = "ID066_S001_R001_glucose_6-9-2023.csv"
+################ HARD CODED AND TO BE CHANGED ###################
+your_keys = ["001", "001", "001", "12-6-2023"] # Just testing. This would be provided by the user and depending on the filename of the .csv, .json, etc.  
+# your_keys = ["001", "001", "001", "uploaded-BAD"] # To test when there is not one day of data 
+#################################################################
 
 # Ignore warnings
 warnings.filterwarnings("ignore")
 
-# Avoid TensorFlow warnings
-os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
-
 # WELCOME TO THE AI BASED DIY YOURSELF TOOL, UPLOAD YOUR DATA AND GET YOUR RESULTS
 # These welcome messages are shown just the first time the module is used (considering first time if the model hasn't been generated)
-if "Your_AI_CGM_predictor" not in os.listdir():
-    print("""\
+print("""\
  __          __    _                                _                                                 _____        _                            _ 
  \ \        / /   | |                              | |                                         /\    |_   _|      | |                          | |
   \ \  /\  / /___ | |  ___  ___   _ __ ___    ___  | |_  ___    _   _   ___   _   _  _ __     /  \     | | ______ | |__    __ _  ___   ___   __| |
@@ -85,7 +81,7 @@ if "Your_AI_CGM_predictor" not in os.listdir():
                                                                 |___/                                                                            
     """)
     
-    print("""\
+print("""\
   _____               _____  _         __     __                             _   __ 
  |  __ \             |_   _|| |        \ \   / /                            | | / _|
  | |  | |  ___  ______ | |  | |_  ______\ \_/ /___   _   _  _ __  ___   ___ | || |_ 
@@ -95,7 +91,7 @@ if "Your_AI_CGM_predictor" not in os.listdir():
                                                                                                                                                                   
     """)
 
-    print("""\    
+print("""\    
 
    _____  _                                                       _  _        _               
   / ____|| |                                                     | |(_)      | |              
@@ -107,28 +103,34 @@ if "Your_AI_CGM_predictor" not in os.listdir():
                                            |_|                                                
     """)
 
-    print("Here, you will be able to have an in-depth analysis of your uploaded CGM data, as well as an AI-based prediction of your glucose level in the next hour!")
-    print("\nThis module has been validated, but it is still work in progress. Currently, the following sensor models are supported:\n")
-    print("\t- Freestyle Libre 2\n\t- FreeStyle LibreLink\n\t- LibreLink")
+print("Here, you will be able to have an in-depth analysis of your uploaded CGM data, as well as an AI-based prediction of your glucose level in the next hour!")
+print("\nThis module has been validated, but it is still work in progress. Currently, the following sensor models are supported:\n")
+print("\t- Freestyle Libre 2\n\t- FreeStyle LibreLink\n\t- LibreLink")
 
-    print("\nThe following input data is required (and supported) for this module:\n\t- CGM data (for now, at 15 minutes intervals)")
+print("\nThe following input data is required (and supported) for this module:\n\t- CGM data (for now, at 15 minutes intervals)")
 
-    print("\nWe are currently working on:\n\t- Support for more sensor models\n\t- Adding more data, such as insuline, physical activity, etc.\n\t- More accurate predictions\n\t- More in-depth data analysis\n\t- More user-friendly interface\n\t- More user-friendly error messages\n\t- More user-friendly documentation\n\t- More user-friendly everything")
+print("\nWe are currently working on:\n\t- Support for more sensor models\n\t- Adding more data, such as insuline, physical activity, etc.\n\t- More accurate predictions\n\t- More in-depth data analysis\n\t- More user-friendly interface\n\t- More user-friendly error messages\n\t- More user-friendly documentation\n\t- More user-friendly everything")
 
-    print("\n\n***IMPORTANT***: due to regulatory issues, this module (unfortunately) don't access to the sensor data in real time, so every time that you want to have a 1-hour prediction, you need to upload your CGM data.")
-    print("***DISCLAIMER***: Please, do not use this tool as a replacement for professional medical advice, but always as a complementary tool to help you manage your T1D")
+print("\n\n***IMPORTANT***: due to regulatory issues, this module (unfortunately) don't access to the sensor data in real time, so every time that you want to have a 1-hour prediction, you need to upload your CGM data.")
+print("***DISCLAIMER***: Please, do not use this tool as a replacement for professional medical advice, but always as a complementary tool to help you manage your T1D")
 
-    print("\nPlease, for any suggestions, feedback or bug reports, contact the developer at: antorguez95@hotmail.com\nYou can also visit the project's GitHub page at:")
-    print("https://github.com/antorguez95/Personalized-AI-Based-Do-It-Yourself-Glucose-Prediction-tool")
+print("\nPlease, for any suggestions, feedback or bug reports, contact the developer at: antorguez95@hotmail.com\nYou can also visit the project's GitHub page at:")
+print("https://github.com/antorguez95/Personalized-AI-Based-Do-It-Yourself-Glucose-Prediction-tool")
+
+your_data_path = "/CGM_forecasting/drop_your_data_here_and_see_your_pred"
+
+os.chdir(your_data_path)
+
+if "your_AI_based_CGM_predictor.h5" not in os.listdir():
 
     # First of all, the users is asked about the directory where the data is stored
+    print("Seems that it is your first time! It's nice having you here!\n")
     print("\n\nLet's begin!\n1) If you haven't download your CGM data, please do it!\n")
     print("2) Once you have your data, please, drop it in the /drop_your_data folder. Otherwise, we will not be able to generate your personalized AI-model!\n")
     
-    # Then, since the preprocesisng and the AI architecture depends on the sensor, the user is asked about the sensor he or she is using 
+    # Then, since the prenprocesisng and the AI architecture depends on the sensor, the user is asked about the sensor he or she is using 
     print("\nNow, please, type the letter corresponding to the glucose sensor model you are using:\n")
     print("a) Abbott - Freestyle Libre 2\nb) Abbott - FreeStyle LibreLink\nc) Abbott - LibreLink\n")
-
     print("***ONLY Abbott sensors have been validated in this version of the tool.***") 
 
     ans = input()
@@ -166,302 +168,381 @@ if "Your_AI_CGM_predictor" not in os.listdir():
         print("\nOh, Sorry! Move back to the previous step and make sure you introduce the right unit! We'll be waiting for you!")
         exit()
     
-    # Save unit for further uses
-    np.save('unit.npy', unit)
-
     # Set Keras to float 64 to work with the ISO-loss function
     tf.keras.backend.set_floatx('float64')
 
-    your_data_path = "/CGM_forecasting/drop_your_data_here_and_see_your_pred"
+    # Save unit for further uses
+    np.save('unit.npy', unit)
 
-    ####################################
-    print(os.getcwd())
-    os.chdir(your_data_path)
-    #######################################
+    print("You don't have your personalized-AI glucose predictor yet.\nNow, your data will be analyzed.")
+    print("If your data does not contain many interruptions, and the CGM samples are enough, your personalized-AI glucose predictor will be generated using your recently uploaded data.") 
 
-    print("EN LA CARPETA DE LOS DATOS", os.listdir())
+    # Analyze the data
+    print("\n\nAnalyzing your data... This could take a few seconds.\n\n")
 
-    if '.h5' not in os.listdir():
-        print("Oh! It seems that you don't have your personalized-AI glucose predictor yet.\nNow, your data will be analyzed.")
-        print("If your data does not contain many interruptions, and the CGM samples are enough, your personalized-AI glucose predictor will be generated using your recently uploaded data.") 
+    data_suitability = get_your_oldest_year_npys_from_LibreView_csv(your_data_path, True)
 
-        # Analyze the data
-        print("\n\nAnalyzing your data... This could take a few seconds.\n\n")
+    # If data is suitable for AI:
+    if data_suitability:
+        print("Congrats! The data you provided is enough to generate and train your personalized-AI glucose predictor!\n")
 
-        data_suitability = get_your_oldest_year_npys_from_LibreView_csv(your_data_path)
+        print("Before proceeding to the AI-model generation, would you like to know more about how your data will be used to generate your personalized-AI glucose predictor? (y/n):")
+        ans = input()
 
-        # If data is suitable for AI:
-        if data_suitability:
-            print("Congrats! The data you provided is enough to generate and train your personalized-AI glucose predictor!\n")
+        if ans == "y":
 
-            print("Before proceeding to the AI-model generation, would you like to know more about how your data will be used to generate your personalized-AI glucose predictor? (y/n):")
-            ans = input()
+            print("\n\nSHIT ABOUT YOUR DATA\n\n")
+            ###### DATA ANALYSIS ######
+            ##########################
+            ##########################
+            ##########################
+            ##########################
 
-            if ans == "y":
+            print("Please, type 'next' once you have finished looking around your data to move to your AI glucose predictor")
+            move_on = input()
 
-                print("\n\nSHIT ABOUT YOUR DATA\n\n")
-                ###### DATA ANALYSIS ######
-                ##########################
-                ##########################
-                ##########################
-                ##########################
-
-                print("Please, type 'next' once you have finished looking around your data to move to your AI glucose predictor")
-                move_on = input()
-
-                if move_on == "next": # A loop here would be nice to not go forward until the user type 'next'
-                    print("\nNice! Now, please, be patient, since this process may take between 1 and 2 hours to complete.")
-                    print("You will be notified when the process is completed.")
-                else: 
-                    raise Exception("Please, enter 'next' to continue.")
-                            
-            elif ans == "n":
-
+            if move_on == "next": # A loop here would be nice to not go forward until the user type 'next'
                 print("\nNice! Now, please, be patient, since this process may take between 1 and 2 hours to complete.")
                 print("You will be notified when the process is completed.")
+            else: 
+                raise Exception("Please, enter 'next' to continue.")
+                        
+        elif ans == "n":
+
+            print("\nNice! Now, please, be patient, since this process may take between 1 and 2 hours to complete.")
+            print("You will be notified when the process is completed.")
+    
+        # Raise exception
+        else: 
+            raise Exception("Please, enter a 'y' or 'n' to continue.")
         
-            # Raise exception
-            else: 
-                raise Exception("Please, enter a 'y' or 'n' to continue.")
+        ######## CODE OF THE IMPLEMENTED AI FRAMEWORK ########
+
+        # TO CHANGE THIS, ADD A DICTIONARY IN your_AI_DIY_parameters.py, or change the parameters of the current dictionary
+        N = first_DIY_version['N'] # 96
+        step = first_DIY_version['step'] # 1
+        PH = first_DIY_version['PH'] # 30
+        input_features = first_DIY_version['input_features'] # 2
+        normalization = first_DIY_version['normalization'] # 'min-max'
+        loss_function = first_DIY_version['loss_function'] # 'ISO_loss'
+
+        epochs = 1 # real value from paper: 20
+        batch_size = 512 # real value from paper: 1
+        lr = 0.0001
+        ##################################################
+
+        # Load user's data and the associated timestamps 
+        recordings = np.load('oldest_1yr_CGM.npy')
+        timestamps = np.load('oldest_1yr_CGM_timestamp.npy', allow_pickle=True)
+
+        os.chdir("..")
+
+        # If the directory "Your_AI_CGM_predictor" is not created, create it
+        if "Your_AI_CGM_predictor" not in os.listdir():
+                os.mkdir("Your_AI_CGM_predictor")
             
-            ######## CODE OF THE IMPLEMENTED AI FRAMEWORK ########
+        # Get into the fold directory
+        os.chdir("Your_AI_CGM_predictor")
 
-            # TO CHANGE THIS, ADD A DICTIONARY IN your_AI_DIY_parameters.py, or change the parameters of the current dictionary
-            N = first_DIY_version['N'] # 96
-            step = first_DIY_version['step'] # 1
-            PH = first_DIY_version['PH'] # 30
-            input_features = first_DIY_version['input_features'] # 2
-            normalization = first_DIY_version['normalization'] # 'min-max'
-            loss_function = first_DIY_version['loss_function'] # 'ISO_loss'
+        # Generating the X and Y to train the AI model. 
+        X, Y, X_times, Y_times = get_LibreView_CGM_X_Y_multistep(recordings, timestamps, libreview_sensors, N, step, PH, plot = True, verbose = 0) 
 
-            epochs = 1 # real value from paper: 20
-            batch_size = 512 # real value from paper: 1
-            lr = 0.0001
-            ##################################################
+        # Generate the tags associated to each Y vector ("hyper", "hypo", "normal") depending of it it contains hyper, hypo or normal values
+        levels_tags = generate_ranges_tags(Y)
 
-            # Load user's data and the associated timestamps 
-            recordings = np.load('oldest_1yr_CGM.npy')
-            timestamps = np.load('oldest_1yr_CGM_timestamp.npy', allow_pickle=True)
+        # Min-max normalization 
+        X_norm = (X - np.min(X))/(np.max(X) - np.min(X))
+        Y_norm = (Y - np.min(X))/(np.max(X) - np.min(X))
 
-            os.chdir("..")
+        # Get 1st derivative of X_norm and concatenated to the original vector
+        X_norm_der = np.diff(X_norm, axis = 1)
+        X_norm_der = np.insert(X_norm_der, -1, X_norm_der[:,-1], axis = 1)
+        X_norm = np.dstack((X_norm, X_norm_der))
 
-            # If the directory "Your_AI_CGM_predictor" is not created, create it
-            if "Your_AI_CGM_predictor" not in os.listdir():
-                    os.mkdir("Your_AI_CGM_predictor")
-                
+        # Generate model (LSTM until now until results are generated)
+        model =  get_LSTM_multi_step(sensor, N=int(N), input_features = input_features, PH=PH)
+        model.save_weights('initial_weights.h5')
+
+        # Compute the number of predicted points that depends on the PH and the sensor sampling period
+        predicted_points = round(PH/sensor['SAMPLE_PERIOD'])
+
+        # Generate the 4-folds # ASSUME THAT THE CHOICE PARTITION IS 4-FOLDS. Changes here imply changes in more parts of the code
+        training_cv_folds  = month_wise_multi_input_LibreView_4fold_cv(X_norm, Y_norm, X_times, Y_times, levels_tags, N, input_features)
+
+        # Results dictionary since the results plotting will depend on RMSE and the model choice on Parkes AB
+        results_dictionary = {}
+
+        # Train and evaluate each folds separately 
+        for fold in training_cv_folds.keys():
+
+            # The model is reinitialized for each fold
+            model.load_weights('initial_weights.h5') 
+
+            # If the directory fold is not created, create it
+            if fold not in os.listdir():
+                os.mkdir(fold)
+            
             # Get into the fold directory
-            os.chdir("Your_AI_CGM_predictor")
+            os.chdir(fold)
 
-            # Generating the X and Y to train the AI model. 
-            X, Y, X_times, Y_times = get_LibreView_CGM_X_Y_multistep(recordings, timestamps, libreview_sensors, N, step, PH, plot = True, verbose = 0) 
+            # Models are trained with weighted samples 
+            weights = generate_weights_vector(training_cv_folds[fold]['train_tags']) 
 
-            # Generate the tags associated to each Y vector ("hyper", "hypo", "normal") depending of it it contains hyper, hypo or normal values
-            levels_tags = generate_ranges_tags(Y)
+            # Initial time
+            t0 = time.time()
 
-            # Min-max normalization 
-            X_norm = (X - np.min(X))/(np.max(X) - np.min(X))
-            Y_norm = (Y - np.min(X))/(np.max(X) - np.min(X))
-
-            # Get 1st derivative of X_norm and concatenated to the original vector
-            X_norm_der = np.diff(X_norm, axis = 1)
-            X_norm_der = np.insert(X_norm_der, -1, X_norm_der[:,-1], axis = 1)
-            X_norm = np.dstack((X_norm, X_norm_der))
-
-            # Generate model (LSTM until now until results are generated)
-            model =  get_LSTM_multi_step(sensor, N=int(N), input_features = input_features, PH=PH)
-            model.save_weights('initial_weights.h5')
-
-            # Compute the number of predicted points that depends on the PH and the sensor sampling period
-            predicted_points = round(PH/sensor['SAMPLE_PERIOD'])
-
-            # Generate the 4-folds # ASSUME THAT THE CHOICE PARTITION IS 4-FOLDS. Changes here imply changes in more parts of the code
-            training_cv_folds  = month_wise_multi_input_LibreView_4fold_cv(X_norm, Y_norm, X_times, Y_times, levels_tags, N, input_features)
-
-            # Results dictionary since the results plotting will depend on RMSE and the model choice on Parkes AB
-            results_dictionary = {}
-
-            # Train and evaluate each folds separately 
-            for fold in training_cv_folds.keys():
-
-                # The model is reinitialized for each fold
-                model.load_weights('initial_weights.h5') 
-
-                # If the directory fold is not created, create it
-                if fold not in os.listdir():
-                    os.mkdir(fold)
-                
-                # Get into the fold directory
-                os.chdir(fold)
-
-                # Models are trained with weighted samples 
-                weights = generate_weights_vector(training_cv_folds[fold]['train_tags']) 
-
-                # Initial time
-                t0 = time.time()
-
-                # One model training per fold
-                print("\n\nTraining your personalized-AI glucose predictor with your data...")
-                
-                train_model(sensor,
-                            model,
-                            X = training_cv_folds[fold]['X_train'],
-                            Y = training_cv_folds[fold]['Y_train'],
-                            N = N,
-                            predicted_points = predicted_points,
-                            epochs = epochs,
-                            batch_size = batch_size,
-                            lr = lr,
-                            fold = fold,
-                            sample_weights=weights, 
-                            loss_function = loss_function,
-                            verbose = 0 
-                            )
-                
-                # Final time
-                t1 = time.time()
-
-                # Model evaluation: SHOW TO USERS? DON'T THINK SO. JUST FOR DEVELOPERS AND MODEL MAINTAINERS
-                results_normal_eval = multi_step_model_evaluation(N, PH, fold, normalization, input_features, training_cv_folds[fold]['X_test'],
-                                        training_cv_folds[fold]['Y_test'], predicted_points, X, loss_function, plot_results=False) 
-
-                results_dictionary[fold] = results_normal_eval
-
-                os.chdir('../..')
-
-            ######## END OF THE CODE RELATED TO THE AI FRAMEWORK ########
-
-            # Choice of the best model considering Parkes AB percentage of the las sample of the prediction
-            # Initialized to 0, will stored the current best parkes in the loop
-            curr_best_parkes = 0 
-            curr_parkes = 0
-            fold_idx = 0 # contain the current fold
-            best_fold_idx = 0 # contain the current best fold
-
-            # Loop over the metrics (idx = 1 because it considers only the 30' prediction)
-            for fold in results_dictionary.keys(): 
-
-                # First iteration is different
-                if fold_idx == 0: 
-                    fold_idx = 1
-                    best_fold_idx = 1
-                    curr_parkes = results_dictionary['1-fold']['PARKES'][predicted_points-1]
-                    curr_best_parkes = results_dictionary['1-fold']['PARKES'][predicted_points-1]
-                
-                else: 
-                    # Update with current fold idx and correspondant Parkes 
-                    fold_idx = fold_idx+1
-                    curr_parkes = results_dictionary[fold]['PARKES'][predicted_points-1]
-
-                    # Comparison and update if current Parkes is better
-                    if curr_parkes > curr_best_parkes: 
-                        curr_best_parkes = curr_parkes 
-                        best_fold_idx = fold_idx
-                    else: 
-                        pass
-
-            match best_fold_idx: 
-                case 1 : 
-                    best_model_key = '1-fold'
-                case 2: 
-                    best_model_key = '2-fold'
-                case 3 : 
-                    best_model_key = '3-fold'
-                case 4: 
-                    best_model_key = '4-fold'
-
-            print("Congrats! Your personalized-AI model for CGM prediction has been successfully generated!\n")
-            print("Time ellapsed to do it: ", t1-t0, " seconds.")
+            # One model training per fold
+            print("\n\nTraining your personalized-AI glucose predictor with your data...")
             
-            # Extract the rmse to plot the prediction with the error bar associated to it
-            rmse = results_dictionary[fold]['RMSE']
-
-            # Make a prediction using the last day (i.e., 96 samples) of the data to show it to the user
-            print("Making a CGM prediction of your next 30 minutes using the last day oy the data you just provided...")
-
-           
-            # Go to the directory where the best model is placed (depends on previous evaluation)
-            os.chdir(best_model_key)
-
-            os.chdir("training")
-
-            # Load the model
-            model = get_LSTM_multi_step(sensor, N=int(N), input_features = input_features, PH=PH) # Assumes LSTM
-            model.load_weights(best_model_key+'.h5')
-
-            # # Go back to "Your_AI_CGM_predictor" directory, where the model will be called further times and save model
-            # os.chdir("../..")
-            # model.save("your_AI_based_CGM_predictor.h5")
-
-            print(os.getcwd())
-            print(os.listdir())
-
-            # Go back to "drop_your_data_and_see_your_pred" directory, where the model will be called further times and save model
-            os.chdir("../../../drop_your_data_here_and_see_your_pred")
-            model.save("your_AI_based_CGM_predictor.h5")
-
-            print("despues de entrar en la carpeta que tacale", os.getcwd())
-            print(os.listdir())
-
-            # Load the last day of the data
-            last_day_norm = X_norm[-96:,-1,:]
-
-            # Reshape to None, 96, 2
-            last_day_norm = last_day_norm.reshape(1, 96, 2)
-
-            # Make the prediction
-            prediction = model.predict(last_day_norm)
-
-            # Extract only the original CGM
-            last_day_norm = last_day_norm[:,:,0]
-
-            # Reshape to ,96
-            last_day_norm = last_day_norm.reshape(96)
-
-            # Denormalize 
-            last_day = last_day_norm*(np.max(X) - np.min(X)) + np.min(X)
-
-            # Take only the last instance of X_times
-            last_day_timestamps = X_times[-1]
+            train_model(sensor,
+                        model,
+                        X = training_cv_folds[fold]['X_train'],
+                        Y = training_cv_folds[fold]['Y_train'],
+                        N = N,
+                        predicted_points = predicted_points,
+                        epochs = epochs,
+                        batch_size = batch_size,
+                        lr = lr,
+                        fold = fold,
+                        sample_weights=weights, 
+                        loss_function = loss_function,
+                        verbose = 0 
+                        )
             
-            # Plot and save the prediction graphics 
-            get_prediction_graphic(last_day, last_day_norm, predicted_points, last_day_timestamps, rmse, unit, prediction)
+            # Final time
+            t1 = time.time()
 
-            # Save the fold and the rmse to know it for further iterations 
-            np.save('best_fold.npy', best_fold_idx)
-            np.save('rmse.npy', rmse)
+            # Model evaluation: SHOW TO USERS? DON'T THINK SO. JUST FOR DEVELOPERS AND MODEL MAINTAINERS
+            results_normal_eval = multi_step_model_evaluation(N, PH, fold, normalization, input_features, training_cv_folds[fold]['X_test'],
+                                    training_cv_folds[fold]['Y_test'], predicted_points, X, loss_function, plot_results=False) 
 
-        # If data is not suitable for AI:
-        if not data_suitability:
+            results_dictionary[fold] = results_normal_eval
 
-            print("Sorry, but the data you provided is not enough to generate and train your personalized-AI glucose predictor.")
-            print("Please, try again with more data samples.")
-            print("If you think that this is an error, please contact the developer/maintainer at: _____")
+            os.chdir('../..')
 
-            print("\n\nDo you want to know more about why did your data not meet the criteria to generate your personalized-AI glucose predictor? (y/n): ")
-            ans = input()
+        ######## END OF THE CODE RELATED TO THE AI FRAMEWORK ########
 
-            if ans == "y": 
-                
-                #################################################
-                # RELLENAR CON INFO SOBRE POR QUE NO SE PUEDE
-                #################################################
-                #################################################
-                #################################################
-                # Information to EMPOWER the user and make him/her understand the process and the requirements to generate the personalized-AI glucose predictor
-                print("\n\n\nDETALLES DE QUE HACE FALTA UN AÑO, DE QUE LAS INTERRUPCIONES SE PENALIZAN, ETC.") 
+        # Choice of the best model considering Parkes AB percentage of the las sample of the prediction
+        # Initialized to 0, will stored the current best parkes in the loop
+        curr_best_parkes = 0 
+        curr_parkes = 0
+        fold_idx = 0 # contain the current fold
+        best_fold_idx = 0 # contain the current best fold
 
-                print("According to our study...blablabla")
-                print("For the algorithm we used, the minimum amount of samples is blablabla\n\n")
+        # Loop over the metrics (idx = 1 because it considers only the 30' prediction)
+        for fold in results_dictionary.keys(): 
 
-
-                print("Hope to see you soon! :)") 
-
-            # User chooses: No 
-            elif ans == "n":
-
-
-                print("\n\nNice! Try to upload a greater amount or data and with less interruptions to be able to generate your personalized-AI glucose predictor!") 
-                print("Hope to see you soon! :)")
+            # First iteration is different
+            if fold_idx == 0: 
+                fold_idx = 1
+                best_fold_idx = 1
+                curr_parkes = results_dictionary['1-fold']['PARKES'][predicted_points-1]
+                curr_best_parkes = results_dictionary['1-fold']['PARKES'][predicted_points-1]
             
             else: 
-                print("Please enter a 'y' or 'n' to continue.")
+                # Update with current fold idx and correspondant Parkes 
+                fold_idx = fold_idx+1
+                curr_parkes = results_dictionary[fold]['PARKES'][predicted_points-1]
+
+                # Comparison and update if current Parkes is better
+                if curr_parkes > curr_best_parkes: 
+                    curr_best_parkes = curr_parkes 
+                    best_fold_idx = fold_idx
+                else: 
+                    pass
+
+        match best_fold_idx: 
+            case 1 : 
+                best_model_key = '1-fold'
+            case 2: 
+                best_model_key = '2-fold'
+            case 3 : 
+                best_model_key = '3-fold'
+            case 4: 
+                best_model_key = '4-fold'
+
+        print("Congrats! Your personalized-AI model for CGM prediction has been successfully generated!\n")
+        print("Time ellapsed to do it: ", t1-t0, " seconds.")
+        
+        # Extract the rmse to plot the prediction with the error bar associated to it
+        rmse = results_dictionary[fold]['RMSE']
+
+        # Make a prediction using the last day (i.e., 96 samples) of the data to show it to the user
+        print("Making a CGM prediction of your next 30 minutes using the last day oy the data you just provided...")
+
+        
+        # Go to the directory where the best model is placed (depends on previous evaluation)
+        os.chdir(best_model_key)
+
+        os.chdir("training")
+
+        # Load the model
+        model = get_LSTM_multi_step(sensor, N=int(N), input_features = input_features, PH=PH) # Assumes LSTM
+        model.load_weights(best_model_key+'.h5')
+
+        # # Go back to "Your_AI_CGM_predictor" directory, where the model will be called further times and save model
+        # os.chdir("../..")
+        # model.save("your_AI_based_CGM_predictor.h5")
+
+        # Go back to "drop_your_data_and_see_your_pred" directory, where the model will be called further times and save model
+        os.chdir("../../../drop_your_data_here_and_see_your_pred")
+        model.save("your_AI_based_CGM_predictor.h5")
+
+        # Load the last day of the data
+        last_day_norm = X_norm[-96:,-1,:]
+
+        # Reshape to None, 96, 2
+        last_day_norm = last_day_norm.reshape(1, 96, 2)
+
+        # Make the prediction
+        prediction = model.predict(last_day_norm)
+
+        # Extract only the original CGM
+        last_day_norm = last_day_norm[:,:,0]
+
+        # Reshape to ,96
+        last_day_norm = last_day_norm.reshape(96)
+
+        # Denormalize 
+        last_day = last_day_norm*(np.max(X) - np.min(X)) + np.min(X)
+
+        # Take only the last instance of X_times
+        last_day_timestamps = X_times[-1]
+        
+        # Plot and save the prediction graphics 
+        get_prediction_graphic(last_day, last_day_norm, predicted_points, last_day_timestamps, rmse, unit, prediction)
+
+        # Save the fold and the rmse to know it for further iterations 
+        np.save('best_fold.npy', best_fold_idx)
+        np.save('rmse.npy', rmse)
+
+    # If data is not suitable for AI:
+    if not data_suitability:
+
+        print("Sorry, but the data you provided is not enough to generate and train your personalized-AI glucose predictor.")
+        print("Please, try again with more data samples.")
+        print("If you think that this is an error, please contact the developer/maintainer at: _____")
+
+        print("\n\nDo you want to know more about why did your data not meet the criteria to generate your personalized-AI glucose predictor? (y/n): ")
+        ans = input()
+
+        if ans == "y": 
+            
+            #################################################
+            # RELLENAR CON INFO SOBRE POR QUE NO SE PUEDE
+            #################################################
+            #################################################
+            #################################################
+            # Information to EMPOWER the user and make him/her understand the process and the requirements to generate the personalized-AI glucose predictor
+            print("\n\n\nDETALLES DE QUE HACE FALTA UN AÑO, DE QUE LAS INTERRUPCIONES SE PENALIZAN, ETC.") 
+
+            print("According to our study...blablabla")
+            print("For the algorithm we used, the minimum amount of samples is blablabla\n\n")
+
+
+            print("Hope to see you soon! :)") 
+
+        # User chooses: No 
+        elif ans == "n":
+
+
+            print("\n\nNice! Try to upload a greater amount or data and with less interruptions to be able to generate your personalized-AI glucose predictor!") 
+            print("Hope to see you soon! :)")
+        
+        else: 
+            print("Please enter a 'y' or 'n' to continue.")
+    
+# Now, if the .h5 is generated, we have to check if we have the full sequence of one day to generate the module. If not, inform the user
+elif 'your_AI_based_CGM_predictor.h5' in os.listdir():
+
+    print("\n\n\nWelcome again! It's always nice having you here!\n\n")
+    print("You already have your personalized-AI glucose predictor!\nYou are able to have an 30' AI-based prediction of your glucose levels!")
+    print("Remember that this prediction is based on your CGM data from your last 24 hours!")
+
+    print("\n\n***IMPORTANT***: due to regulatory issues, this module (unfortunately) don't access to the sensor data in real time, so every time that you want to have a 1-hour prediction, you need to upload your CGM data.")
+    print("***DISCLAIMER***: Please, do not use this tool as a replacement for professional medical advice, but always as a complementary tool to help you manage your T1D")
+
+    print("\n\n\nExtracting the data from your last 24 hours...")
+
+    # Load unit 
+    unit = str(np.load('unit.npy'))
+
+
+    # The (new uploaded) data is read and analyzed from the same folder than the first time 
+    last_day_of_data, last_day_of_data_timestamps, full_sequence  = get_and_check_last_day_of_data(your_keys, your_data_path) 
+
+    # IF EVERYTHING IS OK, PROCEED TO THE PREDICTION
+    if full_sequence:
+
+        # Get the maximum and minimum values of the training to normalize it, so X is loaded.
+        X = np.load('X_001_1_FreeStyle LibreLink_CGM.npy') # Harcoded: check 
+
+        # Get the maximum and minimum of X
+        max = np.max(X)
+        min = np.min(X)
+
+        # Data normalization
+        data_norm = (last_day_of_data - min)/(max - min)
+
+        # Get 1st derivative of the last day of data
+        der = np.diff(data_norm)
+
+        # Add the last point of derivative on the right of the array to have same dimension than the original array
+        der = np.insert(der, -1, der[-1])
+
+        # Stack both vectors
+        model_input = np.dstack((data_norm, der))
+        
+        print("\n\nNice! You don't have CGM readings interruptions in the last 24 hours!")
+        
+        # Go to folder where the model is saved 
+        # os.chdir("Your_AI_CGM_predictor")
+        
+        # Call the model
+        print("Loading your personalized-AI glucose predictor...")
+        model = tf.keras.models.load_model('your_AI_based_CGM_predictor.h5', custom_objects={'ISO_adapted_loss': ISO_adapted_loss})
+
+        # Make the prediction
+        print("Predicting your glucose levels for the next hour...")
+        prediction = model.predict(model_input)
+
+        # Denormalize the prediction
+        denorm_prediction = prediction*(max - min) + min
+
+        # Number of predicted points computed directly from prediction 
+        predicted_points = len(prediction[0])
+
+        # Detect hypoglycemia and hyperglycemia
+        # Check if any of the values is above or below range. Otherwise, it is normal
+        if True in (np.unique(denorm_prediction) > 180):
+            hyperglycemia = True
+        elif True in (np.unique(denorm_prediction) < 70):
+            hypoglycemia = True
+        else : 
+            hypoglycemia = False
+            hyperglycemia = False
+        
+        # Load the RMSE
+        rmse = np.load('rmse.npy')
+
+        # Plot and save the prediction graphics 
+        get_prediction_graphic(last_day_of_data, data_norm, predicted_points, last_day_of_data_timestamps, rmse, unit, prediction)
+
+        # Alert messages 
+        if hyperglycemia:
+            print("Watch out! According to your personalized-AI glucose predictor, you are at risk an HYPERGLYCEMIA in the next 30'!")
+        
+        elif hypoglycemia:
+            print("Watch out! According to your personalized-AI glucose predictor, you are at risk an HYPOGLYCEMIA in the next 30'!")
+        else:  
+            print("Good! According to your personalized-AI glucose predictor, your glucose levels will remain in range in the next 30'!")
+            print("However, remember that this is only an estimation! Don't take it as an absolute truth! :)")
+
+    if not full_sequence:
+        print("\nOops! We have detected some interruptions in your glucose sensor data in the last 24 hours!")
+        print("\nOr maybe you just changed your sensor since you generated your personalized-AI glucose predictor.")
+        print("Unfortunately, we cannot provide you with a prediction now :(")
+
+        print("\nIf it is the latter, please remove all the content of the 'drop_your_data_here_and_see_your_pred' folder, drop a new file with a year of data with the new sensor and execute the docker command again!.")
+        print("Please, try again later!")
+
