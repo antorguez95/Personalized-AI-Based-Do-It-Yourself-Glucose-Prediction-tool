@@ -5,47 +5,47 @@ import pandas as pd
 from typing import Dict, List, Tuple
 
 # Set of keys of all patients (41) to easily access their data in the Libreview files (more .csv files would imply changing this)
-set_of_libreview_keys = [["001", "001", "001", "12-6-2023"],
-            ["003", "001", "001", "12-6-2023"],
-            ["004", "001", "001", "10-7-2023"],
-            ["007", "001", "001", "10-7-2023"], 
-            ["008", "001", "001", "10-7-2023"],
-            ["011", "001", "001", "10-7-2023"],
-            ["013", "001", "001", "10-7-2023"],
-            ["014", "001", "001", "10-7-2023"],
-            ["015", "001", "001", "11-7-2023"],
-            ["019", "001", "001", "11-7-2023"],
-            ["020", "001", "001", "4-9-2023"],
-            ["025", "001", "001", "11-7-2023"],
-            ["026", "001", "001", "11-7-2023"],
-            ["029", "001", "001", "11-7-2023"],
-            ["039", "001", "001", "11-7-2023"],
-            ["042", "001", "001", "11-7-2023"],
-            ["043", "001", "001", "11-7-2023"],
-            ["044", "001", "001", "11-7-2023"],
-            ["045", "001", "001", "11-7-2023"],
-            ["046", "001", "001", "11-7-2023"],
-            ["047", "001", "001", "11-7-2023"],
-            ["048", "001", "001", "11-7-2023"],
-            ["049", "001", "001", "11-7-2023"],
-            ["051", "001", "001", "11-7-2023"],
-            ["052", "001", "001", "4-9-2023"],
-            ["053", "001", "001", "4-9-2023"],
-            ["054", "001", "001", "4-9-2023"],
-            ["055", "001", "001", "4-9-2023"],
-            ["056", "001", "001", "4-9-2023"],
-            ["057", "001", "001", "4-9-2023"],
-            ["058", "001", "001", "4-9-2023"],
-            ["059", "001", "001", "4-9-2023"],
-            ["060", "001", "001", "4-9-2023"],
-            ["061", "001", "001", "4-9-2023"],
-            ["062", "001", "001", "4-9-2023"],
-            ["063", "001", "001", "4-9-2023"],
-            ["064", "001", "001", "4-9-2023"],
-            ["065", "001", "001", "6-9-2023"],
-            ["066", "001", "001", "6-9-2023"],
-            ["067", "001", "001", "6-9-2023"],
-            ["068", "001", "001", "6-9-2023"]]
+# set_of_libreview_keys = [["001", "001", "001", "12-6-2023"],
+#             ["003", "001", "001", "12-6-2023"],
+#             ["004", "001", "001", "10-7-2023"],
+#             ["007", "001", "001", "10-7-2023"], 
+#             ["008", "001", "001", "10-7-2023"],
+#             ["011", "001", "001", "10-7-2023"],
+#             ["013", "001", "001", "10-7-2023"],
+#             ["014", "001", "001", "10-7-2023"],
+#             ["015", "001", "001", "11-7-2023"],
+#             ["019", "001", "001", "11-7-2023"],
+#             ["020", "001", "001", "4-9-2023"],
+#             ["025", "001", "001", "11-7-2023"],
+#             ["026", "001", "001", "11-7-2023"],
+#             ["029", "001", "001", "11-7-2023"],
+#             ["039", "001", "001", "11-7-2023"],
+#             ["042", "001", "001", "11-7-2023"],
+#             ["043", "001", "001", "11-7-2023"],
+#             ["044", "001", "001", "11-7-2023"],
+#             ["045", "001", "001", "11-7-2023"],
+#             ["046", "001", "001", "11-7-2023"],
+#             ["047", "001", "001", "11-7-2023"],
+#             ["048", "001", "001", "11-7-2023"],
+#             ["049", "001", "001", "11-7-2023"],
+#             ["051", "001", "001", "11-7-2023"],
+#             ["052", "001", "001", "4-9-2023"],
+#             ["053", "001", "001", "4-9-2023"],
+#             ["054", "001", "001", "4-9-2023"],
+#             ["055", "001", "001", "4-9-2023"],
+#             ["056", "001", "001", "4-9-2023"],
+#             ["057", "001", "001", "4-9-2023"],
+#             ["058", "001", "001", "4-9-2023"],
+#             ["059", "001", "001", "4-9-2023"],
+#             ["060", "001", "001", "4-9-2023"],
+#             ["061", "001", "001", "4-9-2023"],
+#             ["062", "001", "001", "4-9-2023"],
+#             ["063", "001", "001", "4-9-2023"],
+#             ["064", "001", "001", "4-9-2023"],
+#             ["065", "001", "001", "6-9-2023"],
+#             ["066", "001", "001", "6-9-2023"],
+#             ["067", "001", "001", "6-9-2023"],
+#             ["068", "001", "001", "6-9-2023"]]
 
 def prepare_LibreView_data(your_data_path : str, first_time : bool, save_dict : bool = False) -> Dict:
     
@@ -103,7 +103,7 @@ def prepare_LibreView_data(your_data_path : str, first_time : bool, save_dict : 
         if first_time and ("pickle" in filename or ".npy" in filename) or first_time == False and ("pickle" in filename or ".npy" in filename  or "h5" in filename or "png" in filename) : 
             pass
         elif "ID" not in filename:
-            raise ValueError("Ops! Something went wrong...It seems that you must upload your data again! If this issue persists, please contact the app administrator.")
+            raise ValueError("Oops! Something went wrong...It seems that you must upload your data again! If this issue persists, please contact the app administrator.")
         else:
             pass 
 
@@ -529,16 +529,32 @@ def get_your_oldest_year_npys_from_LibreView_csv(dataset_path : str, first_time 
     # Extract the ID from the uploaded file in the current user directory 
     filename = os.listdir(dataset_path)
 
+
+    # Raise a Value Error to let the user know that data has not been uploaded
+    if ".csv" not in filename[0]:
+        raise ValueError("Oops! Seems that you have not properly uploaded your data at /drop_your_data_here_and_see_your_pred. Please, check it!")
+
     # Selection of the set of libreview keys after MANUALLY insert this entry in the code (TO BE IMPROVED AND STUDIED HOW TO CHANGE IT)
-    your_id = filename[0].split("_")[0][2:] # filename[0] assumes only one element (the very first uploaded .csv)
+    # your_id = filename[0].split("_")[0][2:] # filename[0] assumes only one element (the very first uploaded .csv)
+    ##############################
+    # AQUI ES DONDE HAY QUE AÑADIR TODAS LAS KEYS Y BORRAR LO DE ARRIBA
+    your_id = filename[0].split("_")[0][2:] 
+    your_s = filename[0].split("_")[1][1:]
+    your_r = filename[0].split("_")[2][1:]
+    your_date = filename[0].split("_")[4][:-4]
+
+    your_keys = [your_id, your_s, your_r, your_date] 
+
+    # Y COMENTAr LO DE ABAJO
+    #########################################
     
     # Iterate over all dictionary keys
-    for i in range(0,len(set_of_libreview_keys)):
-        # Iterate until the ID matches the one of the list 
-        if set_of_libreview_keys[i][0] == your_id: 
-            your_keys = set_of_libreview_keys[i]
-        else: 
-            pass
+    # for i in range(0,len(set_of_libreview_keys)):
+    #     # Iterate until the ID matches the one of the list 
+    #     if set_of_libreview_keys[i][0] == your_id: 
+    #         your_keys = set_of_libreview_keys[i]
+    #     else: 
+    #         pass
 
     # This function is employed if you don't have your model. So this is the first time your data is read
     your_libreview_data = prepare_LibreView_data(dataset_path, first_time)

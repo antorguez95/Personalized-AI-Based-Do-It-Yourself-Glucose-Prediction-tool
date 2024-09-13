@@ -467,15 +467,31 @@ elif 'your_AI_based_CGM_predictor.h5' in os.listdir():
     # Load unit 
     unit = str(np.load('unit.npy'))
 
+    
+    # From the recently uploaded data, keys to access data are axtracted
+    for file in os.listdir():
+        if file.endswith(".csv"):
+            filename = file
+            break
+    your_id = filename.split("_")[0][2:] 
+    your_s = filename.split("_")[1][1:]
+    your_r = filename.split("_")[2][1:]
+    your_date = filename.split("_")[4][:-4]
+
+    your_keys = [your_id, your_s, your_r, your_date] 
 
     # The (new uploaded) data is read and analyzed from the same folder than the first time 
     last_day_of_data, last_day_of_data_timestamps, full_sequence  = get_and_check_last_day_of_data(your_keys, your_data_path) 
+
+    # Back to data path 
+    os.chdir(your_data_path)
 
     # IF EVERYTHING IS OK, PROCEED TO THE PREDICTION
     if full_sequence:
 
         # Get the maximum and minimum values of the training to normalize it, so X is loaded.
-        X = np.load('X_001_1_FreeStyle LibreLink_CGM.npy') # Harcoded: check 
+        npy_name = 'X_'+your_id+'_1_FreeStyle LibreLink_CGM.npy'
+        X = np.load(npy_name) # Harcoded: check 
 
         # Get the maximum and minimum of X
         max = np.max(X)
@@ -514,6 +530,10 @@ elif 'your_AI_based_CGM_predictor.h5' in os.listdir():
 
         # Detect hypoglycemia and hyperglycemia
         # Check if any of the values is above or below range. Otherwise, it is normal
+        # Default values
+        hypoglycemia = False
+        hyperglycemia = False
+
         if True in (np.unique(denorm_prediction) > 180):
             hyperglycemia = True
         elif True in (np.unique(denorm_prediction) < 70):
@@ -530,10 +550,10 @@ elif 'your_AI_based_CGM_predictor.h5' in os.listdir():
 
         # Alert messages 
         if hyperglycemia:
-            print("Watch out! According to your personalized-AI glucose predictor, you are at risk an HYPERGLYCEMIA in the next 30'!")
+            print("Watch out! According to your personalized-AI glucose predictor, you are at risk an HYPERGLYCAEMIA in the next 30'!")
         
         elif hypoglycemia:
-            print("Watch out! According to your personalized-AI glucose predictor, you are at risk an HYPOGLYCEMIA in the next 30'!")
+            print("Watch out! According to your personalized-AI glucose predictor, you are at risk an HYPOGLYCAEMIA in the next 30'!")
         else:  
             print("Good! According to your personalized-AI glucose predictor, your glucose levels will remain in range in the next 30'!")
             print("However, remember that this is only an estimation! Don't take it as an absolute truth! :)")
