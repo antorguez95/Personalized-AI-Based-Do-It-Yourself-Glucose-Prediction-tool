@@ -1095,7 +1095,6 @@ def get_LibreView_CGM_X_Y_multistep(recordings : np.array, timestamps : np.array
 
     # Number of blocks in a patient are defined when two consecutive readings surpass 2*sensor["SAMPLE_PERIOD"]
     n_blocks = len(time_diff_mins[np.where(time_diff_mins > glucose_sensor["SAMPLE_PERIOD"]*2)])
-    print("Number of blocks of is %i\n" % (n_blocks))
 
     # Step for the output value identification - 1: For N = 49, the output is 5 min (value 50) / 2: 10 min (value 51) / etc. 
     step = round(prediction_horizon/glucose_sensor["SAMPLE_PERIOD"])
@@ -1111,6 +1110,15 @@ def get_LibreView_CGM_X_Y_multistep(recordings : np.array, timestamps : np.array
     X_end_list = []
     Y_init_list = []
     Y_end_list = []
+
+    ######  THIS HAS BEEN CHANGED FOR THE EXAMPLE GENERAYED IN get_your_toy_cgm_file.py, THAT HAS NOT INTERRUPTIONS
+    # If n_blocks == 1 it means that there is no interruptions, so we can use the whole dataset
+    if n_blocks == 0: 
+        n_blocks = 1
+        starting_idx = np.array([len(recordings)-1]) # The starting is the last index of the array 
+        num_samples = np.zeros((n_blocks, 1))
+    
+    print("Number of blocks of is %i\n" % (n_blocks))
 
     for i in range(0, n_blocks):
     
