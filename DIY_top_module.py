@@ -182,6 +182,20 @@ if "your_AI_based_CGM_predictor.h5" not in os.listdir():
 
     data_suitability = get_your_oldest_year_npys_from_LibreView_csv(your_data_path, True)
 
+    # Read the generated dictionary to save the sensor model 
+    with open('libreview_data_1yr_recordings.pickle', 'rb') as handle:
+        sensor_1yr_data = pickle.load(handle)
+
+    for key in sensor_1yr_data.keys():
+        for key2 in sensor_1yr_data[key].keys():
+            for key3 in sensor_1yr_data[key][key2]:
+                for key4 in sensor_1yr_data[key][key2][key3]:
+                    for key5 in sensor_1yr_data[key][key2][key3][key4]:
+                        your_sensor_model = (list(sensor_1yr_data[key][key2][key3][key4][key5].keys())[0])
+
+    # Save in a npy file the sensor model 
+    np.save('your_sensor_model.npy', your_sensor_model)
+
     # If data is suitable for AI:
     if data_suitability:
         print("Congrats! The data you provided is enough to generate and train your personalized-AI glucose predictor!\n")
@@ -489,8 +503,11 @@ elif 'your_AI_based_CGM_predictor.h5' in os.listdir():
     # IF EVERYTHING IS OK, PROCEED TO THE PREDICTION
     if full_sequence:
 
+        # Load your sensor model
+        sensor_model = str(np.load('your_sensor_model.npy', allow_pickle=True))
+        
         # Get the maximum and minimum values of the training to normalize it, so X is loaded.
-        npy_name = 'X_'+your_id+'_1_FreeStyle LibreLink_CGM.npy'
+        npy_name = 'X_'+your_id+'_1_'+sensor_model+'_CGM.npy'
         X = np.load(npy_name) # Harcoded: check 
 
         # Get the maximum and minimum of X
