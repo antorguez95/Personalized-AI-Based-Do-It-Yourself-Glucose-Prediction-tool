@@ -5,7 +5,7 @@ If you are interested to read about the scientific basis of this work, please ch
 
 ## Use me!  
 ### First time?
-First time is always special, and this is not an exception. The first time you use this module, you will get your personalized AI-glucose predictor. Once you have generated your model, you just have to follow the instructions on [Use me (again)! section](##For-developers and researchers). Currently, this tool only supports the following sensors: 
+First time is always special, and this is not an exception. The first time you use this module, you will get your personalized AI-glucose predictor. Once you have generated your model, you just have to follow the instructions on [Use me (again)! section](### Use me (again)!). Currently, this tool only supports the following sensors: 
 
 #### Included sensors
 | Data source  | Sensors | Input data | 
