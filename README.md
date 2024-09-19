@@ -1,15 +1,9 @@
-# A Personalized AI-based "Do-it-Yourself" for glucose prediction.
-Hi! If you got here, it is very likely that you are interested in blood glucose monitoring, AI, or both! If it is the first case and you are willing to use our tool to track your glucose level in real time (meaning every 5-15 minutes), you can [go directly to](##For-users). If, on the contrary, you are more interested in the development of this tool, this code, or you want to test your own models in this framework, for example. you better [go to the developers section](##For-developers). 
+# A Personalized AI-based "Do-it-Yourself" tool for glucose prediction.
+Hi! If you got here, it is very likely that you are interested in blood glucose monitoring, AI, or both! If it is the first case and you are willing to use our tool to predict your glucose levels with a personalized AI model, [go directly to](##Use me!). If, on the contrary, you are more interested in the development of this tool, the code, or you want to test your own models in this framework, for example, you better [go directly to the developers section](##For-developers and researchers). 
 
-If you are interested to go deep into this work, please check our paper(...) published in journal(...). Besides, if this work somehow helped you with your research work or with a personal project, please, cite out paper.  
+If you are interested to read about the scientific basis of this work, please check our paper [*"An AI-Based “Do-It-Yourself” Module for Interstitial Glucose Forecasting for People with Type 1 Diabetes"*](https://ieeexplore.ieee.org/document/9851514) published on [npj Digital Medicine]([https://www.nature.com/npjdigitalmed/]) scientific journal. Besides, if this work somehow helped you with your research work or with a personal project, please, cite out paper.  
 
-## What's in this repository?
-
-Our work enclosed in the [WARIFA project](https://www.warifa.eu/) 
-
-For more technical details regarding the content of the repository folders, files, etc., please [go to the developers section](##For-developers). 
-
-## For users (Diabetes Mellitus patient or not) 
+## Use me!  
 ### First time? 
 If it's your first time using this tool, here are the detailed steps you should follow, beginning with the terminal requirements to install and run this tool, and with a brief guide to begin to train and run your own personalized AI-based glucose level predictor!  
 
@@ -17,11 +11,14 @@ P.S.: even it seems pretty obvious, this tool is useful for people that has a gl
 
 So far, these are the platforms and the sensors associated to them that are supported by this tool
 
+### Use me (again)!
+
 #### Included sensors
 | Data source  | Sensors | Input data | 
 | ------------- | ------------- | ------------- |
 | LibreView app | FreeStyle Libre | Glucose | 
-| Glooko app  | -  | Glucose, Insulin | 
+| LibreView app | FreeStyle LibreLink | Glucose | 
+| LibreView app | LibreLink | Glucose | 
 
 #### Requirements 
 __ de momento ni puta idea
@@ -50,7 +47,7 @@ If this is your first time using this tool, yo should go first to (____ENLACE SE
     ____ IMAGES
 
 
-## For developers
+## For developers and researchers
 Hi again! If you are here, it is assumed that you have basic knowledge of Python programming and AI, so let's get into it!
 
 ### Requirements 
