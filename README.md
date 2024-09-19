@@ -1,6 +1,5 @@
 # An AI-based "Do-it-Yourself" tool for personalized glucose prediction.
-Hi! If you got here, it is very likely that you are interested in blood glucose monitoring, AI, or both! If it is the first case and you are willing to use this tool to predict your interstitial glucose level with your personalized AI model, [go directly to the *Use me!* section](#Use-me-!). If, on the contrary, you are more interested in the development of this tool, the code, or you want to test your own models in this framework, for example, you better [go directly to the developers and researchers section](#For-developers-and-researchers). 
-
+Hi! If you got here, it is very likely that you are interested in blood glucose monitoring, AI, or both! If it is the first case and you are willing to use this tool to predict your interstitial glucose level with your personalized AI model, [go directly to the *Use me!* section](#Use-me-!). If, on the contrary, you are more interested in the development of this tool, the code, or you want to test your own models in this framework, for example, you better go to [the developers and researchers section](#For-developers-and-researchers). 
 
 If you are interested to read about the scientific basis of this work, please check our paper [*"An AI-Based “Do-It-Yourself” Module for Interstitial Glucose Forecasting for People with Type 1 Diabetes"*](https://ieeexplore.ieee.org/document/9851514) published on [npj Digital Medicine]([https://www.nature.com/npjdigitalmed/]) scientific journal. Besides, if this work somehow helped you with your research work or with a personal project, please, cite out paper.  
 
@@ -20,13 +19,14 @@ At this point, we assume that you have access to your real CGM data. If not, typ
 #### What do you need?
 We have designed this module to be the least overwhelming possible to you. So, to install and execute this module you just need a PC, an open terminal, an the [Docker Desktop installed in your PC](https://docs.docker.com/desktop/). Once you have downloaded it, you can proceed with the next steps: 
 
-- 1) Open your Docker Desktop (if you are not in an admin account, right click and clik on "Run as administrator").
-- 2) Open a terminal. For example, typing "cmd" from the "Search" bar in Windows.
-- 3) In the terminal, go to the directory where you want to install and save this module together with your personalized AI-model. Let's asume the directory `C:\Users\aralmeida`:
+1) Open your Docker Desktop (if you are not in an admin account, right click and clik on "Run as administrator").
+2) Open a terminal. For example, typing "cmd" from the "Search" bar in Windows.
+3) In the terminal, go to the directory where you want to install and save this module together with your personalized AI-model. Let's asume the directory `C:\Users\aralmeida`:
      `cd C:\Users\aralmeida`
-- 4) Now you are in your directory. Let's build the Docker image [(go here if you are interested on this)](https://docs.docker.com/get-started/) to run your model later! Copy and paste the following (the final dot is not a mistake!). 
+4) Now you are in your directory. Let's build the Docker image [(go here if you are interested on this)](https://docs.docker.com/get-started/) to run your model later! Copy and paste the following line (the final dot is not a mistake!). After a few minutes, all you need to have your personalized AI model has been installed. 
      `docker build -t diy_cgm_image . `
-- 5) After a few minutes, all you need to have your personalized AI model has been installed. 
+5) **IMPORTANT**: Create a folder named `/drop_your_data_here_and_see_your_pred`. Place it whenever you want in your PC. This folder is the one that will always be accesed by this app to execute the model and perform your prediction. **DO NOT MOVE OR REMOVE the folder** If you do so, you will have to recreate all this steps with the new directory.
+6)  Now, as the folder name indicates, drop the file with your CGM data (usually ended with `.csv`) in the recently created `/drop_your_data_here_and_see_your_pred` folder. 
   
 
 
