@@ -1,17 +1,11 @@
-# A Personalized AI-based "Do-it-Yourself" tool for glucose prediction.
+# An AI-based "Do-it-Yourself" tool for personalized glucose prediction.
 Hi! If you got here, it is very likely that you are interested in blood glucose monitoring, AI, or both! If it is the first case and you are willing to use this tool to predict your interstitial glucose level with your personalized AI model, [go directly to](##Use me!). If, on the contrary, you are more interested in the development of this tool, the code, or you want to test your own models in this framework, for example, you better [go directly to the developers section](##For-developers and researchers). 
 
 If you are interested to read about the scientific basis of this work, please check our paper [*"An AI-Based “Do-It-Yourself” Module for Interstitial Glucose Forecasting for People with Type 1 Diabetes"*](https://ieeexplore.ieee.org/document/9851514) published on [npj Digital Medicine]([https://www.nature.com/npjdigitalmed/]) scientific journal. Besides, if this work somehow helped you with your research work or with a personal project, please, cite out paper.  
 
 ## Use me!  
-### First time? 
-If it's your first time using this tool, here are the detailed steps you should follow, beginning with the terminal requirements to install and run this tool, and with a brief guide to begin to train and run your own personalized AI-based glucose level predictor!  
-
-P.S.: even it seems pretty obvious, this tool is useful for people that has a glucose sensor to monitor its glucose levels! Even if you have T1DM, T2DM, gestational diabetes... Doesn't matter, this tool will suit you as far as you have a glucose sensor attach to your body! However, if you don't have any sensors... we cannot help you this time! Nonetheless, if you are curious, you can always check the tool if you this example data(____ link a datos que podamos usar publicamente). Maybe you can help us to improve this framework!
-
-So far, these are the platforms and the sensors associated to them that are supported by this tool
-
-### Use me (again)!
+### First time?
+First time is always special, and this is not an exception. The first time you use this module, you will get your personalized AI-glucose predictor. Once you have generated your model, you just have to follow the instructions on [Use me (again)! section](##For-developers and researchers). Currently, this tool only supports the following sensors: 
 
 #### Included sensors
 | Data source  | Sensors | Input data | 
@@ -19,6 +13,16 @@ So far, these are the platforms and the sensors associated to them that are supp
 | LibreView app | FreeStyle Libre | Glucose | 
 | LibreView app | FreeStyle LibreLink | Glucose | 
 | LibreView app | LibreLink | Glucose | 
+
+At this point, we assume that, at this point, you have access to your real CGM data. If not, go to _____SCRIPT DE GENERAR CGM DE MENTIRA _____ to generate a LibreView-like CGM .csv file and play with this module! Same if your sensor is not included in the previous table (we're sorry, we are working on it!). 
+
+#### What do you need?
+We have designed this module to be the least overwhelming possible to you. So, to install and execute this module you just need a PC, an open terminal, an the [Docker Desktop installed in your PC](https://docs.docker.com/desktop/)
+If it's your first time using this tool, here are the detailed steps you should follow, beginning with the terminal requirements to install and run this tool, and with a brief guide to begin to train and run your own personalized AI-based glucose level predictor!  
+
+P.S.: even it seems pretty obvious, this tool is useful for people that has a glucose sensor to monitor its glucose levels! Even if you have T1DM, T2DM, gestational diabetes... Doesn't matter, this tool will suit you as far as you have a glucose sensor attach to your body! However, if you don't have any sensors... we cannot help you this time! Nonetheless, if you are curious, you can always check the tool if you this example data(____ link a datos que podamos usar publicamente). Maybe you can help us to improve this framework!
+
+### Use me (again)!
 
 #### Requirements 
 __ de momento ni puta idea
