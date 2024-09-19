@@ -22,7 +22,7 @@ COPY ./sensor_params.py /CGM_forecasting/code/src/sensor_params.py
 COPY ./training_configs.py /CGM_forecasting/code/src/training_configs.py
 COPY ./your_AI_DIY_parameters.py /CGM_forecasting/code/src/your_AI_DIY_parameters.py
 COPY ./drop_your_data_here_and_see_your_pred /CGM_forecasting/drop_your_data_here_and_see_your_pred
-COPY ./here_is_your_prediction /CGM_forecasting/here_is_your_prediction
+#COPY ./here_is_your_prediction /CGM_forecasting/here_is_your_prediction
 
 
 # From conda create the environment and the required packages 

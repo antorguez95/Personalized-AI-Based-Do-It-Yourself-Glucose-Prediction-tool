@@ -103,16 +103,16 @@ print("""\
                                            |_|                                                
     """)
 
-print("Here, you will be able to have an in-depth analysis of your uploaded CGM data, as well as an AI-based prediction of your glucose level in the next hour!")
-print("\nThis module has been validated, but it is still work in progress. Currently, the following sensor models are supported:\n")
+print("Here, you will be able to have an in-depth analysis of your uploaded CGM data, as well as an AI-based prediction of your glucose level in the next 30 minutes!")
+print("\nThis module has been validated, but it is still work in progress. Currently, the following sensor models are supported:")
 print("\t- Freestyle Libre 2\n\t- FreeStyle LibreLink\n\t- LibreLink")
 
-print("\nThe following input data is required (and supported) for this module:\n\t- CGM data (for now, at 15 minutes intervals)")
+print("\nThe following input data is required (and supported) by this module:\n\t- CGM data (for now, at 15 minutes intervals)")
 
 print("\nWe are currently working on:\n\t- Support for more sensor models\n\t- Adding more data, such as insuline, physical activity, etc.\n\t- More accurate predictions\n\t- More in-depth data analysis\n\t- More user-friendly interface\n\t- More user-friendly error messages\n\t- More user-friendly documentation\n\t- More user-friendly everything")
 
-print("\n\n***IMPORTANT***: due to regulatory issues, this module (unfortunately) don't access to the sensor data in real time, so every time that you want to have a 1-hour prediction, you need to upload your CGM data.")
-print("***DISCLAIMER***: Please, do not use this tool as a replacement for professional medical advice, but always as a complementary tool to help you manage your T1D")
+print("\n\n***IMPORTANT***: due to regulatory issues, this module (unfortunately) don't access to the sensor data in real time (yet), so every time that you want to have your prediction, you need to upload your most recent CGM data.")
+print("***DISCLAIMER***: Please, do not use this tool as a replacement for professional medical advice, but always as a complementary tool to help you to manage your diabetes")
 
 print("\nPlease, for any suggestions, feedback or bug reports, contact the developer at: antorguez95@hotmail.com\nYou can also visit the project's GitHub page at:")
 print("https://github.com/antorguez95/Personalized-AI-Based-Do-It-Yourself-Glucose-Prediction-tool")
@@ -124,33 +124,40 @@ os.chdir(your_data_path)
 if "your_AI_based_CGM_predictor.h5" not in os.listdir():
 
     # First of all, the users is asked about the directory where the data is stored
-    print("Seems that it is your first time! It's nice having you here!\n")
-    print("\n\nLet's begin!\n1) If you haven't download your CGM data, please do it!\n")
+    print("\n\n\nSeems that it is your first time! It's nice having you here!")
+    print("Let's begin!\n1) If you haven't download your CGM data, please do it!")
     print("2) Once you have your data, please, drop it in the /drop_your_data folder. Otherwise, we will not be able to generate your personalized AI-model!\n")
     
     # Then, since the prenprocesisng and the AI architecture depends on the sensor, the user is asked about the sensor he or she is using 
     print("\nNow, please, type the letter corresponding to the glucose sensor model you are using:\n")
-    print("a) Abbott - Freestyle Libre 2\nb) Abbott - FreeStyle LibreLink\nc) Abbott - LibreLink\n")
+    print("a) Abbott - Freestyle Libre 2\nb) Abbott - FreeStyle LibreLink\nc) Abbott - LibreLink\nd) Other (not supported yet)")
     print("***ONLY Abbott sensors have been validated in this version of the tool.***") 
 
     ans = input()
 
-    if ans == "a" or ans == "b" or ans == "c":
+    if ans == "a":
         sensor = libreview_sensors
         sensor_name = "Freestyle Libre 2"
+    elif ans == "b":
+        sensor = libreview_sensors
+        sensor_name = "FreeStyle LibreLink"
+    elif ans == "c":
+        sensor = libreview_sensors
+        sensor_name = "LibreLink"
     else:
-        print("\nSorry, but this tool does not support your sensor. We are currently working on the inclusion of more sensors.")
+        sys.exit("\nSorry, but this tool does not support your sensor. We are currently working on the inclusion of more sensors.")
 
     print("Nice! Could you confirm that your glucose sensor is a " + sensor_name+ "? Just to double check! (y/n)")
     ans = input()
 
     if ans == "y":
-        print("\nGreat! Let's move on!")
+        # print("\nGreat! Let's move on!")
+        pass
     else:
-        print("\nSorry, but this tool does not support your sensor. We are currently working on the inclusion of more sensors.")
+        sys.exit("\nSorry, we need to double check your sensor. Try again and make sure that your sensor is supported by this tool!")
 
     # Now, the user is asked about the unit of the glucose data
-    print("\nPlease, type 'a' if the unit of your glucose data is in 'mg/dL' or, 'b' if it is in 'mmol/L' instead\n")
+    print("\nNow, please, type 'a' if the unit of your glucose data is in 'mg/dL' or, 'b' if it is in 'mmol/L' instead")
     ans = input()
 
     if ans == "a":
@@ -158,15 +165,16 @@ if "your_AI_based_CGM_predictor.h5" not in os.listdir():
     elif ans == "b":
         unit = "mmol/L"
     else:
-        print("\nSorry, but you introduced a wrong letter. Please, type only 'a' or 'b'")
+        # print("\nSorry, but you introduced a wrong letter. Please, type only 'a' or 'b'")
+        sys.exit("\nSorry, but you introduced a wrong letter. Please, try again type only 'a' or 'b'")
 
     print("\nSo, your glucose data is in " + unit + ", are we right? (y/n)")
     ans = input()
     if ans == "y":
         print("\nGreat! Let's move on!")
     else:
-        print("\nOh, Sorry! Move back to the previous step and make sure you introduce the right unit! We'll be waiting for you!")
-        exit()
+        # print("\nOh, Sorry! Move back to the previous step and make sure you introduce the right unit! We'll be waiting for you!")
+        sys.exit("\nOh, sorry! Try again and make sure you introduce the right unit! We'll be waiting for you!")
     
     # Set Keras to float 64 to work with the ISO-loss function
     tf.keras.backend.set_floatx('float64')
@@ -175,7 +183,7 @@ if "your_AI_based_CGM_predictor.h5" not in os.listdir():
     np.save('unit.npy', unit)
 
     print("You don't have your personalized-AI glucose predictor yet.\nNow, your data will be analyzed.")
-    print("If your data does not contain many interruptions, and the CGM samples are enough, your personalized-AI glucose predictor will be generated using your recently uploaded data.") 
+    print("If your data does not contain many interruptions, and the CGM samples are enough, your personalized-AI glucose predictor will be generated using 1 year from your recently uploaded data.") 
 
     # Analyze the data
     print("\n\nAnalyzing your data... This could take a few seconds.\n\n")
@@ -205,7 +213,7 @@ if "your_AI_based_CGM_predictor.h5" not in os.listdir():
 
         if ans == "y":
 
-            print("\n\nSHIT ABOUT YOUR DATA\n\n")
+            print("\n\nTHINGS ABOUT YOUR DATA\n\n")
             ###### DATA ANALYSIS ######
             ##########################
             ##########################
