@@ -17,14 +17,14 @@ First time is always special, and this is not an exception. The first time you u
 At this point, we assume that you have access to your real CGM data. If not, type in the terminal `python get_your_toy_cgm_file.py` to generate a LibreView-like CGM `.csv` file and play with this module! Same if your sensor is not included in the previous table (we're sorry, we are working on it!). 
 
 #### What do you need?
-We have designed this module to be the least overwhelming possible to you. So, to install and execute this module you just need a PC, an open terminal, an the [Docker Desktop installed in your PC](https://docs.docker.com/desktop/). Once you have downloaded it, you can proceed with the next steps: 
+We have designed this module to be the least overwhelming possible to you. So, to install and execute this module you just need a PC, an open terminal, an the [Docker Desktop installed in your PC](https://docs.docker.com/desktop/). Once you have downloaded it, you can proceed with the next steps. If everything goes OK and as far as **you don't replace your CGM sensor**, you only will have to perform this **ONCE**: 
 
 1) Open your Docker Desktop (if you are not in an admin account, right click and clik on "Run as administrator").
 2) Open a terminal. For example, typing "cmd" from the "Search" bar in Windows.
 3) In the terminal, go to the directory where you want to install and save this module together with your personalized AI-model. Let's asume the directory `C:\Users\aralmeida`:
      `cd C:\Users\aralmeida`
 4) Now you are in your directory. Let's build the Docker image [(go here if you are interested on this)](https://docs.docker.com/get-started/) to run your model later! Copy and paste the following line (the final dot is not a mistake!). After a few minutes, all you need to have your personalized AI model has been installed. 
-     `docker build -t diy_cgm_image . `
+     ```docker build -t diy_cgm_image . ```
 5) **IMPORTANT**: Create a folder named `/drop_your_data_here_and_see_your_pred`. Place it whenever you want in your PC. This folder is the one that will always be accesed by this app to execute the model and perform your prediction. **DO NOT MOVE OR REMOVE the folder** If you do so, you will have to recreate all this steps with the new directory.
 6)  Now, as the folder name indicates, drop the file with your CGM data (usually ended with `.csv`) in the recently created `/drop_your_data_here_and_see_your_pred` folder. 
   
