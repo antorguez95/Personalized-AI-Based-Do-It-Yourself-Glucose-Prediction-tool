@@ -75,7 +75,10 @@ From now on, there are the steps you have to follow any time you want to have a 
 ## For developers and researchers
 Hi again! If you are here, it is assumed that you have basic knowledge of Python programming and AI, so let's get into it!
 
-The framework to design this _"Do-It-Yourself"_ AI based module is based on Python 3.10 and TensorFlow XX.XX. Typical libraries for Machine Learning development, such as scikit-learn, or matplotlib for visualization. All the requirements are icluded on `requirement.txt` file. Notice that if you don't use GPU, cuda libraries won't be used. So, if you want to explore the code and/or play with it, introduce your own models, change the data generation parameters, etc., your are in the right place! First of all, create a conda environment. 
+The framework to design this _"Do-It-Yourself"_ AI based module is based on Python 3.10 and TensorFlow 2.6.0. Typical libraries for Machine Learning development, such as scikit-learn, or matplotlib for visualization. All the requirements are icluded on `requirement.txt` file. Notice that if you don't use GPU, cuda libraries won't be used. So, if you want to explore the code and/or play with it, introduce your own models, change the data generation parameters, etc., your are in the right place! First of all, create a conda environment. 
+
+**IMPORTANT!!** Go to the [TensorFlow website](https://www.tensorflow.org/install/source_windows?hl=es-419#gpu) to check the compatibilities between Python, CUDA, cuDNN and Tensorflow versions. 
+
 ```
 conda create -n DIY_for_CGM_pred python=3.10
 ```
@@ -127,16 +130,8 @@ For more information:
 python exp_launcher.py --help
 ```
 
-## compatibilidades con entrenamiento tensorflow y gpu
+## Time to play! Do you want to change the architectures, or include new models?
 
-Go to the [TensorFlow website](https://www.tensorflow.org/install/source_windows?hl=es-419#gpu) to check the compatibilities between Python, CUDA, cuDNN and Tensorflow versions for Windows.
+## Dockerization of the top module to make the "app" 
 
-`conda create -n T1DM_WARIFA_GPU python=3.10`
-`conda activate T1DM_WARIFA_GPU`
-`pip install tensorflow-gpu==2.6.0`
-
-`conda install -c conda-forge xlsxwriter`
-
-`conda install seaborn -c conda-forge`
-
-## How to include your model in this framework: 
+## Something missing? Need help? Any bugs? 
