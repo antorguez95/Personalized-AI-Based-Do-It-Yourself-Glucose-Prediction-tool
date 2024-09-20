@@ -130,8 +130,8 @@ For more information:
 python exp_launcher.py --help
 ```
 
-## Time to play! Do you want to change the architectures, or include new models?
+### Time to play! Do you want to change the architectures, or include new models?
 
-## Dockerization of the top module to make the "app" 
+### Dockerization of the top module to make the "app" 
 
 ## Something missing? Need help? Any bugs? 
