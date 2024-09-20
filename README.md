@@ -1,7 +1,7 @@
-# An AI-based "Do-it-Yourself" tool for personalized glucose prediction. :rotating_light: :pick: 
+# An AI-based "Do-it-Yourself" tool for personalized glucose prediction. :mechanical_arm::robot: 
 Hi! :wave: :smile:  If you got here, it is very likely that you are interested in blood glucose monitoring, AI, or both! If it is the first case and you are willing to use this tool to predict your interstitial glucose level with your personalized AI model, [go directly to the *Use me!* section](#Use-me-!). If, on the contrary, you are more interested in the development of this tool :desktop_computer: :keyboard:, the code, or you want to test your own models in this framework, you better go to [the developers and researchers section](#For-developers-and-researchers):man_technologist::woman_technologist:. 
 
-IMPORTANTE DECIR QUE ELLOS SON LOS UNICOS QUE VAN A PODER ACCEDER EN LOCAL A SUS DATOS Y A SUS MODELOS. NADIE MAS. TODO SE EJECUTA EN EL ORDENADOR. 
+:rotating_light: :pick: IMPORTANTE DECIR QUE ELLOS SON LOS UNICOS QUE VAN A PODER ACCEDER EN LOCAL A SUS DATOS Y A SUS MODELOS. NADIE MAS. TODO SE EJECUTA EN EL ORDENADOR. :rotating_light:
 
 This module has been developed with data from people with **type 1 diabetes**, but of course it is suitable for anyone who has a diabetes-related condition that implies having a glucose sensor attached to your body. :+1: 
 
