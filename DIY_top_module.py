@@ -392,19 +392,13 @@ if "your_AI_based_CGM_predictor.h5" not in os.listdir():
         # Make a prediction using the last day (i.e., 96 samples) of the data to show it to the user
         print("Making a CGM prediction of your next 30 minutes using the last day oy the data you just provided...")
 
-        
         # Go to the directory where the best model is placed (depends on previous evaluation)
         os.chdir(best_model_key)
-
         os.chdir("training")
 
         # Load the model
         model = get_LSTM_multi_step(sensor, N=int(N), input_features = input_features, PH=PH) # Assumes LSTM
         model.load_weights(best_model_key+'.h5')
-
-        # # Go back to "Your_AI_CGM_predictor" directory, where the model will be called further times and save model
-        # os.chdir("../..")
-        # model.save("your_AI_based_CGM_predictor.h5")
 
         # Go back to "drop_your_data_and_see_your_pred" directory, where the model will be called further times and save model
         os.chdir("../../../drop_your_data_here_and_see_your_pred")

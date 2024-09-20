@@ -22,12 +22,15 @@ COPY ./sensor_params.py /CGM_forecasting/code/src/sensor_params.py
 COPY ./training_configs.py /CGM_forecasting/code/src/training_configs.py
 COPY ./your_AI_DIY_parameters.py /CGM_forecasting/code/src/your_AI_DIY_parameters.py
 COPY ./drop_your_data_here_and_see_your_pred /CGM_forecasting/drop_your_data_here_and_see_your_pred
-#COPY ./here_is_your_prediction /CGM_forecasting/here_is_your_prediction
+#COPY ./here_is_your_prediction /CGM_forecasting/here_is_your_prediction 
 
 
 # From conda create the environment and the required packages 
 # To obtain the requirements.txt file : pip freeze > requirements.txt (some things were commented)
 RUN pip install --no-cache-dir -r requirements.txt 
+
+# Install fonts to plot the image 
+
 
 # Add the app top module file 
 COPY ./DIY_top_module.py /CGM_forecasting/code/src/DIY_top_module.py
