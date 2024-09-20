@@ -92,7 +92,7 @@ In your current directory, you should see a file with a name following the forma
 
 Now, you are able to run experiments. It is desirable for you to get access to real CGM data to get real conclusion from this. But, in the meantime, this is enough to play around!
 
-# Brief description of this repository 
+## Brief description of this repository 
 - `app` folder:
 - `drop_here_and_see_your_pred` folder:
 - `evaluation`:
@@ -117,11 +117,15 @@ Now, you are able to run experiments. It is desirable for you to get access to r
 
   ################### PENDING DESCRIPTIONNNNNN ########
 
-### How to run the experiments 
+### Try and run the experiments 
 
-`python exp_launcher.py loss_functions_comparison --model_hyperparameters KERNEL_SIZE STRIDE --training_hyperparameters EPOCHS BATCH_SIZE LEARNING_RATE`
-
-For more information, type `python exp_launcher.py --help`
+```
+python exp_launcher.py loss_functions_comparison --model_hyperparameters KERNEL_SIZE STRIDE --training_hyperparameters EPOCHS BATCH_SIZE LEARNING_RATE
+```
+For more information: 
+```
+python exp_launcher.py --help
+```
 
 ## compatibilidades con entrenamiento tensorflow y gpu
 
