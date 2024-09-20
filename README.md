@@ -19,27 +19,34 @@ At this point, we assume that you have access to your real CGM data. If not, typ
 #### What do you need?
 We have designed this module to be the least overwhelming possible as to you. So, to install and execute this module you just need a PC, an open terminal, an the [Docker Desktop installed in your PC](https://docs.docker.com/desktop/). Once you have downloaded it, you can proceed with the next steps. If everything goes as it should and as far as **you don't replace your CGM sensor**, you only will have to perform these steps **just ONCE**: 
 
-1) Open your Docker Desktop (if you are not in an admin account, right click and clik on "Run as administrator").
+1) Open your Docker Desktop (if you are not in an admin account, right click and click on "Run as administrator").
 2) Open a terminal. For example, typing "cmd" from the "Search" bar in Windows.
 3) In the terminal, go to the directory where you want to install and save this module together with your personalized AI-model. Let's asume the directory `C:\Users\aralmeida`:
 
-   ```cd C:\Users\aralmeida```
+```
+cd C:\Users\aralmeida
+```
    
 5) Now you are in your directory. Let's build the Docker image [(go here if you are interested on this)](https://docs.docker.com/get-started/) to run your model later! Copy and paste the following line (the final dot is not a mistake!). After a few minutes, all you need to have your personalized AI model has been installed. 
-     ```docker build -t diy_cgm_image . ```
-6) **IMPORTANT**: Create a folder named `/drop_your_data_here_and_see_your_pred`. Place it whenever you want in your PC. This folder is the one that will always be accesed by this app to execute the model and perform your prediction. **DO NOT MOVE OR REMOVE the folder** If you do so, you will have to recreate all this steps with the new directory.
-7)  Now, as the folder name indicates, drop the file with your CGM data (usually ended with `.csv`) in the recently created `/drop_your_data_here_and_see_your_pred` folder.
-8)  We are ready to execute this app for the first time. Let's assume that the path were you placed your `/drop_your_data_here_and_see_your_pred` folder is: `C/Users/aralmeida/Downloads/drop_your_data_here_and_see_your_pred`. This is just the common `Downland`folder in Windows. Now, you have to type (or copy/paste) this in your terminal:
 
- 
-     ``` docker run -ti --mount type=bind,source=/C/Users/aralmeida/Downloads/drop_your_data_here_and_see_your_pred,target=/CGM_forecasting/drop_your_data_here_and_see_your_pred diy_cgm_image ```
+```
+docker build -t diy_cgm_image .
+```
+
+7) **IMPORTANT**: Create a folder named `/drop_your_data_here_and_see_your_pred`. Place it whenever you want in your PC. This folder is the one that will always be accesed by this app to execute the model and perform your prediction. **DO NOT MOVE, REMOVE, OR CHANGE THE NAME of the folder** If you do so, you will have to recreate all this steps with the new directory.
+8)  Now, drop the file with your CGM data (usually ended with `.csv`) in the recently created `/drop_your_data_here_and_see_your_pred` folder.
+9)  We are ready to execute this app for the first time. Let's assume that the path were you placed your `/drop_your_data_here_and_see_your_pred` folder is: `C/Users/aralmeida/Downloads/drop_your_data_here_and_see_your_pred`. As you can see, I created my folder just in the common `Downland`folder in Windows. Now, you have to type (or copy/paste) this in your terminal **with your own directory, of course!**:
+
+```
+docker run -ti --mount type=bind,source=/C/Users/aralmeida/Downloads/drop_your_data_here_and_see_your_pred,target=/CGM_forecasting/drop_your_data_here_and_see_your_pred diy_cgm_image
+```
 
 **WARNING**: if you, let's say, change the folder (for example) from `C/Users/aralmeida/Downloads/drop_your_data_here_and_see_your_pred` to `C/Users/aralmeida/Desktop/drop_your_data_here_and_see_your_pred`, you should replace `source=/C/Users/aralmeida/Downloads/drop_your_data_here_and_see_your_pred`by `source=/C/Users/aralmeida/Desktop/drop_your_data_here_and_see_your_pred`. Just that.  
 
-8) If everything went good, now you should see some interactive stuff. You will be asked about the model of your CGM sensor, the glucose concentration units you are used to, or if you want to know a little bit more about the relation of your CGM data and the AI. ___
-   a)
+8) If everything went good, now you should see some interactive stuff on your terminal. You will be asked about the model of your CGM sensor, the glucose concentration units you are used to, or if you want to know a little bit more about the relation of your CGM data and the AI. At this point, two different things could happen: 
+   a) **THE IDEAL CASE**: the year that will be used to generate and train your AI model do not contain too may interruptions an this app is able to generate a reliable AI-based predictor.
+   b) **BAD NEWS**: the year extracted from your uploaded CGM data contains too many interruptions to reliably generate an AI model. This is maybe due to sensor disonnections, or misfunctions... We are sorry! The good news is that you can always go to the first step when you have more data available! 
   
-
 
 P.S.: even it seems pretty obvious, this tool is useful for people that has a glucose sensor to monitor its glucose levels! Even if you have T1DM, T2DM, gestational diabetes... Doesn't matter, this tool will suit you as far as you have a glucose sensor attach to your body! However, if you don't have any sensors... we cannot help you this time! Nonetheless, if you are curious, you can always check the tool if you this example data(____ link a datos que podamos usar publicamente). Maybe you can help us to improve this framework!
 
