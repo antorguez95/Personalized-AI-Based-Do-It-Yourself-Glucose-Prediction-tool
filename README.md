@@ -57,6 +57,21 @@ Until now, everytime you want to use this app, you have to follow the simple ste
 
 ### Use me (again)!
 
+Hi again! If you are here, it means you have `your_AI_based_CGM_predictor.h5` file in your `/drop_your_data_here_and_see_your_pred` folder, and you want to get now a personalized prediction of your next 30 minutes. 
+   1) Download your data in a `.csv` file, containing at least your last 24 hours of CGM readings.
+   2) Drop it in the `/drop_your_data_here_and_see_your_pred` folder.
+   3) Open a terminal in your PC and execute the following lines (remember to replace 'APP_DIRECTORY' (same as step 3 of [Use me! section](#Use-me!)) and 'YOUR_DATA_DIRECTORY/drop_your_data_here_and_see_your_pred' by the directory where you save your CGM file:
+   ```
+   cd APP_DIRECTORY
+   ```
+   
+   ```
+   docker run -ti --mount type=bind,source=/YOUR_DATA_DIRECTORY/drop_your_data_here_and_see_your_pred,target=/CGM_forecasting/drop_your_data_here_and_see_your_pred diy_cgm_image
+   ```
+   4) Now, the terminal will promtp you with some messages. If you had CGM readings interruptions in your last 24 hours, we cannot provide a reliable prediction. We are sorry! If your data was OK, please check the `your_last_prediction.png` picture with your updated prediction. And, please, never take this as an absolute truth! This is jsust an AI-based prediction!
+
+From now on, there are the steps you have to follow any time you want to have a personalized glucose prediction based on your own AI model! 
+
 #### Requirements 
 __ de momento ni puta idea
 #### Instalation process
