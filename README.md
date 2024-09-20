@@ -70,41 +70,52 @@ Hi again! If you are here, it means you have `your_AI_based_CGM_predictor.h5` fi
    ```
    4) Now, the terminal will promtp you with some messages. If you had CGM readings interruptions in your last 24 hours, we cannot provide a reliable prediction. We are sorry! If your data was OK, please check the `your_last_prediction.png` picture with your updated prediction. And, please, never take this as an absolute truth! This is jsust an AI-based prediction!
 
-From now on, there are the steps you have to follow any time you want to have a personalized glucose prediction based on your own AI model! 
-
-
-
-
+From now on, there are the steps you have to follow any time you want to have a personalized glucose prediction based on your own AI model! Hope this help you with your diabetes! 
 
 ## For developers and researchers
-Hi again! If you are here, it is assumed that you have basic knowledge of Python programming and AI, so let's get into it! The framework to design this _"Do-It-Yourself"_ AI based module is based on Python 3.10 and TensorFlow XX.XX. Typical libraries for Machine Learning development, such as scikit-learn, or matplotlib for visualization. All the requirements are icluded on `requirement.txt` file. Notice that if you don't use GPU, cuda libraries won't be used. So, if you want to explore the code and/or play with it, introduce your own models, change the data generation parameters, etc., your are in the right place! First of all, create a conda environment. 
+Hi again! If you are here, it is assumed that you have basic knowledge of Python programming and AI, so let's get into it!
+
+The framework to design this _"Do-It-Yourself"_ AI based module is based on Python 3.10 and TensorFlow XX.XX. Typical libraries for Machine Learning development, such as scikit-learn, or matplotlib for visualization. All the requirements are icluded on `requirement.txt` file. Notice that if you don't use GPU, cuda libraries won't be used. So, if you want to explore the code and/or play with it, introduce your own models, change the data generation parameters, etc., your are in the right place! First of all, create a conda environment. 
 ```
 conda create -n DIY_for_CGM_pred python=3.10
 ```
 Then, install all the required libraries. 
 ```
-pip install requirements.txt
+pip install --no-cache-dir -r requirements.txt 
 ```
+Now, you before running any experiments, you would need some CGM data. If you don't have any '.csv' file directly downloaded from the LibreView app, which could happen, execute the following script: 
 
+```
+python get_your_toy_cgm_file.py
+```
+In your current directory, you should see a file with a name following the format that imitates LibreView-generated files: `IDXXX_SXXX_RXXX_glucose_DD-MM-YYY.csv`. Inside, there are fake CGM readings that do not follow any CGM patterns, just random numbers between the physiological glucose level limits. This data is in 'mg/dL'. 
 
+Now, you are able to run experiments. It is desirable for you to get access to real CGM data to get real conclusion from this. But, in the meantime, this is enough to play around!
 
+# Brief description of this repository 
+- `app` folder:
+- `drop_here_and_see_your_pred` folder:
+- `evaluation`:
+    - kkkk
+- `models`:
+     - `mmm`:
+     - `ooo`:
+- `DIY_top_module_file.py`
+- `Dockerfile`
+- `final_tests.py`
+- `get_your_toy_cgm_file.py`
+- `LibreView_exp_launcher.py`
+- `libreview_utils.py`
+- `main_libreview.py`
+- `README.md`
+- `requirements.txt`
+- `results_analysis.py`
+- `sensor_params.py`
+- `training_configs.py`
+- `utils.py`
+- `your_AI_DIY_parameters.py`
 
-
-      
-### Requirements 
-
-`conda create -n T1DM_WARIFA python=3.10`
-
-`conda install -c anaconda pandas`
-`conda install -c conda-forge matplotlib`
-`conda install -c conda-forge tensorflow` 
-`pip install pydot`
-`conda install -c anaconda graphviz`
-`conda install -c conda-forge shapely`
-`conda install -c anaconda scikit-learn`
-`conda install -c anaconda openpyxl`
-`conda install -c anaconda statsmodels`
-
+  ################### PENDING DESCRIPTIONNNNNN ########
 
 ### How to run the experiments 
 
