@@ -16,7 +16,7 @@ First time is always special, and this is not an exception. The first time you u
 | LibreView app | FreeStyle LibreLink | Glucose | 
 | LibreView app | LibreLink | Glucose | 
 
-At this point, we assume that you have access to your real CGM data. If not, type in the terminal `python get_your_toy_cgm_file.py` to generate a LibreView-like CGM `.csv` file and play with this module! Same if your sensor is not included in the previous table (we're sorry, we are working on it!). 
+At this point, we assume that you have access to your real CGM data. If not, type in the terminal `python get_your_toy_cgm_file.py` to generate a LibreView-like CGM `.csv` file and play with this module! Same if your sensor is not included in the previous table (we're sorry, we are working on it!). Of course, to run this script, you need to have Python installed on your PC!
 
 #### What do you need?
 We have designed this module to be the least overwhelming possible as to you. So, to install and execute this module you just need a PC, an open terminal, an the [Docker Desktop installed in your PC](https://docs.docker.com/desktop/). Once you have downloaded it, you can proceed with the next steps. If everything goes as it should and as far as **you don't replace your CGM sensor**, you only will have to perform these steps **just ONCE**: 
@@ -72,36 +72,25 @@ Hi again! If you are here, it means you have `your_AI_based_CGM_predictor.h5` fi
 
 From now on, there are the steps you have to follow any time you want to have a personalized glucose prediction based on your own AI model! 
 
-#### Requirements 
-__ de momento ni puta idea
-#### Instalation process
-__ de momento ni puta idea
-#### First use
-Now that you install all the necessary stuff, you are ready to deploy your own AI-based glucose level predictor! 
-    
-        1) Go to ___
-        2) Upload your ´.csv´ file downladed from your 'LibreView' or 'Glooko' personal account. An analysis of the uploaded file will be automatically done. There are two options:
-            a) The amount of data recorded by your sensor is enough to develop a fully-personalized model. (____ AÑADIR MINIMO DE DATOS, RECOMENDACION DE QUE ENVIEN + DEL MINIMO PORSIACA)
-            b) The amount of data recorded by your sensor is too little to develop a enough reliable AI model. A global AI model is used, and you data is used to partially-personalized the model.
-        3) After waiting some time (around 1 hour), your model will be ready to recieve data from your sensor and provide real-time 1-hour predictions, being updated with every reading of the sensor. 
 
-        ____ IMAGES
-        
-### Do you want to update your model with more data?
-If this is your first time using this tool, yo should go first to (____ENLACE SECCION). If you want to update your model with more data, welcome again! The more data you provide to your AI-model, the better will it be performing! So, if you want to update your AI-based glucose level predictor, please check out the following steps: 
-        
-        1) Go to ____
-        2) Upload your '.csv' file downladed from your 'LibreView' or 'Glooko' personal account. An analysis of the uploaded file will be automatically done. There are two options, but these are different 
-            a) 
-            b) 
-        3) After waiting for some time (depending of the amount of data uploaded to update the model, but it shouldn't take more than 15 minutes), your re-trained AI-predictor is ready to work again!
 
-    ____ IMAGES
 
 
 ## For developers and researchers
-Hi again! If you are here, it is assumed that you have basic knowledge of Python programming and AI, so let's get into it!
+Hi again! If you are here, it is assumed that you have basic knowledge of Python programming and AI, so let's get into it! The framework to design this _"Do-It-Yourself"_ AI based module is based on Python 3.10 and TensorFlow XX.XX. Typical libraries for Machine Learning development, such as scikit-learn, or matplotlib for visualization. All the requirements are icluded on `requirement.txt` file. Notice that if you don't use GPU, cuda libraries won't be used. So, if you want to explore the code and/or play with it, introduce your own models, change the data generation parameters, etc., your are in the right place! First of all, create a conda environment. 
+```
+conda create -n DIY_for_CGM_pred python=3.10
+```
+Then, install all the required libraries. 
+```
+pip install requirements.txt
+```
 
+
+
+
+
+      
 ### Requirements 
 
 `conda create -n T1DM_WARIFA python=3.10`
