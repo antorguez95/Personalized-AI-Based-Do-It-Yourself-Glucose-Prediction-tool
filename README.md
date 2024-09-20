@@ -1,6 +1,8 @@
 # An AI-based "Do-it-Yourself" tool for personalized glucose prediction.
 Hi! If you got here, it is very likely that you are interested in blood glucose monitoring, AI, or both! If it is the first case and you are willing to use this tool to predict your interstitial glucose level with your personalized AI model, [go directly to the *Use me!* section](#Use-me-!). If, on the contrary, you are more interested in the development of this tool, the code, or you want to test your own models in this framework, you better go to [the developers and researchers section](#For-developers-and-researchers). 
 
+This module has been developed with data from people with **type 1 diabetes**, but of course it is suitable for anyone who has a diabetes-related condition that implies having a glucose sensor attached to your body. 
+
 If you are interested to read about the scientific basis of this work, please check our paper [*"An AI-Based “Do-It-Yourself” Module for Interstitial Glucose Forecasting for People with Type 1 Diabetes"*](https://ieeexplore.ieee.org/document/9851514) published on [npj Digital Medicine](https://www.nature.com/npjdigitalmed/) scientific journal. Besides, if this work somehow helped you with your research work or with a personal project, please, cite out paper.  
 
 ## Use me!  
@@ -44,11 +46,14 @@ docker run -ti --mount type=bind,source=/C/Users/aralmeida/Downloads/drop_your_d
 **WARNING**: if you, let's say, change the folder (for example) from `C/Users/aralmeida/Downloads/drop_your_data_here_and_see_your_pred` to `C/Users/aralmeida/Desktop/drop_your_data_here_and_see_your_pred`, you should replace `source=/C/Users/aralmeida/Downloads/drop_your_data_here_and_see_your_pred`by `source=/C/Users/aralmeida/Desktop/drop_your_data_here_and_see_your_pred`. Just that.  
 
 8) If everything went good, now you should see some interactive stuff on your terminal. You will be asked about the model of your CGM sensor, the glucose concentration units you are used to, or if you want to know a little bit more about the relation of your CGM data and the AI. At this point, two different things could happen: 
-   - a) **THE IDEAL CASE**: the year that will be used to generate and train your AI model do not contain too may interruptions an this app is able to generate a reliable AI-based predictor.
-   - b) **BAD NEWS**: the year extracted from your uploaded CGM data contains too many interruptions to reliably generate an AI model. This is maybe due to sensor disonnections, or misfunctions... We are sorry! The good news is that you can always go to the first step when you have more data available! 
-  
+   -  **THE IDEAL CASE**: the year that will be used to generate and train your AI model do not contain too may interruptions an this app is able to generate a reliable AI-based predictor.
+   -  **BAD NEWS**: the year extracted from your uploaded CGM data contains too many interruptions to reliably generate an AI model. This is maybe due to sensor disonnections, or misfunctions... We are sorry! The good news is that you can always go to the first step when you have more data available!
 
-P.S.: even it seems pretty obvious, this tool is useful for people that has a glucose sensor to monitor its glucose levels! Even if you have T1DM, T2DM, gestational diabetes... Doesn't matter, this tool will suit you as far as you have a glucose sensor attach to your body! However, if you don't have any sensors... we cannot help you this time! Nonetheless, if you are curious, you can always check the tool if you this example data(____ link a datos que podamos usar publicamente). Maybe you can help us to improve this framework!
+9) Let's assume the best scenario. You were able to generate your AI model (after a few hours...). If you gou to your `/drop_your_data_here_and_see_your_pred` you will see a few things. You just have to focus on two.
+   - `your_AI_based_CGM_predictor.h5`. This is **your personalized AI model for your glucose level predictions!** Isn't it great?? Please, do not delete this file. If you do so, you will have to repeat all this process.
+   - `your_last_prediction.png`. This is an example prediction. Of course, this prediction is not useful, since it goes after the model generation, that took a couple of hours. As you can see, the model takes the data from your last **24 hours**, and performs a predcition of your next 30'. The red shadow shows the error of each instant, that has been calculated from your data. From now on, everytime you execute this app, this picture will be overwritten with your most recent prediction, so this is what you will see! Unfortunately, if your last day contains CGM reading interruptions, the model will not be able to provide you with a prediction.
+
+Until now, everytime you want to use this app, you have to follow the simple steps described in [Use me (again)! section](#Use-me-(again)!). 
 
 ### Use me (again)!
 
