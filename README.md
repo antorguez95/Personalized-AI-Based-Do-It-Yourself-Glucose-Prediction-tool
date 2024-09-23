@@ -86,6 +86,8 @@ The framework to design this _"Do-It-Yourself"_ AI based module is based on Pyth
 
 **IMPORTANT :bangbang:** Go to the [TensorFlow website](https://www.tensorflow.org/install/source_windows?hl=es-419#gpu) to check the compatibilities between Python, CUDA, cuDNN and Tensorflow versions. 
 
+After cloning this repository, go to the main folder and copy and paste the following:
+
 ```
 conda create -n DIY_for_CGM_pred python=3.10
 ```
