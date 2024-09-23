@@ -125,7 +125,9 @@ __The most interesting files and folders to play, modify, and/or add stuff, such
 - :page_facing_up:`sensor_params.py`:rotating_light: - This file contains dictionaries containing the sensor information needed to generate the datasets, models and their evaluation. **TO ADD A SENSOR** create a dictionary here. The framework is parametrized, so no changes in the code are required further than the call of this sensor from `main_libreview.py`. 
 - :page_facing_up:`training_configs.py`:rotating_light: - Training configurations to run the experiments. As with the sensors, create your own dictionary and call it from the `main_libreview.py`.
 - :page_facing_up:`utils.py` - Functions for data curation, dataset generation, or weights and tags generation. 
-- :page_facing_up:`your_AI_DIY_parameters.py`:rotating_light: - Contains dictionaries to test your favourite configuration in the execution of the app. This is called by 'DIY_top_module.py'. 
+- :page_facing_up:`your_AI_DIY_parameters.py`:rotating_light: - Contains dictionaries to test your favourite configuration in the execution of the app. This is called by 'DIY_top_module.py'.
+
+FALTA TRAINIIIIIIIIIIIIIIIIIIIIIIIIIIIING,PY
 
 ### Try and run the experiments 
 
@@ -152,10 +154,56 @@ For more information:
 python exp_launcher.py --help
 ```
 
-After the execution of the experiments. See more in the functions docummentation. 
+After the execution of the experiments, you will see many files and folders created, since this is thought to run a big number of experients with different variantes of the same parameter, as you can see in the code. For every validation fold, you have a dedicated `/evaluation` folder with some results graphs. For every included individual on the experiment there is a folder with his/her `id`. For each `id`, there is a `results_dictionary.json`file with all the results. From this, results can be studied and compared within trainig strategies, subjects, DL models, etc. Now it's the moment to try your own experiments! (See further details in the functions and code documentation).  
 
 ### Time to play! Do you want to change the architectures, or include new models?
+Now comes the interesting part! Let's assume that you have several `.csv` files containing __real__ CGM data. Otherwise, there is not much sense in running these experiments. Let's also assume that your files are also downloaded from the LibreView app. Otherwise, the functions such as `get_oldest_year_npys_from_LibreView_csv`, or `prepare_LibreView_data` __MUST BE REPLACED__. If this is your case, you should spend a while coding these functions to fit your files to the DL framework. Once this is done, we can proceed with the experimentation. We will skip things like normalization techniques, o cross-validation implementation. But changes here are straightworward by adding a different case in the `if else` sentences. 
 
-## Something missing? Need help? Any bugs? 
+#### 1. Your sensor
+Declare a new dictionary inside `sensor_params.py`. 
 
-:email:
+   ```
+   your_new_glucose_sensor = freestyle_libre_3 = {
+       "NAME" : "Your sensor",
+       "CGM" : True,
+       "INSULIN" : False, # This framework does not currently support insulin data 
+       "SAMPLE_PERIOD" : 5, # Minutes between consecutive readings
+       }
+   ```
+
+#### 2. Your new DL model.
+   1) Go to `/models/multi_step` folder and create a `.py` file containing the TensorFlow. For example, `my_new_model.py`. Copy and paste the function structure from on of the other files contained in this folder.
+   2) Import the model in `main_libreview.py` as it is done for the rest of the models.
+   3) Include a new case in the `if else` sentence (around line 250), with a recognizable string. For example `"my_new_model"`. Keep consistency with this identifier in the next steps. 
+   4) You are ready to test your model!
+
+#### 3. Your training configuration.
+Of course, there are model hyperparameters that are not adjustable for diverse DL models (LSTMs do not have kernels, and CNNs do not have a forget gate, for example), but some architectural designs can be fixed for all models for a more fair comparison. So, go to the `training_config.py` and add a new dictionary with your desired trainig configuration.
+
+   ```
+   your_new_training_config = {'sensor' : [your_new_glucose_sensor],
+                   'N' : [96], # Input window length (number of CGM samples)
+                   'step' : [1], # Step from one sample to the next one to generate the dataset to train the models
+                   'PH' : [30, 60], # Prediction Horizon (how far ahead the model predicts) 
+                   'single_multi_step' : ['multi'], # Single step or multi step prediction
+                   'partition' : ['month-wise-4-folds'], # Data partition. See more details on our paper or in month_wise_LibreView_4fold_cv() in models/training.py
+                   'normalization' : ['min-max'], # Data normalization
+                   'under_over_sampling' : [None],  # Under- of Oversampling
+                   'model' : ['my_new_model'], # Models to test. Can be more than one, as far as they are properly included within the code. 
+                   'loss_function' : ['root_mean_squared_error'], # Currently MSE and our in-house designed ISO-adapted loss functions are supported
+                   } 
+   ```
+
+Now that you have filled your dictionary, the experiment launcher should recognized the string associated with the dictionary of your new configuration, so you have to go to `LibreView_exp_launcher.py`and add the case in the `if else` sentence of `args.training_config`. Let's give it the same name as the dictionary; `your_new_training_config`.  
+
+#### 4. Run the script with your desired configuration
+Don't worry if parameters like `KERNEL SIZE` do not apply to your model. They will be ignored. Let's launch a training with just 1 input, and without weighting the samples. Kernel size and stride are 1 both. Finally, we will run 10 epochs, with a batch size of 2 and a learning rate of 0.0001. 
+
+```
+
+```
+
+
+## Something missing? Need help? Any bugs? Suggestions?  
+
+:email: antorguez95@hotmail.com
