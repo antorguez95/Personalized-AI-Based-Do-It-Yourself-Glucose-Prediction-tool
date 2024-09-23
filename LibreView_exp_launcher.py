@@ -64,7 +64,7 @@ parser.add_argument("input_features", help='Input features to use in the model. 
                     choices=[1,2], type=int)
 
 # Add the weight samples (True or False) as a mandatory argument
-parser.add_argument("weight_samples", help='Weight the samples (hypo, hyper or normal range) in the loss function. The weights are hard-coded in \'main_libreview.py\' True or False',
+parser.add_argument("weight_samples", help='Weight the samples (hypo, hyper or normal range) in the training process. True or False',
                     choices=['True', 'False'], type=str)
 
 # Add the training hyperparameters as optional arguments
