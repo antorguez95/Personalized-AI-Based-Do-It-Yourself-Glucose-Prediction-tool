@@ -98,7 +98,7 @@ Now, you before running any experiments, you would need some CGM data. If you do
 ```
 python get_your_toy_cgm_file.py
 ```
-In your current directory, you should see a file with a name following the format that imitates LibreView-generated files: `IDXXX_SXXX_RXXX_glucose_DD-MM-YYY.csv`. Inside, there are fake CGM readings that do not follow any CGM patterns, just random numbers between the physiological glucose level limits. This data is in 'mg/dL'. 
+In your current directory, you should now see a file with a name following the format that imitates LibreView-generated files: `IDXXX_SXXX_RXXX_glucose_DD-MM-YYY.csv`. Inside, there are fake CGM readings that do not follow any CGM patterns, just random numbers between the physiological glucose level limits. This data is in 'mg/dL'. 
 
 Now, you are able to run experiments. It is desirable for you to get access to real CGM data to get real conclusion from this. But, in the meantime, this is enough to play around!
 
