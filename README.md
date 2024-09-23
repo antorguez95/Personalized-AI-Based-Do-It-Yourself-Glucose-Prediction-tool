@@ -82,11 +82,11 @@ From now on, these are the steps you have to follow any time you want to have a 
 ## For developers and researchers :man_technologist::woman_technologist:
 Hi again! If you are here, it is assumed that you have basic knowledge of Python programming and AI, so let's get into it!
 
-The framework to design this _"Do-It-Yourself"_ AI based module is based on Python 3.10 and TensorFlow 2.6.0. Typical libraries for Machine Learning development, such as `scikit-learn`, or `matplotlib` for visualization. All the requirements are included in the `requirement.txt` file. Notice that if you don't use GPU, cuda libraries won't be used. So, if you want to explore the code and/or play with it, introduce your own models, change the data generation parameters, etc., your are in the right place! First of all, create a conda environment. 
+The framework to design this _"Do-It-Yourself"_ AI based module is based on Python 3.10 and TensorFlow 2.6.0. Typical libraries for Machine Learning development, such as `scikit-learn`, or `matplotlib` for visualization. All the requirements are included in the `requirement.txt` file. Notice that if you don't use GPU, cuda libraries won't be used. So, if you want to explore the code and/or play with it, introduce your own models, change the data generation parameters, etc., your are in the right place! 
 
 **IMPORTANT :bangbang:** Go to the [TensorFlow website](https://www.tensorflow.org/install/source_windows?hl=es-419#gpu) to check the compatibilities between Python, CUDA, cuDNN and Tensorflow versions. 
 
-After cloning this repository, go to the main folder and copy and paste the following:
+After cloning this repository, go to the main folder and, first of all, create a conda environment with the Python 3.10 version.
 
 ```
 conda create -n DIY_for_CGM_pred python=3.10
