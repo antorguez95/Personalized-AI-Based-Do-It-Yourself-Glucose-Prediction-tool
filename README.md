@@ -105,43 +105,56 @@ In your current directory, you should now see a file with a name following the f
 Now, you are able to run experiments. It is desirable for you to get access to real CGM data to get real conclusion from this. But, in the meantime, this is enough to play around!
 
 ## Brief description of this repository 
-- :file_folder:`app` :
-- :file_folder:`drop_here_and_see_your_pred`:
-- :file_folder:`evaluation`:
-    - kkkk
-- :file_folder:`models`:
-     - `mmm`:
-     - `ooo`:
-- `DIY_top_module_file.py`
-- `Dockerfile`
-- `final_tests.py`
-- `get_your_toy_cgm_file.py`
-- `LibreView_exp_launcher.py`
-- `libreview_utils.py`
-- `main_libreview.py`
-- `README.md`
-- `requirements.txt`
-- `results_analysis.py`
-- `sensor_params.py`
-- `training_configs.py`
-- `utils.py`
-- `your_AI_DIY_parameters.py`
 
-  ################### PENDING DESCRIPTIONNNNNN ########
+__The most interesting files and folders to play, modify, and/or add stuff, such as DL models, are indicated with__ :rotating_light:. 
+
+- :file_folder:`app` - Python functions encapsulated by the Dockerfile to exectute this module. Adapted from the rest of the files from this repository. Not useful at this level.  
+- :file_folder:`drop_here_and_see_your_pred` - Empty folder to map it the Docker image to an actual folder in the host. Leave it as it is!
+- :file_folder:`evaluation` - Multi- and single-step evalutation functions. **TO ADD MORE METRICS**, go to `model_evaluation()` function in the multi-step `evaluation.py` add them there. 
+- :file_folder::rotating_light:`models` - TensorFloew descriptions of the single- and multi- step models are placed here. 'LSTM.py' is the one implemented in this app. In this work, multi-step has been implemented because it showed better performance. **TO ADD MORE MODELS**, create a new '.py' file inside this folder.
+- :page_facing_up:`DIY_top_module_file.py`- Application wrapper that is included in the Docker image. You can change the message prompting as you wish, but no much experimentation is expected here. 
+- :page_facing_up:`Dockerfile`
+- :page_facing_up:`final_tests.py` - Script to perform a final test training the models with the whole year of data and testing it with additional collected data (check [our paper]() for more!).
+- :page_facing_up:`get_your_toy_cgm_file.py` - Script to obtain a LibreView-alike '.csv' file containing CGM readings. 
+- :page_facing_up:`LibreView_exp_launcher.py` - Script that allows the execution of this experiments from the terminal. 
+- :page_facing_up:`libreview_utils.py` - Contains function for LibreView data curation and preparation. 
+- :page_facing_up:`main_libreview.py` :rotating_light: - The experiment itself. **COMPLETARRRRRRR**
+- :page_facing_up:`README.md` - You are now reading it! :hand_over_mouth:
+- :page_facing_up:`requirements.txt` - All libraries required in your Python environment. Generated with `pip freeze > requirements.txt ` Some stuff is commented to avoid errors. 
+- :page_facing_up:`results_analysis.py`- Functions to store results in different formats, and generate different graphs for data analysis and experiments comparison. 
+- :page_facing_up:`sensor_params.py`:rotating_light: - This file contains dictionaries containing the sensor information needed to generate the datasets, models and their evaluation. **TO ADD A SENSOR** create a dictionary here. The framework is parametrized, so no changes in the code are required further than the call of this sensor from `main_libreview.py`. 
+- :page_facing_up:`training_configs.py`:rotating_light: - Training configurations to run the experiments. As with the sensors, create your own dictionary and call it from the `main_libreview.py`.
+- :page_facing_up:`utils.py` - Functions for data curation, dataset generation, or weights and tags generation. 
+- :page_facing_up:`your_AI_DIY_parameters.py`:rotating_light: - Contains dictionaries to test your favourite configuration in the execution of the app. This is called by 'DIY_top_module.py'. 
 
 ### Try and run the experiments 
 
+For a first approach, it is good practice to just run the default experiments. See the command line to copy-paste to your terminal: 
+   - `loss_function_comparison` : Dictionary in training_config.py. It contains models to test, input window length, normalization, data partition, etc.
+   - `{1,2}` : Input features to use in the model. Currently 1 means only CGM, and 2 means CGM and its derivative. 
+   - `{True, False}` : Weight the samples (hypo, hyper or normal range) in the training process.
+   - `KERNEL_SIZE` : `10` (here you have to type a number. Otherwise, the default values in `LibreView_exp_launcher.py` will be taken. Same with the rest of the introduced parameters)
+   - `STRIDE` : `1`
+   - `EPOCHS`: `20`
+   - `BATCH_SIZE` : `1`
+   - `LEARNING_RATE`: `0.0001`
+
+:rotating_light: :rotating_light: :rotating_light:__CURRENT ISSUES TO BE SOLVED FOR FULL REPRODUCIBILITY (ADAPT YOUR CODE BEFORE RUNNING)___ :rotating_light: :rotating_light: :rotating_light:
+ - __THE DIRECTORY FROM WHICH THE EXPERIMENT STARTS IS HARD-CODED AS `DATASET_PATH` IN THE `LibreView_exp_launcher.py` and `main_libreview.py`files, so change both variables by the directory where you store your `.csv`files containing CGM data__
+ - `set_of_libreview_keys` is harcoded with the data we had to develop this tool. Now, replace this list by your keys. Having a file named `IDXXX_SYYY_RZZZ_glucose_DD-MM-YYY.csv`, the list entry would be `["XXX", "YYY", "ZZZZ", "DD-MM-YYYY"]`.
+ - Directories are prepared for Windows, so check them if you are working on Linux. 
+
 ```
-python exp_launcher.py loss_functions_comparison --model_hyperparameters KERNEL_SIZE STRIDE --training_hyperparameters EPOCHS BATCH_SIZE LEARNING_RATE
+python LibreView_exp_launcher.py LibreView-exp-1 2 True --model_hyperparameters 10 1 --training_hyperparameters 20 0.0001
 ```
 For more information: 
 ```
 python exp_launcher.py --help
 ```
 
-### Time to play! Do you want to change the architectures, or include new models?
+After the execution of the experiments. See more in the functions docummentation. 
 
-### Dockerization of the top module to make the "app" 
+### Time to play! Do you want to change the architectures, or include new models?
 
 ## Something missing? Need help? Any bugs? 
 
