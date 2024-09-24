@@ -1,7 +1,7 @@
 # An AI-based "Do-it-Yourself" tool for personalized glucose prediction. :mechanical_arm::robot: 
-Hi! :wave: :smile:  If you got here, it is very likely that you are interested in personalized glucose monitoring, AI, or both! If yours is the first case and you are willing to use this tool to predict your interstitial glucose level with your personalized AI model, [go directly to the *Use me!* section](#Use-me-!). If, on the contrary, you are more interested in the development of this tool :desktop_computer::keyboard:, the code, or you want to test your own AI models in this framework, you better go to [the developers and researchers section](#For-developers-and-researchers):man_technologist::woman_technologist: . 
+Hi! :wave: :smile:  If you got here, it is very likely that you are interested in personalized glucose monitoring, AI, or both! If yours is the first case and you are willing to use this tool to predict your interstitial glucose level with your personalized AI model, [go directly to the *Use me!* section](#Use-me-!). If, on the contrary, you are more interested in the development of this tool :desktop_computer::keyboard:, the code, or you want to test your own AI models in this framework, you better go to [the developers and researchers section](#for-developers-and-researchers):man_technologist::woman_technologist: . 
 
-### Why _"Do-It-Yourself"_? :thinking:
+### :thinking: Why _"Do-It-Yourself"_? 
 The main characteristic of this AI-based module is that is _user-driven_. The user is the one to choose if she/he wants a personalized model or not, when to generate such model, and when to be prompted with a personalized prediction. Besides, it works with just the individual's data. Only __your data__ will be used to generate __your model__. Besides, __everything is LOCAL__. Your data, your model and your predictions will be accessed __only by you__ at your PC. No third-parties will participate on this process, only you!
 
 This module has been developed with data from people with **type 1 diabetes**, but of course it is suitable for anyone who has a diabetes-related condition that implies having a glucose sensor attached to your body. :+1: 
@@ -9,7 +9,7 @@ This module has been developed with data from people with **type 1 diabetes**, b
 If you are interested to read about the scientific basis of this work, please check our paper [*"An AI-Based “Do-It-Yourself” Module for Interstitial Glucose Forecasting for People with Type 1 Diabetes"*](https://ieeexplore.ieee.org/document/9851514) published on [npj Digital Medicine](https://www.nature.com/npjdigitalmed/) scientific journal. Besides, if this work somehow helped you with your research work or with a personal project, please, cite our paper. :page_with_curl:  
 
 ## Use me! 
-### First time? :handshake:
+### :handshake: First time? 
 Welcome! First times are always special, and this is not an exception! :star_struck: The first time you use this module, you will get your personalized AI-glucose predictor. Once you have generated your model, you just have to follow the instructions on [Use me (again)! section](#Use-me-(again)!). Currently, this tool only supports the following sensors: 
 
 #### Included sensors
@@ -81,7 +81,7 @@ Hi again! If you are here, it means you have `your_AI_based_CGM_predictor.h5` fi
 
 From now on, these are the steps you have to follow any time you want to have a personalized glucose prediction based on your own AI model! Hope this helps in your day-to-day! 
 
-## For developers and researchers [:man_technologist::woman_technologist: ]
+## :man_technologist: :woman_technologist: For developers and researchers
 
 Hi again! If you are here, it is assumed that you have basic knowledge of Python programming and AI, so let's get into it!
 
