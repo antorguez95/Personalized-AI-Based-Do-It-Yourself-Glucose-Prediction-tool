@@ -1,8 +1,24 @@
+# Copyright (C) 2024 Antonio Rodriguez
+# 
+# This file is part of Personalized-AI-Based-Do-It-Yourself-Glucose-Prediction-tool.
+# 
+# Personalized-AI-Based-Do-It-Yourself-Glucose-Prediction-tool is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+# 
+# Personalized-AI-Based-Do-It-Yourself-Glucose-Prediction-tool is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+# 
+# You should have received a copy of the GNU General Public License
+# along with Personalized-AI-Based-Do-It-Yourself-Glucose-Prediction-tool.  If not, see <http://www.gnu.org/licenses/>.
+
 import numpy as np 
 import matplotlib.pyplot as plt
 import statsmodels.api as sm
 from typing import List
-import tensorflow as tf
 
 def cgm_data_summary_figure(id : str, sensor : str, num_blocks : int, cgm_data : np.array, cgm_timestamps : np.array, sensor_sampling_period : int,
                             pred_steps : int, N : int, prediction : np.array, pred_rmse : np.array,
@@ -464,7 +480,6 @@ def cgm_data_summary_figure(id : str, sensor : str, num_blocks : int, cgm_data :
     plt.text(0.35, 0.05, 'Average Glucose: ' + str(round(cgm_mean, 2)) + ' ± ' + str(round(cgm_std, 2)) + ' ' + unit, fontsize=14, weight='bold', transform=axs[1,1].transAxes)
 
     plt.savefig('app_CGM_' + visualization_range +  '_analysis_and_prediction.svg', format='svg', dpi=1200)
-
 
 def get_prediction_graphic(X : np.array, X_norm : np.array, predicted_points : int, X_times : np.array, rmse : List, unit : str, prediction : np.array, 
                            N : int = 96, step : int =  1): 
