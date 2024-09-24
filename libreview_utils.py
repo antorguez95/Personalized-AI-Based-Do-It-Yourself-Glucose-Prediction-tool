@@ -15,6 +15,12 @@
 # You should have received a copy of the GNU General Public License
 # along with Personalized-AI-Based-Do-It-Yourself-Glucose-Prediction-tool.  If not, see <http://www.gnu.org/licenses/>.
 
+# final_tests.py
+# This module contains the functions for the raw data read, curation 
+# and preparation for further DL processing. All this functions considered 
+# the raw format downloaded from the LibreView application, that is .csv files and 
+# a certain structure to separate the data it includes.   
+# See functions documentation for more details. 
 
 from typing import Dict 
 import pickle
@@ -23,8 +29,7 @@ import pandas as pd
 import numpy as np 
 import json 
 
-
-# Set of keys of all patients (41) to easily access their data in the Libreview files (more .csv files would imply changing this)
+# HARD-CODED: Set of keys of all patients (41) to easily access their data in the Libreview files (more .csv files would imply changing this)
 set_of_libreview_keys = [["001", "001", "001", "12-6-2023"],
             ["003", "001", "001", "12-6-2023"],
             ["004", "001", "001", "10-7-2023"],
@@ -73,16 +78,9 @@ set_of_libreview_keys = [["001", "001", "001", "12-6-2023"],
 def prepare_LibreView_data(dataset_path : str, save_dict : bool = True) -> Dict:
     
     """
-    Function to prepare the data stored in .csv from LibreView application
-    for its further processing. Current sensors supported are:
-        - FreeStyle LibreLink 
-            - Glucose
-            - Insulin
-            etc
-        - FreeStyle Libre 3
-            - Glucose
-            - Insulin
-            etc
+    Function to prepare the data stored in raw .csv downloaded 
+    from LibreView application for its further processing. See README.md
+    to check which sensor are supported by this function and tool. 
     
     This function returns a dictionary with the following structure:
     data_dict = {id : {s : {r : {download_date : {MAC : {sensor_name : {variable : {reading : np.array, timestamp : np.array}}}}}}}}
@@ -97,18 +95,17 @@ def prepare_LibreView_data(dataset_path : str, save_dict : bool = True) -> Dict:
         - reading : sensor reading 
         - timestamp : sensor reading timestamp
     
-    It saves the dictionary in a .pickle is the flag is set to True, and it saves an Exccel file (.xslx) with the summary of 
+    It saves the .pickle dictionary if the flag is set to True, and it saves an Excel file (.xslx) with the summary of 
     the read data. 
     
     Args
     ----
         dataset_path : Path to the dataset directory
-        save_json : Flag to save the dictionary in a .json file. Default is True.
+        save_dict : Flag to save the dictionary in a .pickle file. Default is True.
 
     Returns
     -------
         data_dict : Dictionary with the structure described above
-
     """
     
     # Go to the dataset directory 
@@ -179,15 +176,15 @@ def prepare_LibreView_data(dataset_path : str, save_dict : bool = True) -> Dict:
                         
                         # Create the dictionary for every recording, date and sensor
                         data_dict[id][s][r][download_date][MACs[i]] = {sensor_name : {"CGM" : {"reading" : np.empty((0), dtype=np.float64),
-                                                                        "timestamp" : np.empty((0))},#, dtype='datetime64[s]')},
+                                                                        "timestamp" : np.empty((0))},
                                                             "Escanned CGM" : {"reading" : np.empty((0)),
-                                                                        "timestamp" : np.empty((0))},#, dtype='datetime64[s]')},
+                                                                        "timestamp" : np.empty((0))},
                                                             "Insulin no num" : {"reading" : np.empty((0)),
-                                                                        "timestamp" : np.empty((0))},# dtype='datetime64[s]')},
+                                                                        "timestamp" : np.empty((0))},
                                                             "Fast insulin" : {"reading" : np.empty((0)),
-                                                                        "timestamp" : np.empty((0))},# dtype='datetime64[s]')}, 
+                                                                        "timestamp" : np.empty((0))},
                                                             "Food no num" : {"reading" : np.empty((0)),
-                                                                        "timestamp" : np.empty((0))}}}#, dtype='datetime64[s]')}}}
+                                                                        "timestamp" : np.empty((0))}}}
             
                 # Iterate over all the rerconding and place them and their timestamp in the corresopndant dictionary entry 
                 for i in range(0,current_recordings.shape[0]): 
@@ -234,7 +231,7 @@ def generate_LibreView_npy_files(libreview_data : Dict, foldername : str = r"\np
     
     """
     From a dictionary created after reading the Libreview .csv files, this function generates
-    generates one .npy file per patient, sensor and recording in the '/npy_files' .It generates
+    one .npy file per subject, sensor and recording in '/npy_files'. It generates
     one folder per ID, and one .npy file per sensor and recording. The reason of making two functions
     is that the .csv reading is time consuming, so it is better to generate the .npy files from the 
     saved dictionary generated with prepare_LibreView_data(). 
@@ -264,7 +261,6 @@ def generate_LibreView_npy_files(libreview_data : Dict, foldername : str = r"\np
         try: 
             for key in libreview_data[set_of_libreview_keys[i][0]][set_of_libreview_keys[i][1]][set_of_libreview_keys[i][2]][set_of_libreview_keys[i][3]].keys():
                 for key2 in libreview_data[set_of_libreview_keys[i][0]][set_of_libreview_keys[i][1]][set_of_libreview_keys[i][2]][set_of_libreview_keys[i][3]][key].keys():
-                    
                     
                     if verbose == 1 : 
                         print("Samples of CGM in patient #",set_of_libreview_keys[i][0], " in sensor", key2,": ", libreview_data[set_of_libreview_keys[i][0]][set_of_libreview_keys[i][1]][set_of_libreview_keys[i][2]][set_of_libreview_keys[i][3]][key][key2]["CGM"]["reading"].shape[0])
@@ -369,7 +365,6 @@ def get_1year_LibreView_recordings_dict(libreview_data : Dict) -> Dict:
         with the recordings with at least one year in a raw with the same sensor. 
     """
 
-
     # Subset of the original dictionary with the valid recordings (duration >= 1 year)
     data_1yr_recordings = {}
 
@@ -450,7 +445,7 @@ def generate_LibreView_npy_1yr_recordings(data_1yr_recordings : Dict):
 
     Args 
     ----
-        data_1yr_recordings : dictionary containing all the entries that has >= year of CGM data
+        data_1yr_recordings : dictionary containing all the entries that has more than year of CGM data
 
     Returns
     -------
@@ -568,7 +563,7 @@ def get_oldest_year_npys_from_LibreView_csv(dataset_path : str):
     """
     From the raw .csv files obtained from LibreView, this function 
     generates numpy files of the oldest year of CGM data of each patient
-    without interruptions. Patients that do not have at least one year 
+    without (too many) interruptions. Patients that do not have at least one year 
     of data are not considered. For more information about how the data is extracted,
     please refer to the documentation of every particular function. Files
     are stored in the '/1yr_npy_files' folder. CGM recordings are stored as
@@ -626,9 +621,5 @@ def create_LibreView_results_dictionary():
     except:
         results_dictionary = {}
         print("Non-existing dictionary. A new one was created.\n")
-
-        # # Save dictionary as json
-        # with open('results_dictionary.json', 'w') as fp:
-        #     json.dump(results_dictionary, fp)  
 
     return results_dictionary
