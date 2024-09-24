@@ -1,6 +1,8 @@
 # An AI-based "Do-it-Yourself" tool for personalized glucose prediction. :mechanical_arm::robot: 
 Hi! :wave: :smile:  If you got here, it is very likely that you are interested in personalized glucose monitoring, AI, or both! If yours is the first case and you are willing to use this tool to predict your interstitial glucose level with your personalized AI model, [go directly to the *Use me!* section](#Use-me-!). If, on the contrary, you are more interested in the development of this tool :desktop_computer::keyboard:, the code, or you want to test your own AI models in this framework, you better go to [the developers and researchers section](#for-developers-and-researchers)    :man_technologist::woman_technologist:. 
 
+### :man_technologist: How to Contribute
+
 ### :thinking: Why _"Do-It-Yourself"_? 
 The main characteristic of this AI-based module is that is _user-driven_. The user is the one to choose if she/he wants a personalized model or not, when to generate such model, and when to be prompted with a personalized prediction. Besides, it works with just the individual's data. Only __your data__ will be used to generate __your model__. Besides, __everything is LOCAL__. Your data, your model and your predictions will be accessed __only by you__ at your PC. No third-parties will participate on this process, only you!
 
@@ -221,3 +223,5 @@ Perfect! Now you have results from your experiments and you can compare within y
 ## Something missing? Need help? Any bugs? Suggestions?  
 
 :email: antorguez95@hotmail.com
+
+For more details, see the [How to Contribute section](#how-to-contribute).
