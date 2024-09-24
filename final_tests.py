@@ -15,6 +15,12 @@
 # You should have received a copy of the GNU General Public License
 # along with Personalized-AI-Based-Do-It-Yourself-Glucose-Prediction-tool.  If not, see <http://www.gnu.org/licenses/>.
 
+# final_tests.py
+# This module contains the necessary function to perform the DL models 
+# final tests with additional collected data. From the raw data reading, to the data 
+# preparation, including the results analysis. 
+# See functions documentation for more details. 
+
 from typing import Dict, List 
 import os
 import pickle
@@ -22,9 +28,10 @@ import numpy as np
 import pandas as pd
 from matplotlib import pyplot as plt
 import tensorflow as tf
-from models.training import ISO_adapted_loss
-from libreview_utils import create_LibreView_results_dictionary
 import json
+
+# Custom libraries
+from models.training import ISO_adapted_loss
 from sensor_params import *
 from evaluation.multi_step.evaluation import model_evaluation as multi_step_model_evaluation
 from utils import get_LibreView_CGM_X_Y_multistep
@@ -59,16 +66,12 @@ set_of_libreview_keys = [["001", "001", "001", "2024"],
             ["067", "001", "001", "2024"],
             ["068", "001", "001", "2024"]]
 
-# set_of_libreview_keys = [
-#             ["068", "001", "001", "2024"]]
-
-
 def read_test_csv(dataset_path : str, save_dict : bool = True) -> Dict : 
 
     """
-    This function reads the .csv files from the dataset (downloaded by the endocrinologist)
-    and stores them in a dictionary. This function takes a while. It returns a dictionary with 
-    the CGM-related most important information. 
+    This function reads the  raw .csv files (as downloaded by the endocrinologist/user)
+    from the dataset path and stores them in a dictionary. It takes a while.
+    It returns a dictionary with the CGM-related most important information. 
 
     Args:
     ----
@@ -113,7 +116,7 @@ def read_test_csv(dataset_path : str, save_dict : bool = True) -> Dict :
             if file.endswith(".csv") : 
                 
                 # Read the .csv and store it in a DataFrame. 
-                current_recordings = pd.read_csv(file, low_memory=False)#, encoding='latin-1')
+                current_recordings = pd.read_csv(file, low_memory=False)
 
                 # Clean NaN values
                 current_recordings = current_recordings.dropna(axis=0, subset=['Tipo de registro'])
@@ -149,17 +152,17 @@ def read_test_csv(dataset_path : str, save_dict : bool = True) -> Dict :
                         
                         # Create the dictionary for every recording, date and sensor
                         data_dict[id][s][r][download_date][MACs[i]] = {sensor_name : {"CGM" : {"reading" : np.empty((0), dtype=np.float64),
-                                                                        "timestamp" : np.empty((0))},#, dtype='datetime64[s]')},
+                                                                        "timestamp" : np.empty((0))},
                                                             "Escanned CGM" : {"reading" : np.empty((0)),
-                                                                        "timestamp" : np.empty((0))},#, dtype='datetime64[s]')},
+                                                                        "timestamp" : np.empty((0))},
                                                             "Insulin no num" : {"reading" : np.empty((0)),
-                                                                        "timestamp" : np.empty((0))},# dtype='datetime64[s]')},
+                                                                        "timestamp" : np.empty((0))},
                                                             "Fast insulin" : {"reading" : np.empty((0)),
-                                                                        "timestamp" : np.empty((0))},# dtype='datetime64[s]')}, 
+                                                                        "timestamp" : np.empty((0))},
                                                             "Food no num" : {"reading" : np.empty((0)),
-                                                                        "timestamp" : np.empty((0))}}}#, dtype='datetime64[s]')}}}
+                                                                        "timestamp" : np.empty((0))}}}
             
-                # Iterate over all the rerconding and place them and their timestamp in the corresopndant dictionary entry 
+                # Iterate over all the rerconding and place them and their timestamp in the corresponding dictionary entry 
                 for i in range(0,current_recordings.shape[0]): 
 
                     # Update current sensor name and MAC
@@ -203,8 +206,8 @@ def read_test_csv(dataset_path : str, save_dict : bool = True) -> Dict :
 def get_end_training_dates(parent_dir : str, target_dir : str) -> Dict: 
     
     """ This function is for the final test of this work. After performing the 4-folds
-    trimester wise cross-validation, more data were collected. This data were used for a 
-    final validation of the models. Notice that this data is more recent that those used 
+    trimester wise cross-validation, more data were collected. These data were used for a 
+    final validation of the models. Notice that this data are more recent that those used 
     in the previous step. Hence, to avoid use data that were used in the training process, 
     the last timestamps of the data were extracted. It returns a dictionary containing 
     the last timestamp of each subject. See other functions to understand the structure 
@@ -212,20 +215,19 @@ def get_end_training_dates(parent_dir : str, target_dir : str) -> Dict:
     
     Args:
     ----
-        dir : Path were the new data were stored. 
+        parent_dir : Path were the new data were stored. 
         target_dir : Path where the dictionary will be saved.
     
     Returns:
     -------
         subjects_end_trianing_dates: Dictionary with the last timestamps of the data for each subject (n=29 at this stage)
- 
     """
 
     # Empty dict to be filled with subject - end dates pairs
     subjects_end_training_dates = {}
 
     # Parent directory where all timestamps are placed
-    parent_dir = r"C:\Users\aralmeida\Downloads\LibreViewRawData-final_sims\1yr_npy_files"
+    parent_dir = r"C:\Users\aralmeida\Downloads\LibreViewRawData-final_sims\1yr_npy_files" # HARD-CODED
 
     os.chdir(parent_dir)
 
@@ -241,7 +243,7 @@ def get_end_training_dates(parent_dir : str, target_dir : str) -> Dict:
             # New dict entry with the ID
             subjects_end_training_dates[id] = {}
 
-            # Construct path Hard-coded. (This directory should be the same if you are using the same functions)
+            # Construct path HARD-CODED. (This directory should be the same if you are using the same functions)
             dir = r'C:\Users\aralmeida\Downloads\LibreViewRawData-final_sims\1yr_npy_files\{}\N96\step1\PH60\multi\month-wise-4-folds\norm_min-max\None_sampling\DIL-1D-UNET\ISO_loss'.format(id)
 
             # Go to the directory
@@ -266,12 +268,11 @@ def get_end_training_dates(parent_dir : str, target_dir : str) -> Dict:
     
     return subjects_end_training_dates
 
-
 def extract_test_data_recordings (subjects_end_training_dates: Dict, data_dict : Dict) -> Dict: 
 
     """
-    This function returns and save with Pickle the dictionary with the test data recordings after
-    being processed by the prepare_LibreView_data function. It sorts the data by ID and by sensor in case
+    This function returns and save with a dictionary with the test data recordings after
+    being processed by the prepare_LibreView_data() function. It sorts the data by ID and by sensor in case
     a subject has more than one. The end dates of the training data should be provided. If the most recent 
     test data is older than the newest train data, this subject is discarded, since it does not provide a
     proper test set. 
@@ -321,13 +322,11 @@ def extract_test_data_recordings (subjects_end_training_dates: Dict, data_dict :
                         cgm = data_dict[set_of_libreview_keys[i][0]][set_of_libreview_keys[i][1]][set_of_libreview_keys[i][2]][set_of_libreview_keys[i][3]][key][key2]["CGM"]["reading"]
                         cgm_timestamp = data_dict[set_of_libreview_keys[i][0]][set_of_libreview_keys[i][1]][set_of_libreview_keys[i][2]][set_of_libreview_keys[i][3]][key][key2]["CGM"]["timestamp"]
 
-                        
                         # Fill dictionary with readings of at least one year
                         test_data_recordings[set_of_libreview_keys[i][0]][set_of_libreview_keys[i][1]][set_of_libreview_keys[i][2]][set_of_libreview_keys[i][3]][key][key2] = {"CGM" : {"reading" : cgm,
                                                                                                                                             "timestamp" : cgm_timestamp}}
                     else: 
                         pass
-                        # print(data_last_sample, np.datetime64(subjects_end_training_dates[set_of_libreview_keys[i][0]]))
 
     # Iterate over all dictionary keys to delete the entries that are empty (meaning that they had <1 year of data )
     for i in range(0,len(set_of_libreview_keys)):      
@@ -365,7 +364,9 @@ def discard_data_from_sensor_black_list(test_data_recordings : Dict, sensor_blac
     ----
         test_data_recordings: Dictionary with the test data recordings sorted by ID and sensor.
         sensor_black_list: List of sensors to be discarded from the dictionary.
-
+    Returns:
+    -------
+        test_data_recordings: Filtered dictionary with the sensors that are not in the black list. 
     """
 
     # Iterate over all dictionary keys
@@ -391,10 +392,9 @@ def discard_data_from_sensor_black_list(test_data_recordings : Dict, sensor_blac
     
     return test_data_recordings
 
-
 def get_ID_sensor_MAC_pairs(yr_data : Dict) -> Dict:
     """
-    In this experiment, the data is done with just new test data. But it must be with 
+    In this experiment, the test is done with just new test data. But it must be with 
     the same sensors used in the training and validation data for all subjects. Thus, 
     from a dictionary creates and returns in the training step, we extract a dictionry with the 
     IDs matched to the MACs of the sensors they used within the selected periods. This dictionary 
@@ -406,7 +406,7 @@ def get_ID_sensor_MAC_pairs(yr_data : Dict) -> Dict:
     
     Returns:
     -------
-        ID_sensor_MAC_pairs: Dictionary with the IDs matched to the MACs of the sensors they used within the selected periods. 
+        data_with_1yr_sensor_MAC: Dictionary with the IDs matched to the MACs of the sensors they used within the selected periods. 
     """
 
     # Declare a dictionary to store the MACs of the sensors used to trained the personalized models to filter the test data 
@@ -420,12 +420,12 @@ def get_ID_sensor_MAC_pairs(yr_data : Dict) -> Dict:
     
     return data_with_1yr_sensor_MAC
 
-
 def filter_subjects_that_change_sensor(test_data_recordings : Dict, data_with_1_yr_sensor_MAC : Dict) -> Dict: 
+    
     """
-    This function filters the Dictionary that contain the test data recordings using the dicionaty that contains
-    the MACs of the sensors used in the trainin and validation step. It returns a dictionary with the subjects 
-    that did not change the sensor, or, at least, have data from the same sensor. The rest of the data entris 
+    This function filters the Dictionary that contain the test data recordings using the dicionary that contains
+    the MACs of the sensors used in the training and validation step. It returns a dictionary with the subjects 
+    that did not change the sensor, or, at least, have data from the same sensor. The rest of the data entries 
     are deleted
 
     Args:
@@ -436,7 +436,6 @@ def filter_subjects_that_change_sensor(test_data_recordings : Dict, data_with_1_
     Returns: 
     -------
         test_data_recordings: Filtered dictionary with subjects that have data from the same sensor used in the training and validation step.
-
     """
 
     # Iterate over all dictionary keys
@@ -462,13 +461,10 @@ def filter_subjects_that_change_sensor(test_data_recordings : Dict, data_with_1_
 
     return test_data_recordings
 
-
-
 def remove_training_data_from_test_set(test_data_recordings : Dict, subjects_end_training_dates : Dict,  verbose: int) -> Dict:
     
-    
     """
-    To test date solely with data from the same sensor (as previosly explained), and
+    To test solely with data from the same sensor (as previosly explained), and
     that were not used to train the models, the timestamps from the training steps are
     used to remove the test data that are older or equal than that timestamps (i.e., same data). 
     If desired, informative messages are printed. This function returns the CGM readings for all subjects
@@ -483,7 +479,6 @@ def remove_training_data_from_test_set(test_data_recordings : Dict, subjects_end
     Returns: 
     -------
         test_data_recording: Dictionary with the test data recordings sorted by ID and sensor with only the test data. 
-
     """
 
     # Convert subject's end training dates to datetime64 to compare
@@ -529,12 +524,10 @@ def remove_training_data_from_test_set(test_data_recordings : Dict, subjects_end
     
     return test_data_recordings
 
-
-
 def extract_test_set_from_test_data_dictionary(test_data_recordings : Dict, NUM_OF_DAYS_TEST_SET : int, verbose : int) -> Dict: 
     
     """
-    This function takes the test data dictionary after cleaning the old data belonginh to the training process and the sensor model
+    This function takes the test data dictionary after cleaning the old data belonging to the training process and the sensor model
     filtering. It outputs the final CGM and timestamps sequences to generate the test vectors. The main parameter is the number of days
     that will form the test set. Subjects that do not have at least this amount of days in their data, will be discared. The more number
     of days, the more subjects will be discarded. 
@@ -618,9 +611,10 @@ def extract_test_set_from_test_data_dictionary(test_data_recordings : Dict, NUM_
     return test_data_recordings
 
 def final_model_test(test_data_recordings_final : Dict, PH : int, DL_models : List, NUM_OF_DAYS_TEST_SET : int, N : int = 96, step : int = 1) -> None:
+    
     """
     This function performs the final model tests, given the test data recordings, and also the number 
-    of days of the test set. The model evaluation is the same as in main_libreview.py. N, step are parameters
+    of days of the test set. The model evaluation is the same as in main_libreview.py file. N and step are parameters
     derived from the previous step. Please, note that "libreview_sensors" is hardcoded now, but will be changed 
     soon. 
 
@@ -668,7 +662,7 @@ def final_model_test(test_data_recordings_final : Dict, PH : int, DL_models : Li
                 # Stack X_norm and X_norm_der
                 X_norm = np.dstack((X_norm, X_norm_der))
 
-                # Go to the ID directory to check if there is a dictionary. If not, create it.
+                # Go to the ID directory to check if there is a dictionary. If not, create it. HARD-CODED
                 dir = r"C:\Users\aralmeida\Downloads\LibreViewRawData-final_sims\1yr_npy_files\{}".format(key)
                 os.chdir(dir)                
                 
@@ -680,7 +674,6 @@ def final_model_test(test_data_recordings_final : Dict, PH : int, DL_models : Li
                 except:
                     test_results_dictionary = {}
                     print("Non-existing dictionary. A new one was created.\n")
-                
                 
                 # Create a key depending on the number of test days 
                 test_key = str(NUM_OF_DAYS_TEST_SET)
@@ -721,9 +714,11 @@ def final_model_test(test_data_recordings_final : Dict, PH : int, DL_models : Li
                     json.dump(test_results_dictionary, fp) 
 
 def subject_per_subject_bar_diagram(test_included_subjects : Dict, metric : str, metric_LSTM : List, metric_StackedLSTM : List, metric_DIL_1D_UNET, PH : int, NUM_OF_DAYS_TEST_SET : int) -> None: 
+    
     """
     Given the dictionary with the IDs of the included subjects and the name of the metric
     evaluated, this function generates a bar diagram with the metric evaluated for each subject.
+    This function has been designed ad hoc for the models included in this work. 
 
     Args: 
     -----
@@ -740,15 +735,10 @@ def subject_per_subject_bar_diagram(test_included_subjects : Dict, metric : str,
         None
     """
 
-    # Plot all values of RMSE_LSTM in a bar diagram 
-
     # Patient list (filled manually)
     all_patient_list_sorted = ['004', '011', '029', '008', '015', '045', '025', '065', '067', '026', '060',
                         '062', '039', '007', '048', '001', '014', '013', '046', '043', '051', '049',
                         '063', '055', '061', '057', '003', '068', '058']
-
-    # # Filter all patients with no test instances
-    # filtered_patient_list = [x for x in all_patient_list_sorted if x in list(test_data_recordings_final.keys())]
 
     plt.figure(figsize=(17, 8.5))
 
@@ -891,9 +881,6 @@ def final_DIY_models_test(data_dict : Dict, sensor_black_list : List, PH : int, 
         for key2 in test_data_recordings[key]['001']['001']['2024'].keys():
             for key3 in test_data_recordings[key]['001']['001']['2024'][key2].keys():
 
-                # # Create dictionary to fill it with the results (one per patient) 
-                # test_results_dictionary = create_LibreView_results_dictionary()
-    
                 # Save CGM and timestamps in a variable 
                 recordings = test_data_recordings[key]['001']['001']['2024'][key2][key3]['CGM']['reading']
                 timestamps = test_data_recordings[key]['001']['001']['2024'][key2][key3]['CGM']['timestamp']
@@ -926,7 +913,6 @@ def final_DIY_models_test(data_dict : Dict, sensor_black_list : List, PH : int, 
         pickle.dump(test_data_recordings, handle, protocol=pickle.HIGHEST_PROTOCOL)
 
     return test_data_recordings
-
 
 def group_and_save_metrics(included_subjects : List, DL_models : List, PH : int, NUM_OF_DAYS_TEST_SET : int) -> List:
     
@@ -1081,13 +1067,13 @@ def get_included_subjects(num_of_test_days : int, excluded_subjects: List, paren
 
     Args:
     ----
-    NUM_OF_DAYS_TEST_SET : Number of DAYS of the test set. It has direct influence on the final list. 
-    excluded_subjects : List of subjects previously excluded from the final list.
-    parent_dir : Parent directory where the subjects folders are located.
+        NUM_OF_DAYS_TEST_SET : Number of DAYS of the test set. It has direct influence on the final list. 
+        excluded_subjects : List of subjects previously excluded from the final list.
+        parent_dir : Parent directory where the subjects folders are located.
 
     Returns:
     -------
-    test_included_subjects : List of included subjects in the current experiment. 
+        test_included_subjects : List of included subjects in the current experiment. 
 
     """
 
