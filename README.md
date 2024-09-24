@@ -1,5 +1,5 @@
 # An AI-based "Do-it-Yourself" tool for personalized glucose prediction. :mechanical_arm::robot: 
-Hi! :wave: :smile:  If you got here, it is very likely that you are interested in personalized glucose monitoring, AI, or both! If yours is the first case and you are willing to use this tool to predict your interstitial glucose level with your personalized AI model, [go directly to the *Use me!* section](#Use-me-!). If, on the contrary, you are more interested in the development of this tool :desktop_computer::keyboard:, the code, or you want to test your own AI models in this framework, you better go to [the developers and researchers section](#for-developers-and-researchers)    :man_technologist::woman_technologist:. 
+Hi! :wave: :smile:  If you got here, it is very likely that you are interested in personalized glucose monitoring, AI, or both! If yours is the first case and you are willing to use this tool to predict your interstitial glucose level with your personalized AI model, [go directly to the *Use me!* section](#use-me). If, on the contrary, you are more interested in the development of this tool :desktop_computer::keyboard:, the code, or you want to test your own AI models in this framework, you better go to [the developers and researchers section](#for-developers-and-researchers)    :man_technologist::woman_technologist:. 
 
 <h3 id="why-do-it-yourself-?">:thinking: Why _"Do-It-Yourself"_</h3>
 
@@ -9,7 +9,7 @@ This module has been developed with data from people with **type 1 diabetes**, b
 
 If you are interested to read about the scientific basis of this work, please check our paper [*"An AI-Based “Do-It-Yourself” Module for Interstitial Glucose Forecasting for People with Type 1 Diabetes"*](https://ieeexplore.ieee.org/document/9851514) published on [npj Digital Medicine](https://www.nature.com/npjdigitalmed/) scientific journal. Besides, if this work somehow helped you with your research work or with a personal project, please, cite our paper. :page_with_curl:  
 
-## Use me! 
+<h2 id="use-me">Use me! </h2>
 <h3 id="first-time">:handshake: First time?</h3>
 
 Welcome! First times are always special, and this is not an exception! :star_struck: The first time you use this module, you will get your personalized AI-glucose predictor. Once you have generated your model, you just have to follow the instructions on [Use me (again)! section](#Use-me-(again)!). Currently, this tool only supports the following sensors: 
