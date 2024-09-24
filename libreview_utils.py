@@ -67,6 +67,9 @@ set_of_libreview_keys = [["001", "001", "001", "12-6-2023"],
             ["067", "001", "001", "6-9-2023"],
             ["068", "001", "001", "6-9-2023"]]
 
+# Having the file named: ID323_S555_R924_glucose_27-5-2023.csv
+# set_of_libreview_keys = [["323", "555", "924", "27-5-2023"]] # Uncomment this line and replaced it by the corresponding strings 
+
 def prepare_LibreView_data(dataset_path : str, save_dict : bool = True) -> Dict:
     
     """

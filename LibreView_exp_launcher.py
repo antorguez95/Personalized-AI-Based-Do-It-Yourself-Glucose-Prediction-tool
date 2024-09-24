@@ -114,4 +114,4 @@ tau = int(args.model_hyperparameters[1])
 DATASET_PATH = args.dataset_folder[0]
 
 # Call the experiments launcher function
-launch_LibreView_experiments(training_config, input_features, weight_samples, kernel_size, tau, learning_rate, batch_size, epochs)
+launch_LibreView_experiments(training_config, input_features, weight_samples, kernel_size, tau, learning_rate, batch_size, epochs, DATASET_PATH)

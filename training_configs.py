@@ -101,5 +101,3 @@ only_naive = {'sensor' : [libreview_sensors],
                 'model' : ['naive'],
                 'loss_function' : ['root_mean_squared_error'], 
                 } 
-
-
