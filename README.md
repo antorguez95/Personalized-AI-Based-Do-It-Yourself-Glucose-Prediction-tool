@@ -12,7 +12,7 @@ If you are interested to read about the scientific basis of this work, please ch
 <h2 id="use-me">Use me! </h2>
 <h3 id="first-time">:handshake: First time?</h3>
 
-Welcome! First times are always special, and this is not an exception! :star_struck: The first time you use this module, you will get your personalized AI-glucose predictor. Once you have generated your model, you just have to follow the instructions on [Use me (again)! section](#Use-me-(again)!). Currently, this tool only supports the following sensors: 
+Welcome! First times are always special, and this is not an exception! :star_struck: The first time you use this module, you will get your personalized AI-glucose predictor. Once you have generated your model, you just have to follow the instructions on [Use me (again)! section](#use-me-again). Currently, this tool only supports the following sensors: 
 
 #### Included sensors
 | Data source  | Sensors | Input data | 
