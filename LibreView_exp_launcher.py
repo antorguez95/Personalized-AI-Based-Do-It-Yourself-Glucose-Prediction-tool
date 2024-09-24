@@ -16,7 +16,7 @@
 # along with Personalized-AI-Based-Do-It-Yourself-Glucose-Prediction-tool.  If not, see <http://www.gnu.org/licenses/>.
 
 # Usage:
-# launch_experiment.py [-h]
+# LibreView_exp_launcher.py [-h]
 #                   (--training_hyperparameters EPOCHS BATCH_SIZE LEARNING_RATE)
 #                   [--model_hyperparameters KERNEL_SIZE STRIDE] 
 #                   [--dataset_folder DATASET_PATH]
@@ -49,7 +49,7 @@ learning_rate_default = 0.0001
 kernel_size_default = 10
 tau_default = 1
 
-DATASET_PATH = r"C:\Users\aralmeida\Downloads\LibreViewRawData-final_sims"
+DATASET_PATH = r"C:\Users\aralmeida\Downloads\LibreViewRawData-final_sims" # ignored if introduced as param
 
 # Parse command line arguments
 parser = argparse.ArgumentParser(prog='Train and Evaluate DL-based CGM Forecast models',
