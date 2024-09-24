@@ -64,14 +64,14 @@ docker run -ti --mount type=bind,source=/C/Users/aralmeida/Downloads/drop_your_d
    - `your_AI_based_CGM_predictor.h5`:robot: This is **your personalized AI model for your glucose level predictions!** Isn't it great?? __Do not delete this file__. If you do so, you will have to repeat all this process from the beginning.
    - `your_last_prediction.png`:chart_with_upwards_trend: This is your very first AI-based prediction! Of course, this prediction is not useful, since it took place after the model generation, that took a couple of hours (:lotus_position_man:). As you can see, the model takes the data from your last **24 hours**, and performs a prediction of your next **30 minutes**. The red shadow shows the error on each instant (15' and 30' ahead), that has been calculated during the model generation. From now on, everytime you execute this app, this picture will be overwritten with your most recent prediction, so this is what you will see! Unfortunately, if your last day contains CGM reading interruptions, the model will not be able to provide you with a prediction. This is (also) work in progress :hammer_and_wrench:.
 
-From now, everytime you want to use this app, you have to follow the simple steps described in [Use me (again)! section](#"use-me-again"). 
+From now, everytime you want to use this app, you have to follow the simple steps described in [Use me (again)! section](#use-me-again). 
 
 <h3 id="use-me-again">:repeat: Use me (again)!</h3>
 
 Hi again! If you are here, it means you have `your_AI_based_CGM_predictor.h5` file in your `/drop_your_data_here_and_see_your_pred` folder, and you want to get now a personalized prediction of your next 30 minutes. 
    1) :arrow_down: Download your most recent data in a `.csv` file, containing at least your last 24 hours of CGM readings. Don't worry if your downloaded file contains more than 24 hours, this app will take care of this!
    2) :file_folder: Drop it in the `/drop_your_data_here_and_see_your_pred` folder.
-   3) :desktop_computer: Open a terminal in your PC and execute the following lines (remember to replace `APP_DIRECTORY` by the same as you used in step 3 of [Use me! section](#Use-me!) and `YOUR_DATA_DIRECTORY/drop_your_data_here_and_see_your_pred` by the directory where you save your CGM file):
+   3) :desktop_computer: Open a terminal in your PC and execute the following lines (remember to replace `APP_DIRECTORY` by the same as you used in step 3 of [Use me! section](#use-me) and `YOUR_DATA_DIRECTORY/drop_your_data_here_and_see_your_pred` by the directory where you save your CGM file):
    ```
    cd APP_DIRECTORY
    ```
