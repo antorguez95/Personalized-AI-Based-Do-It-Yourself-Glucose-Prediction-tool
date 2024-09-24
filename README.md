@@ -142,12 +142,11 @@ For a first approach, it is good practice to just run the default experiments. S
    - `LEARNING_RATE`: `0.0001`
 
 :rotating_light: :rotating_light: :rotating_light:__CURRENT ISSUES TO BE SOLVED FOR FULL REPRODUCIBILITY (ADAPT YOUR CODE BEFORE RUNNING)___ :rotating_light: :rotating_light: :rotating_light:
- - __THE DIRECTORY FROM WHICH THE EXPERIMENT STARTS IS HARD-CODED AS `DATASET_PATH` IN THE `LibreView_exp_launcher.py` and `main_libreview.py`files, so change both variables by the directory where you store your `.csv`files containing CGM data__
- - `set_of_libreview_keys` is harcoded with the data we had to develop this tool. Now, replace this list by your keys. Having a file named `IDXXX_SYYY_RZZZ_glucose_DD-MM-YYY.csv`, the list entry would be `["XXX", "YYY", "ZZZZ", "DD-MM-YYYY"]`.
+ - `set_of_libreview_keys` in `libreview_utils.py` is harcoded with the data we had to develop this tool. Now, replace this list by your keys. Having a file named `IDXXX_SYYY_RZZZ_glucose_DD-MM-YYY.csv`, the list entry would be `["XXX", "YYY", "ZZZZ", "DD-MM-YYYY"]`.
  - Directories are prepared for Windows, so check them if you are working on Linux. 
 
 ```
-python LibreView_exp_launcher.py LibreView-exp-1 2 True --model_hyperparameters 10 1 --training_hyperparameters 20 0.0001
+python LibreView_exp_launcher.py LibreView-exp-1 2 True --model_hyperparameters 10 1 --training_hyperparameters 20 0.0001 --dataset_folder "C:\Users\aralmeida\Downloads\just_playing" # Replace the dataset folder
 ```
 For more information: 
 ```
@@ -157,28 +156,28 @@ python exp_launcher.py --help
 After the execution of the experiments, you will see many files and folders created, since this is thought to run a big number of experients with different variantes of the same parameter, as you can see in the code. For every validation fold, you have a dedicated `/evaluation` folder with some results graphs. For every included individual on the experiment there is a folder with his/her `id`. For each `id`, there is a `results_dictionary.json`file with all the results. From this, results can be studied and compared within trainig strategies, subjects, DL models, etc. Now it's the moment to try your own experiments! (See further details in the functions and code documentation).  
 
 ### Time to play! Do you want to change the architectures, or include new models?
-Now comes the interesting part! Let's assume that you have several `.csv` files containing __real__ CGM data. Otherwise, there is not much sense in running these experiments. Let's also assume that your files are also downloaded from the LibreView app. Otherwise, the functions such as `get_oldest_year_npys_from_LibreView_csv`, or `prepare_LibreView_data` __MUST BE REPLACED__. If this is your case, you should spend a while coding these functions to fit your files to the DL framework. Once this is done, we can proceed with the experimentation. We will skip things like normalization techniques, o cross-validation implementation. But changes here are straightworward by adding a different case in the `if else` sentences. 
+Let's begin with the interesting part! Let's assume that you have several `.csv` files containing __real__ CGM data. Otherwise, there is not much sense in running these experiments. Let's also assume that your files are also downloaded from the LibreView app. Otherwise, the functions such as `get_oldest_year_npys_from_LibreView_csv`, or `prepare_LibreView_data` __MUST BE REPLACED__. If this is your case, you should spend a while coding these functions to fit your files to the DL framework. Once this is done, you can proceed with the experimentation. We will skip things like normalization techniques, o cross-validation implementation. But those changes are straightworward by adding a different case in the `if else` sentences within the `main_libreview.py` file.  
 
 #### 1. Your sensor
-Declare a new dictionary inside `sensor_params.py`. 
+Declare a new dictionary inside `sensor_params.py` that contains the data from your sensor.  
 
    ```
    your_new_glucose_sensor = freestyle_libre_3 = {
        "NAME" : "Your sensor",
        "CGM" : True,
        "INSULIN" : False, # This framework does not currently support insulin data 
-       "SAMPLE_PERIOD" : 5, # Minutes between consecutive readings
+       "SAMPLE_PERIOD" : 15, # Minutes between consecutive readings
        }
    ```
 
 #### 2. Your new DL model.
-   1) Go to `/models/multi_step` folder and create a `.py` file containing the TensorFlow. For example, `my_new_model.py`. Copy and paste the function structure from on of the other files contained in this folder.
+   1) Go to `/models/multi_step` folder and create a `.py` file containing the TensorFlow description of your model. For example, `my_new_model.py`. Copy and paste the function structure from on of the other files contained in this folder.
    2) Import the model in `main_libreview.py` as it is done for the rest of the models.
    3) Include a new case in the `if else` sentence (around line 250), with a recognizable string. For example `"my_new_model"`. Keep consistency with this identifier in the next steps. 
    4) You are ready to test your model!
 
 #### 3. Your training configuration.
-Of course, there are model hyperparameters that are not adjustable for diverse DL models (LSTMs do not have kernels, and CNNs do not have a forget gate, for example), but some architectural designs can be fixed for all models for a more fair comparison. So, go to the `training_config.py` and add a new dictionary with your desired trainig configuration.
+Of course, there are model hyperparameters that are not adjustable for different DL models (LSTMs do not have kernels, and CNNs do not have a forget gate, for example), but some architectural designs can be fixed for all models for a more fair comparison. So, go to the `training_config.py` and add a new dictionary with your desired trainig configuration.
 
    ```
    your_new_training_config = {'sensor' : [your_new_glucose_sensor],
@@ -200,7 +199,7 @@ Now that you have filled your dictionary, the experiment launcher should recogni
 Don't worry if parameters like `KERNEL SIZE` do not apply to your model. They will be ignored. Let's launch a training with just 1 input, and without weighting the samples. Kernel size and stride are 1 both. Finally, we will run 10 epochs, with a batch size of 2 and a learning rate of 0.0001. 
 
 ```
-
+python LibreView_exp_launcher.py LibreView-exp-1 2 True --model_hyperparameters 10 1 --training_hyperparameters 1 1024 0.001 --dataset_folder "C:\Users\aralmeida\Downloads\just_playing"
 ```
 
 
