@@ -56,20 +56,12 @@ from app.app_visualization import *
 import warnings
 from your_AI_DIY_parameters import *
 
-import matplotlib.pyplot as plt 
-
 from sensor_params import *
-
-################ HARD CODED AND TO BE CHANGED ###################
-your_keys = ["001", "001", "001", "12-6-2023"] # Just testing. This would be provided by the user and depending on the filename of the .csv, .json, etc.  
-# your_keys = ["001", "001", "001", "uploaded-BAD"] # To test when there is not one day of data 
-#################################################################
 
 # Ignore warnings
 warnings.filterwarnings("ignore")
 
-# WELCOME TO THE AI BASED DIY YOURSELF TOOL, UPLOAD YOUR DATA AND GET YOUR RESULTS
-# These welcome messages are shown just the first time the module is used (considering first time if the model hasn't been generated)
+# DIY module welcome message (web generated)
 print("""\
  __          __    _                                _                                                 _____        _                            _ 
  \ \        / /   | |                              | |                                         /\    |_   _|      | |                          | |
@@ -151,7 +143,6 @@ if "your_AI_based_CGM_predictor.h5" not in os.listdir():
     ans = input()
 
     if ans == "y":
-        # print("\nGreat! Let's move on!")
         pass
     else:
         sys.exit("\nSorry, we need to double check your sensor. Try again and make sure that your sensor is supported by this tool!")
@@ -165,7 +156,6 @@ if "your_AI_based_CGM_predictor.h5" not in os.listdir():
     elif ans == "b":
         unit = "mmol/L"
     else:
-        # print("\nSorry, but you introduced a wrong letter. Please, type only 'a' or 'b'")
         sys.exit("\nSorry, but you introduced a wrong letter. Please, try again type only 'a' or 'b'")
 
     print("\nSo, your glucose data is in " + unit + ", are we right? (y/n)")
@@ -173,7 +163,6 @@ if "your_AI_based_CGM_predictor.h5" not in os.listdir():
     if ans == "y":
         print("\nGreat! Let's move on!")
     else:
-        # print("\nOh, Sorry! Move back to the previous step and make sure you introduce the right unit! We'll be waiting for you!")
         sys.exit("\nOh, sorry! Try again and make sure you introduce the right unit! We'll be waiting for you!")
     
     # Set Keras to float 64 to work with the ISO-loss function
@@ -238,9 +227,8 @@ if "your_AI_based_CGM_predictor.h5" not in os.listdir():
         else: 
             raise Exception("Please, enter a 'y' or 'n' to continue.")
         
-        ######## CODE OF THE IMPLEMENTED AI FRAMEWORK ########
-
-        # TO CHANGE THIS, ADD A DICTIONARY IN your_AI_DIY_parameters.py, or change the parameters of the current dictionary
+        ######## Begin CODE OF THE IMPLEMENTED AI FRAMEWORK ########
+        # TO CHANGE THIS, CHANGE/ADD A DICTIONARY IN your_AI_DIY_parameters.py, or change the parameters of the current dictionary
         N = first_DIY_version['N'] # 96
         step = first_DIY_version['step'] # 1
         PH = first_DIY_version['PH'] # 30
@@ -449,6 +437,7 @@ if "your_AI_based_CGM_predictor.h5" not in os.listdir():
             #################################################
             #################################################
             #################################################
+            
             # Information to EMPOWER the user and make him/her understand the process and the requirements to generate the personalized-AI glucose predictor
             print("\n\n\nDETALLES DE QUE HACE FALTA UN AÑO, DE QUE LAS INTERRUPCIONES SE PENALIZAN, ETC.") 
 
