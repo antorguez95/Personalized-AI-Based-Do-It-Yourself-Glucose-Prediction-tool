@@ -14,25 +14,30 @@
 # 
 # You should have received a copy of the GNU General Public License
 # along with Personalized-AI-Based-Do-It-Yourself-Glucose-Prediction-tool.  If not, see <http://www.gnu.org/licenses/>.
-    
-"""
-This script encapsulates the Do It Yourself (DIY) module for glucose prediction.
-After experimentation (see main_libreview.py), this function can be considered 
-the DIY module itself ready to be used. This module is executed from a Docker image
-through the Dockerfile, and everyting is managed from there. Two possible scenarios
-are considered when calling this function from the terminal: 
-    a) If it is the user's first use, it runs the normal training of the DL model following a
-    4-folds month-wise CV approach. The model that presents better performance is saved as a .h5 file.
-    Currently only LSTM model is implemented to save execution time and complexity. After this,
-    T1D-related personal data analysis an visualization is provided, and an 30' prediction is performed
-    and depicted using the last 24 hours of the user's data (96 data points at 15-minute intervals for
-    the LibreView data used to develop this framework). 
 
-    ***** THE CHOICE OF THE BEST MODEL MIGHT CHANGE IN SUBSEQUENT VERSIONS OF THIS FRAMEWORK *****
-    b) If the user has already a DL model, (i.e., step a) has been done once) the function loads the model,
-    performs the same analysis with the new updated user's data, and performs a new 1-hour prediction taking 
-    the last 24 hours of the user's data.
-"""
+# DIY_top_module.py
+# This script is the top moduleof  the Do It Yourself (DIY) app for personalized
+# glucose prediction. After experimentation (see main_libreview.py),
+# this function can be considered the DIY module itself ready to be used.
+# This module is executed from a Docker image through the Dockerfile
+# and data access and AI model generation is managed from there. Two possible scenarios
+# are considered when calling this function from the terminal (and the proper Docker call, see README.md): 
+#     
+#     a) If it is the user's first use, it runs the normal training of the DL model following a
+#     4-folds month-wise CV approach. The model that presents better performance is saved as a .h5 file.
+#     Currently only LSTM model is implemented to save execution time and complexity. After this,
+#     T1D-related personal data analysis an visualization is provided, and an 30' prediction is performed
+#     and depicted using the last 24 hours of the user's data (96 data points at 15-minute intervals for
+#     the LibreView data used to develop this framework). 
+
+#     ***** THE CHOICE OF THE BEST MODEL MIGHT CHANGE IN SUBSEQUENT VERSIONS OF THIS FRAMEWORK *****
+#     b) If the user has already a DL model, (i.e., step a) has been done once) the function loads the model,
+#     performs the same analysis with the new updated user's data, and performs a new 1-hour prediction taking 
+#     the last 24 hours of the user's data.
+#
+# For further detailes, please see the functions docummentation, the README.md file, and/or our paper. 
+# "An AI-Based “Do-It-Yourself” Module for Interstitial Glucose Forecasting for People with Type 1 Diabetes"
+
 
 import os 
 # Avoid TensorFlow warnings
