@@ -1,5 +1,5 @@
 # An AI-based "Do-it-Yourself" tool for personalized glucose prediction. :mechanical_arm::robot: 
-Hi! :wave: :smile:  If you got here, it is very likely that you are interested in personalized glucose monitoring, AI, or both! If yours is the first case and you are willing to use this tool to predict your interstitial glucose level with your personalized AI model, [go directly to the *Use me!* section](#Use-me-!). If, on the contrary, you are more interested in the development of this tool :desktop_computer::keyboard:, the code, or you want to test your own AI models in this framework, you better go to [the developers and researchers section](#for-developers-and-researchers):man_technologist::woman_technologist: . 
+Hi! :wave: :smile:  If you got here, it is very likely that you are interested in personalized glucose monitoring, AI, or both! If yours is the first case and you are willing to use this tool to predict your interstitial glucose level with your personalized AI model, [go directly to the *Use me!* section](#Use-me-!). If, on the contrary, you are more interested in the development of this tool :desktop_computer::keyboard:, the code, or you want to test your own AI models in this framework, you better go to [the developers and researchers section](#for-developers-and-researchers)    :man_technologist::woman_technologist:. 
 
 ### :thinking: Why _"Do-It-Yourself"_? 
 The main characteristic of this AI-based module is that is _user-driven_. The user is the one to choose if she/he wants a personalized model or not, when to generate such model, and when to be prompted with a personalized prediction. Besides, it works with just the individual's data. Only __your data__ will be used to generate __your model__. Besides, __everything is LOCAL__. Your data, your model and your predictions will be accessed __only by you__ at your PC. No third-parties will participate on this process, only you!
@@ -82,7 +82,6 @@ Hi again! If you are here, it means you have `your_AI_based_CGM_predictor.h5` fi
 From now on, these are the steps you have to follow any time you want to have a personalized glucose prediction based on your own AI model! Hope this helps in your day-to-day! 
 
 ## :man_technologist: For developers and researchers
-
 :woman_technologist:
 
 Hi again! If you are here, it is assumed that you have basic knowledge of Python programming and AI, so let's get into it!
