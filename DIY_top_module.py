@@ -16,28 +16,22 @@
 # along with Personalized-AI-Based-Do-It-Yourself-Glucose-Prediction-tool.  If not, see <http://www.gnu.org/licenses/>.
     
 """
-This function encapsulates the Do It Yourself (DIY) module for glucose prediction.
+This script encapsulates the Do It Yourself (DIY) module for glucose prediction.
 After experimentation (see main_libreview.py), this function can be considered 
-the DIY module itself ready to be used. The input of the module is a .cvs (or .json) file.
-The output of this module is: 
+the DIY module itself ready to be used. This module is executed from a Docker image
+through the Dockerfile, and everyting is managed from there. Two possible scenarios
+are considered when calling this function from the terminal: 
     a) If it is the user's first use, it runs the normal training of the DL model following a
     4-folds month-wise CV approach. The model that presents better performance is saved as a .h5 file.
-    After this, T1D-related personal data analysis an visualization is provided, and
-    an 1-hour prediction is performed and depicted using the last 24 hours of the user's data (96 data points
-    at 15-minute intervals for the LibreView data used to develop this framework). 
+    Currently only LSTM model is implemented to save execution time and complexity. After this,
+    T1D-related personal data analysis an visualization is provided, and an 30' prediction is performed
+    and depicted using the last 24 hours of the user's data (96 data points at 15-minute intervals for
+    the LibreView data used to develop this framework). 
+
     ***** THE CHOICE OF THE BEST MODEL MIGHT CHANGE IN SUBSEQUENT VERSIONS OF THIS FRAMEWORK *****
     b) If the user has already a DL model, (i.e., step a) has been done once) the function loads the model,
     performs the same analysis with the new updated user's data, and performs a new 1-hour prediction taking 
     the last 24 hours of the user's data.
-
-Args: 
-----
-    user_file : user's file. This file should be a .csv or .json file with the user's data. ***More formats to come
-
-Returns:
--------
-    results : a dictionary to visualize the results even no new data is provided by the user, but whenever the user wishes so. 
-
 """
 
 import os 
@@ -47,15 +41,16 @@ import tensorflow as tf
 import sys
 import time
 sys.path.append("..")
+import warnings
+
+# Custom libraries 
 from app.your_data_read_and_analysis import *
 from models.training import month_wise_multi_input_LibreView_4fold_cv, train_model, ISO_adapted_loss
 from models.multi_step.LSTMVanilla import get_model as get_LSTM_multi_step
 from evaluation.multi_step.evaluation import model_evaluation as multi_step_model_evaluation
 from utils import get_LibreView_CGM_X_Y_multistep, generate_ranges_tags, generate_weights_vector
 from app.app_visualization import *
-import warnings
 from your_AI_DIY_parameters import *
-
 from sensor_params import *
 
 # Ignore warnings
@@ -437,7 +432,7 @@ if "your_AI_based_CGM_predictor.h5" not in os.listdir():
             #################################################
             #################################################
             #################################################
-            
+
             # Information to EMPOWER the user and make him/her understand the process and the requirements to generate the personalized-AI glucose predictor
             print("\n\n\nDETALLES DE QUE HACE FALTA UN AÑO, DE QUE LAS INTERRUPCIONES SE PENALIZAN, ETC.") 
 
