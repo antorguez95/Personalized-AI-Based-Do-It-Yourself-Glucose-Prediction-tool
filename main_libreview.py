@@ -15,19 +15,24 @@
 # You should have received a copy of the GNU General Public License
 # along with Personalized-AI-Based-Do-It-Yourself-Glucose-Prediction-tool.  If not, see <http://www.gnu.org/licenses/>.
 
+# main_libreview.py
+# This module contains the core of the experiment. From the raw data reading
+# and preparation to the model training and evaluation. For further information,
+# please go to the corresponding functions, to the README.md file, or to our paper. 
+# This is wrapper by the LibreView_exp_launcher.py to launch the experiments from the
+# terminal, which is encapsulated in a Docker for its user regardless the OS.   
+
 import os 
 import numpy as np 
-import pandas as pd
 import sys
 from typing import Dict 
 import matplotlib.pyplot as plt 
-import openpyxl
-import pickle
 import json 
 from keras import backend as K
 
 sys.path.append("..")
 
+# Custom libreries 
 from libreview_utils import *
 from models.training import *
 from sensor_params import *
@@ -59,20 +64,20 @@ from models.multi_step.naive_model import naive_model as get_naive_multi_step
 from evaluation.multi_step.evaluation import model_evaluation as multi_step_model_evaluation
 from evaluation.multi_step.evaluation import model_evaluation_close_loop as multi_step_model_evaluation_refeed
 
-# Dataset path 
+# Dataset path (ignores if from the launcher the path is specified)
 DATASET_PATH = r"C:\Users\aralmeida\Downloads\LibreViewRawData-final_sims"
 
-def launch_LibreView_experiments(test : Dict, input_features : int, weighted_samples : bool,  kernel_size : int = 3, tau : int = 1, lr : float = 0.0001,
-                                batch_size : int = 2, epochs : int = 10, dataset_path : str = DATASET_PATH) -> None:
+def launch_LibreView_experiments(test : Dict, input_features : int, weighted_samples : bool,  kernel_size : int = 10, tau : int = 1, lr : float = 0.0001,
+                                batch_size : int = 1, epochs : int = 20, dataset_path : str = DATASET_PATH) -> None:
     """
     This function launches the experiments according to the configuration specified in 'training_configs.py'.
     It includes the LibreView raw data reading and preparation, the models, some step of the preprocessing,
     or the selected loss function, among others.  These parameters can be changed, but those changes must
-    be done also in the correspondant part of the code. 
+    be done also in the corresponding part of the code. 
     
     Launching this experiment will generate a single subdirectory for each experiment. It will contain
     training information and the most relevant results in the '/training' folder. Inside the '/evaluation' folder,
-    the main figures that allow us to evaluate the model performance just with a glance..  
+    the main figures that allow us to evaluate the model performance just with a glance.  
     
     Besides, one folder per patient is generated. Finally, this function will generate a dictionary per patient that 
     will be exported as a .json file (results_dictionary.json). This dictionary  will contain all the results of
@@ -83,11 +88,11 @@ def launch_LibreView_experiments(test : Dict, input_features : int, weighted_sam
         test (Dict): Dictionary with the experiment configuration (check 'training_configs.py')
         input_features (int): Number of input features. Currently, 1 is the CGM, and 2 is the CGM and its derivative.
         weighted_samples (bool): If True, the samples are weighted according to the class distribution and its importance (weights obtained after heuristically)
-        kernel_size (int, optional): Convolution kernel size. Defaults to 3.
+        kernel_size (int, optional): Convolution kernel size. Defaults to 10.
         tau (int, optional): Convolution stride. Defaults to 1.
         lr (float, optional): Learning rate. Defaults to 0.0001.
-        batch_size (int, optional): Batch size. Defaults to 2
-        epochs (int, optional): Number of epochs. Defaults to 10.
+        batch_size (int, optional): Batch size. Defaults to 1.
+        epochs (int, optional): Number of epochs. Defaults to 20.
         dataset_path (str, optional): Path to the LibreView raw data stored in .csv. Defaults to DATASET_PATH.
     
     Returns:
@@ -115,10 +120,6 @@ def launch_LibreView_experiments(test : Dict, input_features : int, weighted_sam
         # Counter 
         i = 0
 
-        # Consider only folders, not .npy or .txt files
-        # if ('npy' not in id) and ('txt' not in id) and ('ISO' not in id) and ('test' not in id):
-        # if ('001' in id) and ('npy' not in id) and ('txt' not in id) : 
-        # if ('npy' not in id) and ('txt' not in id) and ('ISO' not in id) and ('test' not in id) and ('001' not in id) and ('003' not in id) and('004' not in id) and('007' not in id) and('008' not in id) and('011' not in id) and('013' not in id) and('014' not in id) and('015' not in id) and ('025' not in id) and ('026' not in id) and ('029' not in id) and ('039' not in id) and ('043' not in id):# and ('045' not in id):
         if ('npy' not in id) and ('txt' not in id) and ('ISO' not in id) and ('test' not in id):      
         
             # Get into the ID patient folder
@@ -442,11 +443,11 @@ def launch_LibreView_experiments(test : Dict, input_features : int, weighted_sam
                                                     # Close all figures 
                                                     plt.close('all')
 
-            # AQUI ES DONDE ACABA EL BUCLE Y HAY QUE PASAR AL SIGUIENTE ID
+            # TIP: Here the loop stops and the next ID (i.e., subject) is processed.
             # Back to previous directory 
             os.chdir('..')
 
-            # Stop when the counter is equal to the total number of experiments
+            # HARD-CODED - Stop when the counter is equal to the total number of experiments
             if i == total_exps*29: # 29 is the number of patients
                 break
     
