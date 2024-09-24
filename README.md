@@ -81,7 +81,7 @@ Hi again! If you are here, it means you have `your_AI_based_CGM_predictor.h5` fi
 
 From now on, these are the steps you have to follow any time you want to have a personalized glucose prediction based on your own AI model! Hope this helps in your day-to-day! 
 
-<h2 id="how-to-contribute">:man_technologist::woman_technologist: How to Contribute</h2>
+<h2 id="for-developers-and-researchers">:man_technologist::woman_technologist: For developers and researchers</h2>
 
 Hi again! If you are here, it is assumed that you have basic knowledge of Python programming and AI, so let's get into it!
 
@@ -220,5 +220,3 @@ Perfect! Now you have results from your experiments and you can compare within y
 ## Something missing? Need help? Any bugs? Suggestions?  
 
 :email: antorguez95@hotmail.com
-
-For more details, see the [How to Contribute section](#how-to-contribute).
