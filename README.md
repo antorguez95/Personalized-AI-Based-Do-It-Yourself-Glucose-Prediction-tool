@@ -221,7 +221,6 @@ python LibreView_exp_launcher.py your_new_training_config 2 False --model_hyperp
 
 Perfect! Now you have results from your experiments and you can compare within your models, or [against ours]()! Check the `results_analysis.py` functions and play a little bit to visualize your results from a Jupyter Notebook, for example! 
 
-## Something missing? Need help? Any bugs? Suggestions? 
 <h2 id="mail-me">:point_down: Something missing? Need help? Any bugs? Suggestions? :point_down:</h2>
 
 :email: antorguez95@hotmail.com
