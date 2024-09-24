@@ -8,7 +8,7 @@ This module has been developed with data from people with **type 1 diabetes**, b
 
 If you are interested to read about the scientific basis of this work, please check our paper [*"An AI-Based “Do-It-Yourself” Module for Interstitial Glucose Forecasting for People with Type 1 Diabetes"*](https://ieeexplore.ieee.org/document/9851514) published on [npj Digital Medicine](https://www.nature.com/npjdigitalmed/) scientific journal. Besides, if this work somehow helped you with your research work or with a personal project, please, cite our paper. :page_with_curl:  
 
-## Use me!  
+## Use me! 
 ### First time? :handshake:
 Welcome! First times are always special, and this is not an exception! :star_struck: The first time you use this module, you will get your personalized AI-glucose predictor. Once you have generated your model, you just have to follow the instructions on [Use me (again)! section](#Use-me-(again)!). Currently, this tool only supports the following sensors: 
 
