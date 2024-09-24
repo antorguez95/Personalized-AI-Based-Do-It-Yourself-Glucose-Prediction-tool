@@ -1,16 +1,20 @@
 # An AI-based "Do-it-Yourself" tool for personalized glucose prediction. :mechanical_arm::robot: 
-Hi! :wave: :smile:  If you got here, it is very likely that you are interested in personalized glucose monitoring, AI, or both! If yours is the first case and you are willing to use this tool to predict your interstitial glucose level with your personalized AI model, [go directly to the *Use me!* section](#Use-me-!). If, on the contrary, you are more interested in the development of this tool :desktop_computer::keyboard:, the code, or you want to test your own AI models in this framework, you better go to [the developers and researchers section](#For-developers-and-researchers) :man_technologist::woman_technologist:. 
+Hi! :wave: :smile:  If you got here, it is very likely that you are interested in personalized glucose monitoring, AI, or both! If yours is the first case and you are willing to use this tool to predict your interstitial glucose level with your personalized AI model, [go directly to the *Use me!* section](#use-me). If, on the contrary, you are more interested in the development of this tool :desktop_computer::keyboard:, the code, or you want to test your own AI models in this framework, you better go to [the developers and researchers section](#for-developers-and-researchers) :man_technologist::woman_technologist:. 
 
-### Why _"Do-It-Yourself"_? :thinking:
+<h3 id="why-do-it-yourself-?">:thinking: Why <em>"Do-It-Yourself"</em>? </h3>
+
 The main characteristic of this AI-based module is that is _user-driven_. The user is the one to choose if she/he wants a personalized model or not, when to generate such model, and when to be prompted with a personalized prediction. Besides, it works with just the individual's data. Only __your data__ will be used to generate __your model__. Besides, __everything is LOCAL__. Your data, your model and your predictions will be accessed __only by you__ at your PC. No third-parties will participate on this process, only you!
 
 This module has been developed with data from people with **type 1 diabetes**, but of course it is suitable for anyone who has a diabetes-related condition that implies having a glucose sensor attached to your body. :+1: 
 
-If you are interested to read about the scientific basis of this work, please check our paper [*"An AI-Based “Do-It-Yourself” Module for Interstitial Glucose Forecasting for People with Type 1 Diabetes"*](https://ieeexplore.ieee.org/document/9851514) published on [npj Digital Medicine](https://www.nature.com/npjdigitalmed/) scientific journal. Besides, if this work somehow helped you with your research work or with a personal project, please, cite our paper. :page_with_curl:  
+If you are interested to read about the scientific basis of this work, please check our paper [*"An AI-Based “Do-It-Yourself” Module for Interstitial Glucose Forecasting for People with Type 1 Diabetes"*](https://ieeexplore.ieee.org/document/9851514) published on [npj Digital Medicine](https://www.nature.com/npjdigitalmed/) scientific journal. Besides, if this work somehow helped you with your research work or with a personal project, please, cite our paper. :page_with_curl: 
 
-## Use me!  
-### First time? :handshake:
-Welcome! First times are always special, and this is not an exception! :star_struck: The first time you use this module, you will get your personalized AI-glucose predictor. Once you have generated your model, you just have to follow the instructions on [Use me (again)! section](#Use-me-(again)!). Currently, this tool only supports the following sensors: 
+If, after using or testing this module you miss something, you found some errors, your have doubts, or you want to collaborate with us, please [feel free to reach out!](#mail-me) :email:
+
+<h2 id="use-me">Use me! </h2>
+<h3 id="first-time">:handshake: First time?</h3>
+
+Welcome! First times are always special, and this is not an exception! :star_struck: The first time you use this module, you will get your personalized AI-glucose predictor. Once you have generated your model, you just have to follow the instructions on [Use me (again)! section](#use-me-again). Currently, this tool only supports the following sensors: 
 
 #### Included sensors
 | Data source  | Sensors | Input data | 
@@ -62,14 +66,14 @@ docker run -ti --mount type=bind,source=/C/Users/aralmeida/Downloads/drop_your_d
    - `your_AI_based_CGM_predictor.h5`:robot: This is **your personalized AI model for your glucose level predictions!** Isn't it great?? __Do not delete this file__. If you do so, you will have to repeat all this process from the beginning.
    - `your_last_prediction.png`:chart_with_upwards_trend: This is your very first AI-based prediction! Of course, this prediction is not useful, since it took place after the model generation, that took a couple of hours (:lotus_position_man:). As you can see, the model takes the data from your last **24 hours**, and performs a prediction of your next **30 minutes**. The red shadow shows the error on each instant (15' and 30' ahead), that has been calculated during the model generation. From now on, everytime you execute this app, this picture will be overwritten with your most recent prediction, so this is what you will see! Unfortunately, if your last day contains CGM reading interruptions, the model will not be able to provide you with a prediction. This is (also) work in progress :hammer_and_wrench:.
 
-From now, everytime you want to use this app, you have to follow the simple steps described in [Use me (again)! section](#Use-me-(again)!). 
+From now, everytime you want to use this app, you have to follow the simple steps described in [Use me (again)! section](#use-me-again). 
 
-### Use me (again)! :repeat:
+<h3 id="use-me-again">:repeat: Use me (again)!</h3>
 
 Hi again! If you are here, it means you have `your_AI_based_CGM_predictor.h5` file in your `/drop_your_data_here_and_see_your_pred` folder, and you want to get now a personalized prediction of your next 30 minutes. 
    1) :arrow_down: Download your most recent data in a `.csv` file, containing at least your last 24 hours of CGM readings. Don't worry if your downloaded file contains more than 24 hours, this app will take care of this!
    2) :file_folder: Drop it in the `/drop_your_data_here_and_see_your_pred` folder.
-   3) :desktop_computer: Open a terminal in your PC and execute the following lines (remember to replace `APP_DIRECTORY` by the same as you used in step 3 of [Use me! section](#Use-me!) and `YOUR_DATA_DIRECTORY/drop_your_data_here_and_see_your_pred` by the directory where you save your CGM file):
+   3) :desktop_computer: Open a terminal in your PC and execute the following lines (remember to replace `APP_DIRECTORY` by the same as you used in step 3 of [Use me! section](#use-me) and `YOUR_DATA_DIRECTORY/drop_your_data_here_and_see_your_pred` by the directory where you save your CGM file):
    ```
    cd APP_DIRECTORY
    ```
@@ -81,7 +85,8 @@ Hi again! If you are here, it means you have `your_AI_based_CGM_predictor.h5` fi
 
 From now on, these are the steps you have to follow any time you want to have a personalized glucose prediction based on your own AI model! Hope this helps in your day-to-day! 
 
-## For developers and researchers :man_technologist::woman_technologist:
+<h2 id="for-developers-and-researchers">:man_technologist::woman_technologist: For developers and researchers</h2>
+
 Hi again! If you are here, it is assumed that you have basic knowledge of Python programming and AI, so let's get into it!
 
 The framework to design this **_"Do-It-Yourself" AI based module_** is based on Python 3.10 and TensorFlow 2.6.0. Typical libraries for Machine Learning development, such as `scikit-learn`, or `matplotlib` for visualization were also used. All the requirements are included in the `requirement.txt` file. Notice that if you don't use GPU, cuda libraries won't be used. 
@@ -216,6 +221,6 @@ python LibreView_exp_launcher.py your_new_training_config 2 False --model_hyperp
 
 Perfect! Now you have results from your experiments and you can compare within your models, or [against ours]()! Check the `results_analysis.py` functions and play a little bit to visualize your results from a Jupyter Notebook, for example! 
 
-## Something missing? Need help? Any bugs? Suggestions?  
+<h2 id="mail-me">:point_down: Something missing? Need help? Any bugs? Suggestions?</h2>
 
 :email: antorguez95@hotmail.com
