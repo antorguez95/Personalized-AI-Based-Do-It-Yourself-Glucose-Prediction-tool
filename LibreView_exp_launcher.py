@@ -57,7 +57,7 @@ parser = argparse.ArgumentParser(prog='Train and Evaluate DL-based CGM Forecast 
 
 # Add the training configuration as a mandatory argument 
 parser.add_argument("training_config", help='Dictionaries with the configuration. (Modify \'training_configs.py\' as you wish)',
-                    choices=['big_test', 'loss_functions_comparison', 'test', 'stacked_LSTM_multi', 'LibreView-exp-1', 'naive_exps'])
+                    choices=['test', 'stacked_LSTM_multi', 'LibreView-exp-1', 'naive_exps'])
 
 # Add the input features as a mandatory argument 
 parser.add_argument("input_features", help='Input features to use in the model. Currently 1 means only CGM, and 2 means CGM and its derivative',
@@ -79,13 +79,7 @@ parser.add_argument("--dataset_folder", nargs=1, help='Specify the dataset direc
 args = parser.parse_args()
 
 # Catch the dictionary with the desired experiment
-if args.training_config == 'big_test':
-    training_config = big_test
-elif args.training_config == 'loss_functions_comparison':
-    training_config = loss_functions_comparison
-elif args.training_config == 'stacked_LSTM_multi':
-    training_config = stacked_LSTM_multi
-elif args.training_config == 'test':
+if args.training_config == 'test':
     training_config = testing
 elif args.training_config == 'LibreView-exp-1':
     training_config = N_patients_N_models_DL
