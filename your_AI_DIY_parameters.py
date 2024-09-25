@@ -15,6 +15,13 @@
 # You should have received a copy of the GNU General Public License
 # along with Personalized-AI-Based-Do-It-Yourself-Glucose-Prediction-tool.  If not, see <http://www.gnu.org/licenses/>.
 
+# your_AI_DIY_parameters.py
+# This module contains the FINAL PARAMETERS for the DIY tool.
+# This is, the once that will be used for the generation and 
+# execution of the personalized AI model. This file is intented
+# to be changed just BY DEVELOPERS/RESEARCHERS that have validated
+# the obtained results. Otherwise, leave it as it is.  
+
 from sensor_params import *
 
 first_DIY_version = {'N' : 96, # Input window length
