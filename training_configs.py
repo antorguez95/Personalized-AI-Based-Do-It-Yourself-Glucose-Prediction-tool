@@ -15,45 +15,32 @@
 # You should have received a copy of the GNU General Public License
 # along with Personalized-AI-Based-Do-It-Yourself-Glucose-Prediction-tool.  If not, see <http://www.gnu.org/licenses/>.
 
+# training_configs.py
+# This module contains as many dictionaries as training configurations
+# you are willing to test, providing high flexibility and enabling 
+# comparison between architectures, PHs, input winwos lengths, etc. 
+# This is the description of each field: 
+#       - sensor: dictionary with the sensor parameters (see sensor_params.py).
+#       - N: input window length (i.e., number of samples). 
+#       - step: step between consecutive samples in the dataset generation. 
+#       - PH: prediction horizon.
+#       - single_multi_step: single or multi-step prediction.
+#       - partition: partition strategy.
+#       - normalization: normalization strategy.
+#       - under_over_sampling: under or over sampling strategy.
+#       - model: model to be used.
+#       - loss_function: loss function to be used.
+#
+# In case you want to reproduce and/or compare your results with us, the 
+# N_patients_N_models_DL is the one that represents the experimentation 
+# included in our paper. 
+# 
+# Introduce here your dicionary with your desired configuratoin. See README.md
+# to learn the full process. An example is included in your_new_sensor variable. 
+
 from sensor_params import * # All sensors parameters
 
 # Dictionary of all the possible training configurations to be used in the loop
-big_test = {'sensor' : [sensor_Mikael],
-                'N' : [48, 96, 144], 
-                'step' : [1], 
-                'PH' : [5, 30, 60], 
-                'single_multi_step' : ['single', 'multi'],
-                'partition' : ['june-21', 'month-wise-4-folds'],
-                'normalization' : [None, 'min-max'],
-                'under_over_sampling' : ['under', None], 
-                'model' : ['1D-UNET', '1D-UNET-non-compres', 'DIL-1D-UNET', 'LSTM', '1D-UNET-LSTM', 'StackedLSTM'],
-                'loss_function' : ['root_mean_squared_error', 'ISO_loss'], 
-                }
-
-loss_functions_comparison = {'sensor' : [sensor_Mikael],
-                'N' : [96], 
-                'step' : [1], 
-                'PH' : [60, 30, 5], 
-                'single_multi_step' : ['single'],
-                'partition' : ['june-21'],
-                'normalization' : ['min-max'],
-                'under_over_sampling' : [None], 
-                'model' : ['1D-UNET-non-compres', 'LSTM', 'StackedLSTM'],
-                'loss_function' : ['ISO_loss', 'root_mean_squared_error'], 
-                }
-
-stacked_LSTM_multi = {'sensor' : [sensor_Mikael],
-                'N' : [96], 
-                'step' : [1], 
-                'PH' : [60, 30], 
-                'single_multi_step' : ['multi'],
-                'partition' : ['june-21'],
-                'normalization' : ['min-max'],
-                'under_over_sampling' : [None], 
-                'model' : ['StackedLSTM'],
-                'loss_function' : ['ISO_loss', 'root_mean_squared_error'], 
-                }
-
 first_approach = {'sensor' : [libreview_sensors],
                 'N' : [96], 
                 'step' : [1], 
@@ -78,15 +65,16 @@ testing = {'sensor' : [libreview_sensors],
                 'loss_function' : ['root_mean_squared_error'], 
                 }
 
+###### THIS IS THE CONFIGURATION OF THE EXPERIMENT INCLUDED IN THE PAPER!!!!! #######
 N_patients_N_models_DL = {'sensor' : [libreview_sensors],
                 'N' : [96], 
                 'step' : [1], 
-                'PH' : [30], # [30], 
+                'PH' : [30, 60], 
                 'single_multi_step' : ['multi'],
                 'partition' : ['month-wise-4-folds'],
                 'normalization' : ['min-max'],
                 'under_over_sampling' : [None], 
-                'model' : ['naive'], #'LSTM', 'DIL-1D-UNET', 'StackedLSTM'], #['LSTM'], # ['DIL-1D-UNET'], #['StackedLSTM'],#, 'LSTM', 'DIL-1D-UNET'],
+                'model' : ['naive', 'LSTM', 'DIL-1D-UNET', 'StackedLSTM'], 
                 'loss_function' : ['ISO_loss', 'root_mean_squared_error'], 
                 }
 
