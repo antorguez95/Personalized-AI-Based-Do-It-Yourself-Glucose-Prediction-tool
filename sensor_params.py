@@ -15,13 +15,12 @@
 # You should have received a copy of the GNU General Public License
 # along with Personalized-AI-Based-Do-It-Yourself-Glucose-Prediction-tool.  If not, see <http://www.gnu.org/licenses/>.
 
-# Mikael sensor
-sensor_Mikael = {
-    "NAME" : "mikael_sensor",
-    "CGM" : True,
-    "INSULIN" : True, 
-    "SAMPLE_PERIOD" : 5, #minutes between consecutive readings
-    }
+# sensor_params.py
+# This module contains as many dictionaries as type of sensors included in the 
+# study. In this case, onlu libreview_sensors was included because it 
+# representes all the included sensors (only CGM entry and 15 minutes of sampling period). 
+# Introduce here your sensor to perform this experiments. See README.md to learn the
+# full process. An example is included in your_new_sensor variable. 
 
 libreview_sensors = {
     "NAME" : "FreeStyle Libre X",
@@ -30,11 +29,11 @@ libreview_sensors = {
     "SAMPLE_PERIOD" : 15, 
 }
 
-# Mikael sensor
-freestyle_libre_3 = {
-    "NAME" : "mikael_sensor",
+# Example of a new sensor. 
+your_new_sensor = {
+    "NAME" : "FreeStyle Libre 3",
     "CGM" : True,
-    "INSULIN" : True, 
+    "INSULIN" : True, # If you want to include insulin too, you have to change the code accordingly. 
     "SAMPLE_PERIOD" : 5, #minutes between consecutive readings
     }
 
