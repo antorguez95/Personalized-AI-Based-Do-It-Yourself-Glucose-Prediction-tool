@@ -15,54 +15,20 @@
 # You should have received a copy of the GNU General Public License
 # along with Personalized-AI-Based-Do-It-Yourself-Glucose-Prediction-tool.  If not, see <http://www.gnu.org/licenses/>.
 
+# your_data_read_and_analysis.py
+# This module contains the functions dedicated to user's data 
+# read, analysis and preparation for the AI model generation. With some
+# adaptations regarding how directories and files are managed, they are
+# pretty much the same from the original ones in util.py and 
+# libreview_utils.py
+#   
+# See functions documentation for more details. 
+
 import os 
 import pickle
 import numpy as np 
 import pandas as pd
 from typing import Dict, List, Tuple
-
-# Set of keys of all patients (41) to easily access their data in the Libreview files (more .csv files would imply changing this)
-# set_of_libreview_keys = [["001", "001", "001", "12-6-2023"],
-#             ["003", "001", "001", "12-6-2023"],
-#             ["004", "001", "001", "10-7-2023"],
-#             ["007", "001", "001", "10-7-2023"], 
-#             ["008", "001", "001", "10-7-2023"],
-#             ["011", "001", "001", "10-7-2023"],
-#             ["013", "001", "001", "10-7-2023"],
-#             ["014", "001", "001", "10-7-2023"],
-#             ["015", "001", "001", "11-7-2023"],
-#             ["019", "001", "001", "11-7-2023"],
-#             ["020", "001", "001", "4-9-2023"],
-#             ["025", "001", "001", "11-7-2023"],
-#             ["026", "001", "001", "11-7-2023"],
-#             ["029", "001", "001", "11-7-2023"],
-#             ["039", "001", "001", "11-7-2023"],
-#             ["042", "001", "001", "11-7-2023"],
-#             ["043", "001", "001", "11-7-2023"],
-#             ["044", "001", "001", "11-7-2023"],
-#             ["045", "001", "001", "11-7-2023"],
-#             ["046", "001", "001", "11-7-2023"],
-#             ["047", "001", "001", "11-7-2023"],
-#             ["048", "001", "001", "11-7-2023"],
-#             ["049", "001", "001", "11-7-2023"],
-#             ["051", "001", "001", "11-7-2023"],
-#             ["052", "001", "001", "4-9-2023"],
-#             ["053", "001", "001", "4-9-2023"],
-#             ["054", "001", "001", "4-9-2023"],
-#             ["055", "001", "001", "4-9-2023"],
-#             ["056", "001", "001", "4-9-2023"],
-#             ["057", "001", "001", "4-9-2023"],
-#             ["058", "001", "001", "4-9-2023"],
-#             ["059", "001", "001", "4-9-2023"],
-#             ["060", "001", "001", "4-9-2023"],
-#             ["061", "001", "001", "4-9-2023"],
-#             ["062", "001", "001", "4-9-2023"],
-#             ["063", "001", "001", "4-9-2023"],
-#             ["064", "001", "001", "4-9-2023"],
-#             ["065", "001", "001", "6-9-2023"],
-#             ["066", "001", "001", "6-9-2023"],
-#             ["067", "001", "001", "6-9-2023"],
-#             ["068", "001", "001", "6-9-2023"]]
 
 def prepare_LibreView_data(your_data_path : str, first_time : bool, save_dict : bool = False) -> Dict:
     
@@ -147,12 +113,6 @@ def prepare_LibreView_data(your_data_path : str, first_time : bool, save_dict : 
 
                 # Clean NaN values
                 current_recordings = current_recordings.dropna(axis=0, subset=['Tipo de registro'])
-
-                # Clean errors detected: 
-                # Detectederrors in the timestamps. These are removed
-                # if id == "014" and s == "001" and r == "001" : 
-                #     idxs = np.where(current_recordings['Sello de tiempo del dispositivo'] == '01-01-0001 00:00')
-                #     current_recordings.drop(current_recordings.index[71870:74581], inplace=True)
 
                 # Conver timestamps to datetime64
                 current_recordings['Sello de tiempo del dispositivo'] = pd.to_datetime(current_recordings['Sello de tiempo del dispositivo'],
@@ -240,12 +200,15 @@ def get_your_1year_LibreView_recordings_dict(your_keys : List, libreview_data : 
 
     Args
     ----
+        your_keys : List with the keys of the dictionary that contains the data of the user.
         libreview_data : Dictionary generated with prepare_LibreView_data()
     
     Returns
     -------
         data_1yr_recordings : Dictionary with the same structure as the input dictionary only 
         with the recordings with at least one year in a raw with the same sensor. 
+        data_suitability : Flag to indicate if the user has at least one year of data with the same sensor
+        to train the DL model or not. 
     """
 
 
@@ -323,8 +286,9 @@ def generate_your_LibreView_npy_files(your_data_path : str, your_keys : List,  l
 
     Args
     ----
+        your_data_path : Path to the dataset directory
+        your_keys : List with the keys of the dictionary that contains the data of the user.
         libreview_data : Dictionary generated with prepare_LibreView_data()
-        foldername : Name of the folder where the .npy files will be stored. Default: r"\npy_files"
         verbose : grade of verbosity. Default: 0. 
     
     Returns
@@ -399,7 +363,7 @@ def generate_your_LibreView_npy_files(your_data_path : str, your_keys : List,  l
 def generate_your_LibreView_npy_1yr_recordings(data_1yr_recordings : Dict): 
     
     """
-    This functions extract, from a dictionary containing the recordings 
+    This functions extracts, from a dictionary containing the recordings 
     having at least 1 year of consecutive CGM readings, the data and timestamps 
     of the oldest recording of each ID (in case the ID has more then one recording
     with >= year). The .npy that are read were previously generated by 
@@ -526,14 +490,9 @@ def get_your_oldest_year_npys_from_LibreView_csv(dataset_path : str, first_time 
     If not enough data, prompts the user, teh program stops and provides information 
     about the IA so the user is able to upload better the next time 
     
-    ######Files
-    are stored in the '/1yr_npy_files' folder. CGM recordings are stored as
-    'oldest_1yr_CGM.npy' and their timestamps as 'oldest_1yr_CGM_timestamp.npy' 
-    ####################
-
     Args
     ----
-        dataset_path : path where the .csv files are stored.
+        dataset_path : path where the user's .csv file are stored.
         first_time : flag to indicate if user has previously uploaded his/her data. 
     
     Returns
@@ -546,32 +505,16 @@ def get_your_oldest_year_npys_from_LibreView_csv(dataset_path : str, first_time 
     # Extract the ID from the uploaded file in the current user directory 
     filename = os.listdir(dataset_path)
 
-
     # Raise a Value Error to let the user know that data has not been uploaded
     if ".csv" not in filename[0]:
         raise ValueError("Oops! Seems that you have not properly uploaded your data at /drop_your_data_here_and_see_your_pred. Please, check it!")
 
-    # Selection of the set of libreview keys after MANUALLY insert this entry in the code (TO BE IMPROVED AND STUDIED HOW TO CHANGE IT)
-    # your_id = filename[0].split("_")[0][2:] # filename[0] assumes only one element (the very first uploaded .csv)
-    ##############################
-    # AQUI ES DONDE HAY QUE AÑADIR TODAS LAS KEYS Y BORRAR LO DE ARRIBA
+    # Extract user keys from the filename
     your_id = filename[0].split("_")[0][2:] 
     your_s = filename[0].split("_")[1][1:]
     your_r = filename[0].split("_")[2][1:]
     your_date = filename[0].split("_")[4][:-4]
-
     your_keys = [your_id, your_s, your_r, your_date] 
-
-    # Y COMENTAr LO DE ABAJO
-    #########################################
-    
-    # Iterate over all dictionary keys
-    # for i in range(0,len(set_of_libreview_keys)):
-    #     # Iterate until the ID matches the one of the list 
-    #     if set_of_libreview_keys[i][0] == your_id: 
-    #         your_keys = set_of_libreview_keys[i]
-    #     else: 
-    #         pass
 
     # This function is employed if you don't have your model. So this is the first time your data is read
     your_libreview_data = prepare_LibreView_data(dataset_path, first_time)
@@ -587,7 +530,7 @@ def get_your_oldest_year_npys_from_LibreView_csv(dataset_path : str, first_time 
 
     return data_suitability 
 
-def get_and_check_last_day_of_data (subject_keys : List, upload_dir: np.array) -> Tuple[np.array, np.array, bool]: 
+def get_and_check_last_day_of_data (subject_keys : List, upload_dir: str) -> Tuple[np.array, np.array, bool]: 
 
     """
     Read and prepare the uploaded data in the subsequent uses of this module
@@ -600,11 +543,8 @@ def get_and_check_last_day_of_data (subject_keys : List, upload_dir: np.array) -
 
     Args:
     ----
-    uploaded_dir: directory where tge (potentially) uploaded data is stored.
-    *** NOTE: Currently is a static directory for testing purposes, and only 
-    Libreview is supported. This function assumes only a few instances of data
-    uploaded, without sensor changes. Depending on the format of the filename,
-    the keys should be changed accordingly. 
+    subject_keys: List with the keys of the dictionary that contains the data of the user.
+    upload_dir: path to the directory where the user's data is stored.
 
     Returns:
     -------

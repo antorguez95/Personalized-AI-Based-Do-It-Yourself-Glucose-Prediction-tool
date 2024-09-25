@@ -15,6 +15,11 @@
 # You should have received a copy of the GNU General Public License
 # along with Personalized-AI-Based-Do-It-Yourself-Glucose-Prediction-tool.  If not, see <http://www.gnu.org/licenses/>.
 
+# app_visualization.py
+# This module contains the functions dedicated to user's data visualization for the 
+# prediction and for the CGM data summary istelf.    
+# See functions documentation for more details. 
+
 import numpy as np 
 import matplotlib.pyplot as plt
 import statsmodels.api as sm
@@ -30,6 +35,9 @@ def cgm_data_summary_figure(id : str, sensor : str, num_blocks : int, cgm_data :
     input parameters (chosen by the user in the application), a different personalized 
     visualization will be given. 
 
+    Now, the prediction is plotted using the other function to separate both steps. That's why
+    the bottom part of the function is commented. This might change. 
+
     Args
     ----
         id : Patient ID
@@ -37,7 +45,7 @@ def cgm_data_summary_figure(id : str, sensor : str, num_blocks : int, cgm_data :
         num_blocks : Number of blocks without sensor reading interruptions
         cgm_data : CGM values of the patient (the timeseries itself)
         cgm_timestamps : Timestamps of the CGM values
-        sensor_sampling_period : Sampling period of the sensor in minutes
+        sensor_sampling_period : Sampling period of the sensor (in minutes)
         pred_steps : Number of steps predicted by the AI model (dependent on previous steps, architecture, sensor, etc.)
         N : Number of samples used to predict the next hour (dependent on previous steps, architecture, sensor, patient, etc.)
         prediction : Prediction of the AI model for the next hour resulting from the call of the Keras model 
@@ -484,8 +492,8 @@ def cgm_data_summary_figure(id : str, sensor : str, num_blocks : int, cgm_data :
 def get_prediction_graphic(X : np.array, X_norm : np.array, predicted_points : int, X_times : np.array, rmse : List, unit : str, prediction : np.array, 
                            N : int = 96, step : int =  1): 
     """
-    This function generates and save two plots taking the last day available of a given 
-    user, if it uploads enough and reliable data to generate a CGM prediction until the 
+    This function generates and save a plot taking the last day available of a given 
+    user (CGM data), if it uploads enough and reliable data to generate a CGM prediction until the 
     next 30'. The first plot shows the last 96 samples of the user's data and the AI
     (one day), together with the prediction. The second subplot is a zoommed version of
     the first one
