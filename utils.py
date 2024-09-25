@@ -15,6 +15,12 @@
 # You should have received a copy of the GNU General Public License
 # along with Personalized-AI-Based-Do-It-Yourself-Glucose-Prediction-tool.  If not, see <http://www.gnu.org/licenses/>.
 
+# utils.py
+# This module contains the functions for the raw data read, curation 
+# and preparation for further DL processing. Some functions are from different
+# sensors, but helped us for the final functions so they were kept in this repo.   
+# See functions documentation for more details. 
+
 import os 
 import json
 import pandas as pd
@@ -24,6 +30,7 @@ from matplotlib import pyplot as plt
 import pickle
 
 def extract_Mikael_data(json_file_path : str, json_file_name : str, ONLY_CGM: bool = True): 
+    
     """
     This function prepares the data from the json file (Mikael personal data) and returns
     a list of dictionaries containing data of interest for Type 1 Diabetes managament of
@@ -516,23 +523,6 @@ def get_CGM_X_Y(CGM_data_dict: Dict, sensor : Dict, N: int, step: int,
         Y_times (np.array): datetime datatypes associated to Y
     """
 
-    # # Set current directory as parent directory (code has been designed to have 'modular' paths)
-    # parent_directory = os.getcwd()
-
-    # # Create folder to save the experiments data
-    # if not os.path.exists(parent_directory+experiments_folder):
-    #     os.makedirs(parent_directory+experiments_folder)
-
-    # os.chdir(parent_directory+experiments_folder)
-
-    # # Create a folder dependent on N, stride and step to save the data
-    # experiment_path = r'\N%i_step%i_PH%i' % (N, step, round(PH/sensor["SAMPLE_PERIOD"]))
-    # if not os.path.exists(parent_directory+experiments_folder+experiment_path):
-    #     os.makedirs(parent_directory+experiments_folder+experiment_path)
-
-    # # Change to that directory 
-    # os.chdir(parent_directory+experiments_folder+experiment_path)
-
     # Variable to store CGM and times as a single continue value to further split them as desired
     time_concat = np.array(0)
     glucose_concat = np.array(0)
@@ -687,23 +677,6 @@ def get_CGM_X_Y_multistep(CGM_data_dict: Dict, glucose_sensor : Dict, N: int, st
         X_times (np.array): datetime datatypes associated to X 
         Y_times (np.array): datetime datatypes associated to Y
     """
-
-    # # Set current directory as parent directory (code has been designed to have 'modular' paths)
-    # parent_directory = os.getcwd()
-
-    # # Create folder to save the experiments data
-    # if not os.path.exists(parent_directory+experiments_folder):
-    #     os.makedirs(parent_directory+experiments_folder)
-
-    # os.chdir(parent_directory+experiments_folder)
-
-    # # Create a folder dependent on N, stride and step to save the data
-    # experiment_path = r'\N%i_stride%i_step%i' % (N, step, prediction_horizon/5)
-    # if not os.path.exists(parent_directory+experiments_folder+experiment_path):
-    #     os.makedirs(parent_directory+experiments_folder+experiment_path)
-
-    # # Change to that directory 
-    # os.chdir(parent_directory+experiments_folder+experiment_path)
 
     # Variable to store CGM and times as a single continue value to further split them as desired
     time_concat = np.array(0)
@@ -993,6 +966,7 @@ def create_results_dictionary(parent_directory : str, experiments_folder : str):
 
 def get_dictionary_key(sensor : Dict, single_multi_step : str, N : int, step : int,  PH : int, data_partition : str, 
                               normalization : str, under_over_sampling : str, name : str, loss_function : str) -> str: 
+    
     """
     Get the dictionary key to uniquely store the results correspondant to the current dataset configuration.
     It consideres the sensor, the dataset parameters, some preprocessing steps and the name of the employed
