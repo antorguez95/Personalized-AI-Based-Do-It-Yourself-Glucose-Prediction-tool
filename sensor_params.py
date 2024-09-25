@@ -17,9 +17,10 @@
 
 # sensor_params.py
 # This module contains as many dictionaries as type of sensors included in the 
-# study. In this case, onlu libreview_sensors was included because it 
-# representes all the included sensors (only CGM entry and 15 minutes of sampling period). 
-# Introduce here your sensor to perform this experiments. See README.md to learn the
+# study. In this case, only libreview_sensors was included because it 
+# represents all the included sensors (only CGM entry and 15 minutes of sampling period). 
+# 
+# Introduce here your sensor to perform this experiment. See README.md to learn the
 # full process. An example is included in your_new_sensor variable. 
 
 libreview_sensors = {
