@@ -15,6 +15,11 @@
 # You should have received a copy of the GNU General Public License
 # along with Personalized-AI-Based-Do-It-Yourself-Glucose-Prediction-tool.  If not, see <http://www.gnu.org/licenses/>.
 
+# evaluation.py
+# This module contains the functions the DL single-step models
+# evaluation,including the ISO-based metrics.   
+# See functions documentation for more details. 
+
 import numpy as np
 from typing import Tuple
 import matplotlib.pyplot as plt
@@ -23,22 +28,20 @@ from shapely.geometry.polygon import Polygon
 import os
 import tensorflow as tf
 
-from evaluation.single_step.Parkes_EGA_boundaries_T1DM import *
-
 from models.training import ISO_adapted_loss
 
 
 def bgISOAcceptableZone(ground_truth : np.array, predictions: np.array,  fold = str, plot : bool = False) -> Tuple[int, bool]:
     
     """
-    This function generates a chart showing the ISO range acceptable zone to evaluate 
+    This function generates a chart showing the ISO acceptable zone to evaluate 
     blood glucose prediction algorithms according to the ISO 15197:2015 (In vitro 
     diagnostic test systems - Requirements for blood-glucose monitoring systems for 
-    self-testing in managing diabetes mellitus) [1]. It shows all predictions within
-    and shows also the percentage of predictions within the acceptable range that
-    must be >= 95%. Since this function can be used in the callbacks of the Deep Learning
-    model, plot flag should be set to False to avoid memory issues with the generated
-    figures. 
+    self-testing in managing diabetes mellitus) [1]. It shows all predictions
+    and shows also the percentage of predictions within the acceptable range (that
+    must be >= 95% for ISO compliance). Since this function can be used in the
+    callbacks during the Deep Learning model training, plot flag should be set to False
+    to avoid memory issues with the generated figures. 
 
     Args:
     -----
@@ -49,7 +52,8 @@ def bgISOAcceptableZone(ground_truth : np.array, predictions: np.array,  fold = 
         
     Returns:
     --------
-        percentage: percentage of predicted points in the acceptable zone
+        percentage_in: percentage of predicted points in the acceptable zone
+        percentage_out: percentage of predicted points out of the acceptable zone
         acceptability: boolean indicating if the percentage is acceptable or not 
     
     References:
@@ -142,6 +146,7 @@ def bgISOAcceptableZone(ground_truth : np.array, predictions: np.array,  fold = 
     return percentage_in, percentages_out, acceptability
  
 def parkes_EGA_identify(ground_truth : np.array, predictions : np.array, unit : str = "mg_dl") -> Tuple[int, int, int, int, int, int] : 
+    
     """
     Code adapted from Matlab code by Rupert Thomas, 2016. Quoting the original author:
 
@@ -191,7 +196,6 @@ def parkes_EGA_identify(ground_truth : np.array, predictions : np.array, unit : 
     
     """
 
-    ##### SUPPOSED TO BE MOVED OUTSIDE ########
     # Boundary vertices for Parkes Error Grid Analysis
     #  (Type 1 diabetes and regulatory use)
 
@@ -282,17 +286,23 @@ def parkes_EGA_identify(ground_truth : np.array, predictions : np.array, unit : 
     return inA, inB, inC, inD, inE, OOR
 
 def parkes_EGA_chart(ground_truth : np.array, predictions : np.array, fold : str, unit : str = "mg_dl"):
+    
     """
     Function to plot the Parkes Error Grid Analysis chart. It depends on 
     `parkes_EGA_identify` function that computes all the results. 
 
-    
     Args:
     -----
-
+        ground_truth: array with the ground truth to be compared with the predictions
+        predictions: array with the predictions of glucose values of a given model  
+        fold : if many folds evaluated separately, indicate it so figures are properly saved
+        unit : string with the units of the glucose concentration. Default is mg/dl. Can be switch
 
     Returns:
     --------
+        percentage_AB: percentage of values in the acceptable zone (A and B)
+        percentage_values: percentage of values in each region of the Parkes Error Grid
+        points_in_regions: number of points in each region of the Parkes Error Grid
 
     
     References:
@@ -449,52 +459,14 @@ def parkes_EGA_chart(ground_truth : np.array, predictions : np.array, fold : str
 
     return percentage_AB, percentage_values, points_in_regions
 
-def time_lag(ground_truth : np.array, predictions : np.array) -> Tuple[float, float]:
-    
-    """
-    As done in the GluNet framework [1], this function computes the time lag between
-    the ground truth and the predictions. This calculation is based on the autocorrelation.
-    The time lag is computed as the time shift that maximizes the autocorrelation bewteen 
-    the prediction and the original signal. A lag equals than the PH could mean that the models
-    is not actually predicting, but just giving the last value of the sequence. 
-    
-    Args:
-    -----
-        ground_truth: array with the ground truth to be compared with the predictions
-        predictions: array with the predictions of glucose values of a given model
-    
-    Returns:
-    --------
-        lag: time lag between the ground truth and the predictions
-        PSD: power spectral density of the autocorrelation function
-    
-    References:
-    -----------
-        [1] K. Li, C. Liu, T. Zhu, P. Herrero and P. Georgiou, "GluNet: A Deep Learning Framework for
-        Accurate Glucose Forecasting," in IEEE Journal of Biomedical and Health Informatics,
-        vol. 24, no. 2, pp. 414-423, Feb. 2020, doi: 10.1109/JBHI.2019.2931842.
-
-
-    """
-
-    # Compute the autocorrelation
-    autocorr = np.correlate(ground_truth, predictions, mode='full')
-
-    
-    
-    lag = []
-    PSD = []
-    
-    return lag, PSD
-
 def model_evaluation(N : int, PH : int, name : str, normalization : str, X_test : np.array, Y_test : np.array, X : np.array,
                     loss_function : str, plot_results : bool = False) -> None: 
     """
     Model evaluation for a single-step CGM forecasting. If the models are trained 
-    with normalized, in the test set the samples are denormalized in order to compare
-    obtained results with those available in the  literature. Metrics are evaluated
-    overall sequence and time step by time step, except for the ISO [1] and Parker [2]
-    percentages that are computed only step by step.
+    with after min-max normalization, the samples are denormalized in the test set
+    in order to compare obtained results with those available in the  literature.
+    Metrics are evaluated over all sequences and time step by time step, except for
+    the ISO [1] and Parker [2] percentages that are computed only step by step.
     Evaluated metrics are: 
     - RMSE
     - MAE
@@ -507,10 +479,9 @@ def model_evaluation(N : int, PH : int, name : str, normalization : str, X_test 
         N: input features sequence length
         PH: prediction horizon
         name(str): name of the model 
-        normalization: string indicating the type of normalization applied to the data
+        normalization: string indicating the type of normalization previously applied to the data
         X_test: array with the input features of the test set
         Y_test: array with the ground truth of the test set
-        predictions: array with the predictions of glucose values of a given model
         X: array with the input features of the whole dataset (train + test) to min-max denormalize the predictions
         loss_function : str with the loss functions to load differently models trained with custom functions.
         plot_results: boolean indicating if the results must be plotted or not. Default is False.
@@ -518,7 +489,7 @@ def model_evaluation(N : int, PH : int, name : str, normalization : str, X_test 
         
     Returns:
     --------
-        None
+        results: dictionary with the computed metrics
     
     References:
     -----------
@@ -574,9 +545,6 @@ def model_evaluation(N : int, PH : int, name : str, normalization : str, X_test 
     # Go to the evaluation folder
     os.chdir(os.getcwd()+r"\evaluation")
 
-    # Compute the metrics
-    # iso_perc, parkerAB_perc= iso_percentage_metrics(Y_test, Y_pred)
-
     iso_perc_in, b, c = bgISOAcceptableZone(ground_truth = Y_test, predictions = Y_pred, fold = 'himar-rep', plot = True)
     parkerAB_perc, b, c = parkes_EGA_chart(ground_truth = Y_test, predictions = Y_pred, fold = 'himar-rep')
 
@@ -589,7 +557,6 @@ def model_evaluation(N : int, PH : int, name : str, normalization : str, X_test 
     plt.legend(['GT', 'Prediction'])
     plt.savefig(name+'_histograms.png', dpi=300, bbox_inches='tight')
     # Plot if flag set to True
-
 
     # Save a chunk of data to plot as an example
     plt.figure(figsize = (20,10))
@@ -604,10 +571,11 @@ def model_evaluation(N : int, PH : int, name : str, normalization : str, X_test 
 
 def model_evaluation_refeed(N : int, PH : int, name : str, normalization : str, X_test : np.array, Y_test : np.array, X : np.array,
                             loss_function : str, num_predictions : int = 1000, close_loop_steps : int = 5, plot_results : bool = False) -> None: 
+    
     """
     Model evaluation for a single-step CGM forecasting, evaluating the model
-    with its last output. If the models are trained with normalized, in the test
-    set the samples are denormalized in order to compare obtained results with those
+    with its last (predicted) output. If the models are trained after min-max normalization,
+    the test set samples are denormalized in order to compare obtained results with those
     available in the  literature. Metrics are evaluated overall sequence and time step
     by time step, except for the ISO [1] and Parker [2] percentages that are computed
     only step by step. Evaluated metrics are: 
@@ -630,11 +598,10 @@ def model_evaluation_refeed(N : int, PH : int, name : str, normalization : str, 
         num_predictions : number of predictions to be evaluated with the close loop evaluation.
         close_loop_steps : steps to give in the close loop evaluation before feed the model with real data. 
         plot_results: boolean indicating if the results must be plotted or not. Default is False.
-
-        
+    
     Returns:
     --------
-        None
+        results: dictionary with the computed metrics
     
     References:
     -----------
