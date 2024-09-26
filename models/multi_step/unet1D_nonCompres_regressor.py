@@ -21,6 +21,7 @@ from typing import Tuple, Dict
 
 def encoding_block(x: tf.Tensor, filters: int, kernel_size: int, stride: int,
                    activation: str, padding: str, name_prefix: str) -> Tuple[tf.Tensor, tf.Tensor]:
+    
     """Encoding block of the network, modified from [1]. Maxpooling layers has been 
     removed to remove the time compression from the network. 
 

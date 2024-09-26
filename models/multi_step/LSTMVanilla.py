@@ -18,9 +18,11 @@
 from tensorflow.keras import layers, Input, Model
 from typing import Dict
 
+
 # Returns a LSTM-model instance 
 def get_model(sensor : Dict, N: int, input_features: int = 1,
             PH : int = 5) -> Model:
+    
     """Returns a LSTM [1] for CGM multistep forecasting whose number of memory units 
     depends on the lenght of the input features (N).
 

@@ -21,6 +21,7 @@ from typing import *
 import copy
 
 def naive_model(X : np.array, input_feature : int, pred_steps : int) -> np.array:
+    
     """Returns a naive model that predicts a sequence that it 
     is just the input array shifted a number of positions equal to
     Prediction Horizon (PH) / sampling period of the sensor.
