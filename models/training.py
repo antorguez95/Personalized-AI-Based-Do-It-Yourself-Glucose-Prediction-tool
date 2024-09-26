@@ -15,6 +15,13 @@
 # You should have received a copy of the GNU General Public License
 # along with Personalized-AI-Based-Do-It-Yourself-Glucose-Prediction-tool.  If not, see <http://www.gnu.org/licenses/>.
 
+# training.py
+# This module contains the functions to train the model, included the
+# declaration of the ISO-adapted loss function, the training function,
+# and the trimester-wise cross-validation function to make the data
+# partition.  
+# See functions documentation for more details. 
+
 import numpy as np
 from typing import Tuple
 # from tqdm import tqdm
@@ -31,7 +38,6 @@ import matplotlib.pyplot as plt
 # Add the parent directory to the path 
 import sys
 sys.path.append('..')
-# from evaluation.multi_step.evaluation import bgISOAcceptableZone, parkes_EGA_chart
 
 from typing import Tuple, Dict
 
@@ -40,36 +46,33 @@ from sensor_params import *
 import pandas as pd
 import numpy as np
 
-# def ISO_adapted_loss(y_true: np.ndarray, y_pred: np.ndarray, n : int = 40, admisible_gamma : float = 0.1,
-#                     upper_bound_error : int = 14) -> float:
+
 def ISO_adapted_loss(y_true: tf.Tensor, y_pred: tf.Tensor) -> tf.Tensor:
+    
     """
-    Custom loss function adapted from the classic RMSE to force the model 
-    to have a larger amount of  CGM prediction points within the ISO [1] and
-    Parker [2] ranges.
+    Custom loss function adapted from the classic MSE to (ideally) force the model 
+    to have a larger amount of  CGM prediction points within the ISO 15197:2015 [1] and
+    Parker [2] ranges. Loss functions parameters are currently hard-coded. 
 
     Args: 
     -----
         y_true: The true glucose values.
         y_pred: The predicted glucose values.
-        n : orden del comportamiento exponencial del termino de confinamiento ("filtro"). Fuera de la region de interes Default : 40.
-        admisible_gamma : aportacion de de termino de confinamiento (ke2n) en la region de interes. Default : 0.1.   
-        upper_bound_error : limite superior en la region de interes. Default : 14.
-    
+
     Returns:
     --------
-        loss: The loss value.
+        ISO_error: the ISO error. 
 
     References:
     -----------
-        [1] ISO
-        [2] Parker
+        [1] International Organization for Standardization. In vitro diagnostic test systems: requirements
+        for blood glucose monitoring systems for self-testing in managing diabetes mellitus. (2015).
 
     """
 
-    n = tf.constant(40.0, dtype=tf.float64) # iniciamos con 40
-    admisible_gamma = tf.constant(0.1, dtype=tf.float64)
-    upper_bound_error = tf.constant(14.0, dtype=tf.float64)
+    n = tf.constant(40.0, dtype=tf.float64) # orden del comportamiento exponencial del termino de confinamiento ("filtro"). Fuera de la region de interes. Default:  40
+    admisible_gamma = tf.constant(0.1, dtype=tf.float64) # aportacion de de termino de confinamiento (ke2n) en la region de interes. Default : 0.1
+    upper_bound_error = tf.constant(14.0, dtype=tf.float64) # limite superior en la region de interes. Default : 14.
     
     # N is the maximum between 1 and y_true/100
     N = tf.math.maximum(y_true/100, 1)
@@ -94,76 +97,20 @@ def ISO_adapted_loss(y_true: tf.Tensor, y_pred: tf.Tensor) -> tf.Tensor:
 
     return ISO_error
 
-
-# def iso_percentage_metrics(y_true: np.ndarray, y_pred: np.ndarray) -> Tuple[float, float]:
-#     """This computes the positive percentage of the points within the acceptable
-#     range according to the ISO___ [1]. It expects the arguments to be generated
-#     during the Keras fit/evaluate runtime, so first it computes the obtained
-#     glucose values and then computes both percentage calling ____ for the entire batch.  
-
-#     Args:
-#     -----
-#         y_true: The true glucose values.
-#         y_pred: The predicted glucose values.
-    
-#     Returns:
-#     --------
-#         iso_perc: The percentage of points within the acceptable range.
-#         parker_perc: The percentage of points within the acceptable range in the Parker Grid.
-
-#     References:
-#     -----------
-#         [1] ISO __________
-#     """
-#     # If the batch size is None, return 0 for both metrics
-#     if y_true.shape[0] == None:
-#         return 0, 0
-    
-#     # for i in tqdm(range(y_true.shape[0]), desc="Computing PPV and Sens"):
-
-#     # Compute the ISO and Parker percentages
-#     iso_percentage, _ , _= bgISOAcceptableZone(y_true, y_pred)
-#     parker_percentage, _, _= parkes_EGA_chart(y_true, y_pred, "_")
-    
-#     return iso_percentage, parker_percentage
-
-# class CustomMetrics(tf.keras.callbacks.Callback):
-#     """Custom callback to calculate the positive predicted value and sensitivity
-#     metrics in the validation data after each epoch.
-#     """
-
-#     def __init__(self, data, prefix=''):
-#         super(CustomMetrics, self).__init__()
-#         self.data = data
-#         self.prefix = prefix
-#         self.mae = []
-#         self.mape = []
-#         # self.iso_perc = []
-#         # self.parker_perc = []
-
-#     def on_epoch_end(self, epoch, logs=None):
-
-#         x, y = self.data
-#         _mae = np.mean(np.abs(y-self.model.predict(x)), axis=0)
-#         _mape = np.mean(np.abs((y - self.model.predict(x)) / y), axis=0) * 100 
-#         #_iso_percentage, _parker_percentage = iso_percentage_metrics(y, self.model.predict(x))
-        
-#         self.mae.append(_mae)
-#         self.mape.append(_mape)
-#         print('- {}ISO %: {} - {}Parker %: {}'.format(self.prefix, _mae, self.prefix, _mape), end=' ')
-
 def month_wise_4fold_cv(N : int, X: np.array, Y: np.array, X_times : np.array, training_partitions : Dict, 
                         shuffle : bool, verbose : int) -> None:
+    
     """
-    This function partitions the data in 4 folds, so models are trained with all seasons and validated with 
-    all season: 
+    This function performs the data partition in 4 folds, so models are trained with groups of trimesters
+    and validated with the remaining one for each fold. This is an example of a month-wise partition, assuming
+    that the first sample was read on January 1st. The folds would be as follows: 
 
     Fold 1: January - September (train) and October - December (test)  
     Fold 2: January - June (train) and July - September (test)
     Fold 3: January - March (train) and April - June (test)
     Fold 4: April - December (train) and January - March (test)
 
-    Dara is stored in its correspondant fold in the dictionary training_partitions.
+    Data is stored in its correspondant fold in the dictionary training_partitions.
 
     Args:
     -----
@@ -368,11 +315,13 @@ def month_wise_4fold_cv(N : int, X: np.array, Y: np.array, X_times : np.array, t
 def month_wise_LibreView_4fold_cv(X: np.array, Y: np.array, X_times : np.array, Y_times : np.array, levels_tags : np.array, N: int) -> Dict:
 
     """
-    This function partitions the data in 4 folds. Each fold contains data from 3 months of the same year.
-    With this, each model is trained and validated with all different terms in a year. The timestamps 
-    of the folds will vary depending on the patient. The oldest recorded sample in the patient will be the 
-    first sample of the first fold. The first sample of the second fold will be that sample plus 3 months,
-    and so on. This function has been designed to work with LibreView-extracted data, but can be adapted to 
+    This function performs the data partition in 4 folds. This functions is similar to 
+    'month_wise_4fold_cv()', but adapted to LibreView data. Each fold contains data from
+    3 months of the same year. With this, each model is trained and validated with all
+    different trimesters in a year. The timestamps  of the folds will vary depending on the subject.
+    The oldest recorded sample in the patient will be the first sample of the first fold.
+    The first sample of the second fold will be that sample plus 3 months, and so on.
+    This function has been designed to work with LibreView-extracted data, but can be adapted to 
     other data sources. Information about the partitions is stored in a .txt file.
 
     Data is stored in its correspondant fold in the dictionary training_partitions.
@@ -385,8 +334,6 @@ def month_wise_LibreView_4fold_cv(X: np.array, Y: np.array, X_times : np.array, 
         Y_times: timestamps of the output sequence.
         levels_tags: array with the tag ("hyper", "hypo", "normal") of each sample considering the Y sequence (prediction).        
         N: window size of the input data.
-        shuffle: flag that indicates whether to shuffle the data or not.
-        verbose: verbosity level. 
 
     Returns:
     --------
@@ -543,17 +490,20 @@ def train_model(sensor : Dict,
                 plot : bool = False) -> None: 
     
     """Train a previously loaded Deep Learning model using 
-    the given data, and some model hyperparameters. 
+    the given data, and some model hyperparameters. Model 
+    is saved for further evaluation and use. 
+    *NOTE*: 'root_mean_squared_erros' is indeed 
+    'mean_squared_error'. 
 
     Args:
     -----
+        sensor (Dict): Dictionary with the sensor name and its parameters.
         model (tf.keras.Model): The model to train.
         X (np.array): The input features (size = N).
         Y (np.array): The output sequence (size = predicted_points).
-        N (int): Input features length.
+        N (int): Input window length.
         predicted_points (int): Number of points to predict, i.e., the output sequence length.
         epochs (int): Number of epochs.
-        sensor (Dict): Dictionary with the sensor name and its parameters.
         batch_size (int): Batch size.
         lr (float): Learning rate.
         fold (int): When training with cross-validation, the fold to train and save the model with its name. 
@@ -698,7 +648,6 @@ def train_model(sensor : Dict,
     
     # Save the model
     model.save(dir+model_name)
-    # model.save(model_name)
 
     if verbose >= 1:
         print('\n\tEnd of the training. Model saved in {}\n'.format(dir))
@@ -707,12 +656,15 @@ def month_wise_multi_input_LibreView_4fold_cv(X: np.array, Y: np.array, X_times 
                                             N: int, input_features : int) -> Dict:
 
     """
-    This function partitions the multi input data in 4 folds. Each fold contains data from 3 months of the same year.
-    With this, each model is trained and validated with all different terms in a year. The timestamps 
-    of the folds will vary depending on the patient. The oldest recorded sample in the patient will be the 
-    first sample of the first fold. The first sample of the second fold will be that sample plus 3 months,
-    and so on. This function has been designed to work with LibreView-extracted data, but can be adapted to 
-    other data sources. Information about the partitions is stored in a .txt file.
+    This function performs the data partition for multi-dimensional input data
+    (currently CGM and its difference )in 4 folds. Each fold contains data from
+    3 months of the same year. With this, each model is trained and validated with
+    all different terms in a year. The timestamps of the folds will vary depending on
+    the patient. The oldest recorded sample in the patient will be the first sample
+    of the first fold. The first sample of the second fold will be that sample plus 3 months,
+    and so on. This function has been designed to work with LibreView-extracted data,
+    but can be adapted to other data sources.
+    Information about the partitions is stored in a .txt file.
 
     Data is stored in its correspondant fold in the dictionary training_partitions.
 
@@ -729,8 +681,6 @@ def month_wise_multi_input_LibreView_4fold_cv(X: np.array, Y: np.array, X_times 
     Returns:
     --------
         folds_dict: dictionary containing the 4 folds. Each fold contains the training and validation sets.
-    
-
     """
 
     folds_dict = {'1-fold' : {'X_train' : {},
