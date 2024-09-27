@@ -7,7 +7,7 @@ The main characteristic of this AI-based module is that is _user-driven_. The us
 
 This module has been developed with data from people with **type 1 diabetes**, but of course it is suitable for anyone who has a diabetes-related condition that implies having a glucose sensor attached to your body. :+1: 
 
-If you are interested to read about the scientific basis of this work, please check our paper [*"An AI-Based “Do-It-Yourself” Module for Interstitial Glucose Forecasting for People with Type 1 Diabetes"*](https://ieeexplore.ieee.org/document/9851514) published on [npj Digital Medicine](https://www.nature.com/npjdigitalmed/) scientific journal. Besides, if this work somehow helped you with your research work or with a personal project, please, cite our paper. :page_with_curl: 
+If you are interested to read about the scientific basis of this work, please check our preprint [*"An AI-Based “Do-It-Yourself” Module for Interstitial Glucose Forecasting for People with Type 1 Diabetes"*](https://www.researchsquare.com/article/rs-4834770/v1) sent for publication to [npj Digital Medicine](https://www.nature.com/npjdigitalmed/) scientific journal, currently under peer-review process. Besides, if this work somehow helped you with your research work or with a personal project, please, cite our paper. :page_with_curl: 
 
 If, after using or testing this module you miss something, you found some errors, your have doubts, or you want to collaborate with us, please [feel free to reach out!](#mail-me) :email:
 
@@ -26,9 +26,9 @@ Welcome! First times are always special, and this is not an exception! :star_str
 :point_up_2: At this point, we assume that you have access to your real CGM data. If not, type in the terminal `python get_your_toy_cgm_file.py` to generate a LibreView-like CGM `.csv` file and play with this module! Same if your sensor is not included in the previous table (we're sorry, we are working on it! :hammer_and_wrench:) :bangbang:Of course, to run this script, you need to have Python installed on your PC:bangbang:
 
 #### What do you need?
-We have designed this module to be the least overwhelming possible to you. To install and use this module you just need a PC :computer:, an open terminal on it, an the [Docker Desktop installed in your PC](https://docs.docker.com/desktop/):cd:. Once you have downloaded it, you can proceed with the next steps. If everything goes as it should and as far as :warning:**you don't replace your CGM sensor**:warning:, you only will have to perform these steps **just ONCE**: 
+We have designed this module to be the least overwhelming possible to you. To install and use this module you just need a PC :computer:, an open terminal on it (with admin permissions!), an the [Docker Desktop installed in your PC](https://docs.docker.com/desktop/install/windows-install/):cd:. Once you have downloaded it, you can proceed with the next steps (you probably will be asked to re-start your computer). If everything goes as it should and as far as :warning:**you don't replace your CGM sensor**:warning:, you only will have to perform these steps **just ONCE**: 
 
-**1)** Clone/Download this repository :octocat: (Obvious, but just in case!)
+**1)** Clone/Download this repository :octocat: 
 
 **2)** Open your Docker Desktop (if you are not in an admin account, right click and click on "Run as administrator").
 
