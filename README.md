@@ -34,18 +34,14 @@ We have designed this module to be the least overwhelming possible to you. To in
 
 **3)** Open a terminal. For example, typing "cmd" from the "Search" bar in Windows.
 
-**4)** In the terminal, go to the directory where you want to install and save this module that will generate your personalized AI-model. Let's assume the directory `C:\Users\aralmeida`. Type or copy-paste in your terminal the following:
+**4)** In the terminal, go to the directory of this repository, where you should install and save this module that will generate your personalized AI-model. Let's assume the directory `C:\Users\aralmeida`. Type or copy-paste in your terminal the following:
 
-```
-cd C:\Users\aralmeida
-```
-**5)** Create this folder inside where you have cloned your repository. In Windows, it would be: 
 ```
 cd C:\Users\aralmeida\Personalized-AI-Based-Do-It-Yourself-Glucose-Prediction-tool
 ```
-
+**5)** Create this folder inside where you have cloned your repository. In Windows, it would be: 
 ```
-dir drop_your_data_here_and_see_your_pred
+mkdir drop_your_data_here_and_see_your_pred
 ```
    
 **6)** Now you are in your directory. Let's build the Docker image (basically, the "application", [here you have more information about it)](https://docs.docker.com/get-started/) to generate and execute your model later! Copy and paste the following line (the final dot is not a mistake!). After a few minutes, all you need to have your personalized AI model has been installed. 
