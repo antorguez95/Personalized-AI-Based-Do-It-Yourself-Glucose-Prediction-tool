@@ -26,7 +26,7 @@ Welcome! First times are always special, and this is not an exception! :star_str
 :point_up_2: At this point, we assume that you have access to your real CGM data. If not, type in the terminal `python get_your_toy_cgm_file.py` to generate a LibreView-like CGM `.csv` file and play with this module! Same if your sensor is not included in the previous table (we're sorry, we are working on it! :hammer_and_wrench:) :bangbang:Of course, to run this script, you need to have Python installed on your PC:bangbang:
 
 #### What do you need?
-We have designed this module to be the least overwhelming possible to you. To install and use this module you just need a PC :computer:, an open terminal on it, an the [Docker Desktop installed in your PC](https://docs.docker.com/desktop/):cd:. Once you have downloaded it, you can proceed with the next steps. If everything goes as it should and as far as :warning:**you don't replace your CGM sensor**:warning:, you only will have to perform these steps **just ONCE**: 
+We have designed this module to be the least overwhelming possible to you. To install and use this module you just need a PC :computer:, an open terminal on it, an the [Docker Desktop installed in your PC](https://docs.docker.com/desktop/install/windows-install/):cd:. Once you have downloaded it, you can proceed with the next steps. If everything goes as it should and as far as :warning:**you don't replace your CGM sensor**:warning:, you only will have to perform these steps **just ONCE**: 
 
 **1)** Clone/Download this repository :octocat: (Obvious, but just in case!)
 
