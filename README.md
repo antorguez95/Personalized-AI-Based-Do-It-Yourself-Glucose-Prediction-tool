@@ -66,6 +66,10 @@ docker run -ti --mount type=bind,source=/C/Users/aralmeida/Downloads/drop_your_d
 
 :warning:**WARNING**:warning:: if you, let's say, change the folder (for example) from `C/Users/aralmeida/Downloads/drop_your_data_here_and_see_your_pred` to `C/Users/aralmeida/Desktop/drop_your_data_here_and_see_your_pred`, you should replace `source=/C/Users/aralmeida/Downloads/drop_your_data_here_and_see_your_pred`by `source=/C/Users/aralmeida/Desktop/drop_your_data_here_and_see_your_pred`. Otherwise, you will recieve an error telling you that that directory does not exist!  
 
+```
+cp source target
+```
+
 **10)** If everything went good, now you should see some interactive stuff on your terminal. You will be asked about the model of your CGM sensor, the glucose concentration units you are used to, or if you want to know a little bit more about the relation of your CGM data and your AI model. At this point, two different things could happen: 
    -  :white_check_mark:**THE IDEAL CASE**: the year that the app extracted from the file that you provided and will be used to generate and train your AI model do not contain too many interruptions an this app was able to generate a reliable AI-based predictor.
    -  :x::pensive:**BAD NEWS**: the year extracted from your uploaded CGM data contains too many interruptions to reliably generate an AI model. This is mainly due to sensor disconnections, misfunctions... We are sorry! The good news is that you can always go to the first step when you have more data available! We'll be waiting for you! :hugs:
