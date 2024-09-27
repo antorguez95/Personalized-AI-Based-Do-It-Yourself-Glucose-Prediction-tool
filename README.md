@@ -7,7 +7,7 @@ The main characteristic of this AI-based module is that is _user-driven_. The us
 
 This module has been developed with data from people with **type 1 diabetes**, but of course it is suitable for anyone who has a diabetes-related condition that implies having a glucose sensor attached to your body. :+1: 
 
-If you are interested to read about the scientific basis of this work, please check our paper [*"An AI-Based “Do-It-Yourself” Module for Interstitial Glucose Forecasting for People with Type 1 Diabetes"*](https://www.researchsquare.com/article/rs-4834770/v1) sent for publication to [npj Digital Medicine](https://www.nature.com/npjdigitalmed/) scientific journal, currently under peer-review process. Besides, if this work somehow helped you with your research work or with a personal project, please, cite our paper. :page_with_curl: 
+If you are interested to read about the scientific basis of this work, please check our preprint [*"An AI-Based “Do-It-Yourself” Module for Interstitial Glucose Forecasting for People with Type 1 Diabetes"*](https://www.researchsquare.com/article/rs-4834770/v1) sent for publication to [npj Digital Medicine](https://www.nature.com/npjdigitalmed/) scientific journal, currently under peer-review process. Besides, if this work somehow helped you with your research work or with a personal project, please, cite our paper. :page_with_curl: 
 
 If, after using or testing this module you miss something, you found some errors, your have doubts, or you want to collaborate with us, please [feel free to reach out!](#mail-me) :email:
 
