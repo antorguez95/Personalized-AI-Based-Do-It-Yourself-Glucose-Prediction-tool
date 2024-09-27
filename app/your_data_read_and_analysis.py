@@ -196,7 +196,8 @@ def get_your_1year_LibreView_recordings_dict(your_keys : List, libreview_data : 
     """
     This function takes, from a dictionary generated from the raw .csv files,
     the dictionary entries that have at least one year of data in a raw with the same sensor.
-    It returns a dictionary with the same structure as the input dictionary, but filtered. 
+    It returns a dictionary with the same structure as the input dictionary, but filtered, a flag, and
+    some data regarding the user's data suitability to train the DL model.
 
     Args
     ----
@@ -483,12 +484,13 @@ def get_your_oldest_year_npys_from_LibreView_csv(dataset_path : str, first_time 
     """
     From the raw .csv files obtained from your LibreView, this function 
     generates a numpy files of your oldest year of CGM data of without interruptions.
-    If you don't have at least one year of data, undortunately a model 
+    If you don't have at least one year of data, unfortunately a model 
     will not be generated. For more information about how the data is extracted,
     please refer to the documentation of every particular function.
 
-    If not enough data, prompts the user, teh program stops and provides information 
-    about the IA so the user is able to upload better the next time 
+    If not enough data, prompts the user, the program stops and provides information 
+    about the IA so the user is able to upload data again being awarae about what is
+    going on. 
     
     Args
     ----
@@ -497,7 +499,7 @@ def get_your_oldest_year_npys_from_LibreView_csv(dataset_path : str, first_time 
     
     Returns
     -------
-        None 
+        data_suitalibity : flag to indicate if the user's data is suitable for AI model generation.
     """
     # Go to the dataset directory 
     os.chdir(dataset_path)
