@@ -39,6 +39,14 @@ We have designed this module to be the least overwhelming possible to you. To in
 ```
 cd C:\Users\aralmeida
 ```
+**5)** Create this folder inside where you have cloned your repository. In Windows, it would be: 
+```
+cd C:\Users\aralmeida\Personalized-AI-Based-Do-It-Yourself-Glucose-Prediction-tool
+```
+
+```
+dir drop_your_data_here_and_see_your_pred
+```
    
 **5)** Now you are in your directory. Let's build the Docker image (basically, the "application", [here you have more information about it)](https://docs.docker.com/get-started/) to generate and execute your model later! Copy and paste the following line (the final dot is not a mistake!). After a few minutes, all you need to have your personalized AI model has been installed. 
 
