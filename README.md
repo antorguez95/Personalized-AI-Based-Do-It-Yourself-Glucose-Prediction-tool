@@ -56,18 +56,21 @@ docker build -t diy_cgm_image .
 mkdir your/abosulte/path/drop_your_data_here_and_see_your_pred
 ```
 
-**8)**  Now, drop the file with your CGM data (usually ended with `.csv`) in the recently created `/drop_your_data_here_and_see_your_pred` :file_folder: folder.
+**8)**  Now, drop the file with your CGM data (usually ended with `.csv`) in the recently created `/drop_your_data_here_and_see_your_pred` :file_folder: folder. For this, you can also copy-paste the following lines: 
+```
+cd your/abosulte/path/drop_your_data_here_and_see_your_pred
+```
+```
+copy where/your/store/your/CGM_data.csv
+``` 
 
-**9)**  We are now ready to execute this app for the first time. Let's assume that the path where you placed your `/drop_your_data_here_and_see_your_pred` :file_folder:folder is `C/Users/aralmeida/Downloads/drop_your_data_here_and_see_your_pred`. As you can see, I created my folder just in the common `Downloads` folder in Windows. Now, you have to type (or copy/paste) this in your terminal **with your own directory, of course :bangbang:**:
-```
-cp source target
-```
+**9)**  We are now ready to execute this app for the first time. Let's assume that the path where you placed your `/drop_your_data_here_and_see_your_pred` :file_folder:folder is `C/your/absolute/path/drop_your_data_here_and_see_your_pred`. Now, you have to type (or copy/paste) this in your terminal **with your own directory, of course :bangbang:**:
 
 ```
-docker run -ti --mount type=bind,source=/C/Users/aralmeida/Downloads/drop_your_data_here_and_see_your_pred,target=/CGM_forecasting/drop_your_data_here_and_see_your_pred diy_cgm_image
+docker run -ti --mount type=bind,source=/C/your/absolute/path/drop_your_data_here_and_see_your_pred,target=/CGM_forecasting/drop_your_data_here_and_see_your_pred diy_cgm_image
 ```
 
-:warning:**WARNING**:warning:: if you, let's say, change the folder (for example) from `C/Users/aralmeida/Downloads/drop_your_data_here_and_see_your_pred` to `C/Users/aralmeida/Desktop/drop_your_data_here_and_see_your_pred`, you should replace `source=/C/Users/aralmeida/Downloads/drop_your_data_here_and_see_your_pred`by `source=/C/Users/aralmeida/Desktop/drop_your_data_here_and_see_your_pred`. Otherwise, you will recieve an error telling you that that directory does not exist!  
+:warning:**WARNING**:warning:: if you, let's say, change the folder (for example) from `C/your/absolute/path/drop_your_data_here_and_see_your_pred` to `C/my/new/absolute/path/drop_your_data_here_and_see_your_pred`, you should replace `source=/C/your/absolute/path/drop_your_data_here_and_see_your_pred`by `source=/C/my/new/absolute/path/drop_your_data_here_and_see_your_pred`. Otherwise, you will recieve an error telling you that that directory does not exist!  
 
 **10)** If everything went good, now you should see some interactive stuff on your terminal. You will be asked about the model of your CGM sensor, the glucose concentration units you are used to, or if you want to know a little bit more about the relation of your CGM data and your AI model. At this point, two different things could happen: 
    -  :white_check_mark:**THE IDEAL CASE**: the year that the app extracted from the file that you provided and will be used to generate and train your AI model do not contain too many interruptions an this app was able to generate a reliable AI-based predictor.
