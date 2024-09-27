@@ -50,7 +50,7 @@ mkdir drop_your_data_here_and_see_your_pred
 docker build -t diy_cgm_image .
 ```
 
-**7)** **IMPORTANT** :bangbang:: Create a folder :file_folder: named `/drop_your_data_here_and_see_your_pred`. Place it whenever you want in your PC. This folder is the one that will always be accesed by this app to execute the model and perform your prediction. :no_entry_sign:**DO NOT MOVE, REMOVE, OR CHANGE THE NAME OF THE FOLDER**:no_entry_sign: If you do so, you will have to recreate all this steps with the new directory :repeat_one:.
+**7)** **IMPORTANT** :bangbang:: Create another folder :file_folder: named `/drop_your_data_here_and_see_your_pred`, and place it whenever you want in your PC. This folder is the one that will always be accesed by this app to execute the model and perform your prediction. :no_entry_sign:**DO NOT MOVE, REMOVE, OR CHANGE THE NAME OF THE FOLDER**:no_entry_sign: If you do so, you will have to recreate all this steps with the new directory :repeat_one:.
 
 **8)**  Now, drop the file with your CGM data (usually ended with `.csv`) in the recently created `/drop_your_data_here_and_see_your_pred` :file_folder: folder.
 
