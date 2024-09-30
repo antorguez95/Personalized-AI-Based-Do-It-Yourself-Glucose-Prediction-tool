@@ -118,7 +118,7 @@ if "your_AI_based_CGM_predictor.h5" not in os.listdir():
     # First of all, the users is asked about the directory where the data is stored
     print("\n\n\nSeems that it is your first time! It's nice having you here!")
     print("Let's begin!\n1) If you haven't download your CGM data, please do it!")
-    print("2) Once you have your data, please, drop it in the /drop_your_data folder. Otherwise, we will not be able to generate your personalized AI-model!\n")
+    print("2) Once you have your data, please, drop it in the /drop_your_data_here_and_see_your_pred. Otherwise, we will not be able to generate your personalized AI-model!\n")
     
     # Then, since the prenprocesisng and the AI architecture depends on the sensor, the user is asked about the sensor he or she is using 
     print("\nNow, please, type the letter corresponding to the glucose sensor model you are using:\n")
@@ -523,11 +523,11 @@ elif 'your_AI_based_CGM_predictor.h5' in os.listdir():
         # os.chdir("Your_AI_CGM_predictor")
         
         # Call the model
-        print("Loading your personalized-AI glucose predictor...")
+        print("\n\nLoading your personalized-AI glucose predictor...")
         model = tf.keras.models.load_model('your_AI_based_CGM_predictor.h5', custom_objects={'ISO_adapted_loss': ISO_adapted_loss})
 
         # Make the prediction
-        print("Predicting your glucose levels for the next hour...")
+        print("\n\nPredicting your glucose levels...")
         prediction = model.predict(model_input)
 
         # Denormalize the prediction
@@ -556,6 +556,8 @@ elif 'your_AI_based_CGM_predictor.h5' in os.listdir():
         # Plot and save the prediction graphics 
         get_prediction_graphic(last_day_of_data, data_norm, predicted_points, last_day_of_data_timestamps, rmse, unit, prediction)
 
+        print("\n\n\n")
+        
         # Alert messages 
         if hyperglycemia:
             print("Watch out! According to your personalized-AI glucose predictor, you are at risk an HYPERGLYCAEMIA in the next 30'!")
@@ -564,7 +566,9 @@ elif 'your_AI_based_CGM_predictor.h5' in os.listdir():
             print("Watch out! According to your personalized-AI glucose predictor, you are at risk an HYPOGLYCAEMIA in the next 30'!")
         else:  
             print("Good! According to your personalized-AI glucose predictor, your glucose levels will remain in range in the next 30'!")
-            print("However, remember that this is only an estimation! Don't take it as an absolute truth! :)")
+            print("Go to /drop_your_data_here_and_see_your_pred to see your prediction!")
+            print("You can also type 'explorer your_path/drop_your_data_here_and_see_your_pred/your_last_prediction.png' to check it from here!")
+            print("\nRemember that this is only an estimation! Don't take it as an absolute truth! :)")
 
     if not full_sequence:
         print("\nOops! We have detected some interruptions in your glucose sensor data in the last 24 hours!")

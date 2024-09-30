@@ -61,9 +61,9 @@ def cgm_data_summary_figure(id : str, sensor : str, num_blocks : int, cgm_data :
     fig, axs = plt.subplots(5, 2, figsize=(15,15))
 
     ####### FIGURE GENERAL PARAMS #########
-    # Set San Serif font and Font size 
-    plt.rcParams.update({'font.size': 12})
-    plt.rcParams['font.family'] = 'Arial'
+    # Set San Serif font and Font size (Currently commented to avoid error messages)
+    # plt.rcParams.update({'font.size': 12})
+    # plt.rcParams['font.family'] = 'Arial'
 
     # Avoid title and subplots overlapping 
     fig.tight_layout(rect=[0, 0.03, 1, 0.97])
@@ -566,9 +566,9 @@ def get_prediction_graphic(X : np.array, X_norm : np.array, predicted_points : i
     fig, axs= plt.subplots(2, 1, figsize=(15,15))
 
     ####### FIGURE GENERAL PARAMS #########
-    # Set San Serif font and Font size 
-    plt.rcParams.update({'font.size': 12})
-    plt.rcParams['font.family'] = 'Arial'
+    # Set San Serif font and Font size  (Commented to avoid erros in Dockerization)
+    # plt.rcParams.update({'font.size': 12})
+    # plt.rcParams['font.family'] = 'Arial'
 
     # Plot the last 144 samples
     axs[0].plot(color = 'darkkhaki', alpha = 0.5)
