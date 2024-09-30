@@ -103,6 +103,12 @@ Hi again! If you are here, it means you have `your_AI_based_CGM_predictor.h5` fi
    ```
    4) :chart_with_upwards_trend: Now, the terminal will promtp you with some messages. If you had CGM readings interruptions in your last 24 hours, we cannot provide a reliable prediction. We are sorry! If your data was OK, please check the `your_last_prediction.png` picture with your updated prediction. And, please, never take this as an absolute truth! This is just an AI-based prediction!
 
+If you want to see your prediction without moving to your folder, type this in your terminal (with your own directory, as usual!) 
+
+```
+explorer your_path/your_last_prediction
+```
+
 From now on, these are the steps you have to follow any time you want to have a personalized glucose prediction based on your own AI model! Hope this helps in your day-to-day! 
 
 <h2 id="for-developers-and-researchers">:man_technologist::woman_technologist: For developers and researchers</h2>
