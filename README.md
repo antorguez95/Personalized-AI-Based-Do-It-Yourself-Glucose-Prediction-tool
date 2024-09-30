@@ -34,37 +34,57 @@ We have designed this module to be the least overwhelming possible to you. To in
 
 **3)** Open a terminal. For example, typing "cmd" from the "Search" bar in Windows.
 
-**4)** In the terminal, go to the directory where you want to install and save this module that will generate your personalized AI-model. Let's assume the directory `C:\Users\aralmeida`. Type or copy-paste in your terminal the following:
+**4)** In the terminal, go to the directory of this repository, where you should install and save this module that will generate your personalized AI-model. Let's assume the directory `C:\Users\aralmeida`. Type or copy-paste in your terminal the following:
 
 ```
-cd C:\Users\aralmeida
+cd C:\Users\aralmeida\Personalized-AI-Based-Do-It-Yourself-Glucose-Prediction-tool
+```
+**5)** Create this folder inside where you have cloned your repository. In Windows, it would be: 
+```
+mkdir drop_your_data_here_and_see_your_pred
 ```
    
-**5)** Now you are in your directory. Let's build the Docker image (basically, the "application", [here you have more information about it)](https://docs.docker.com/get-started/) to generate and execute your model later! Copy and paste the following line (the final dot is not a mistake!). After a few minutes, all you need to have your personalized AI model has been installed. 
+**6)** Now you are in your directory. Let's build the Docker image (basically, the "application", [here you have more information about it)](https://docs.docker.com/get-started/) to generate and execute your model later! Copy and paste the following line (the final dot is not a mistake!). After a few minutes, all you need to have your personalized AI model has been installed. 
 
 ```
 docker build -t diy_cgm_image .
 ```
 
-**6)** **IMPORTANT** :bangbang:: Create a folder :file_folder: named `/drop_your_data_here_and_see_your_pred`. Place it whenever you want in your PC. This folder is the one that will always be accesed by this app to execute the model and perform your prediction. :no_entry_sign:**DO NOT MOVE, REMOVE, OR CHANGE THE NAME OF THE FOLDER**:no_entry_sign: If you do so, you will have to recreate all this steps with the new directory :repeat_one:.
-
-**7)**  Now, drop the file with your CGM data (usually ended with `.csv`) in the recently created `/drop_your_data_here_and_see_your_pred` :file_folder: folder.
-
-**8)**  We are now ready to execute this app for the first time. Let's assume that the path where you placed your `/drop_your_data_here_and_see_your_pred` :file_folder:folder is `C/Users/aralmeida/Downloads/drop_your_data_here_and_see_your_pred`. As you can see, I created my folder just in the common `Downloads` folder in Windows. Now, you have to type (or copy/paste) this in your terminal **with your own directory, of course :bangbang:**:
+**7)** **IMPORTANT** :bangbang:: Create another folder :file_folder: named `/drop_your_data_here_and_see_your_pred`, and place it whenever you want in your PC. This folder is the one that will always be accesed by this app to execute the model and perform your prediction. :no_entry_sign:**DO NOT MOVE, REMOVE, OR CHANGE THE NAME OF THE FOLDER**:no_entry_sign: If you do so, you will have to recreate all this steps with the new directory :repeat_one:.
 
 ```
-docker run -ti --mount type=bind,source=/C/Users/aralmeida/Downloads/drop_your_data_here_and_see_your_pred,target=/CGM_forecasting/drop_your_data_here_and_see_your_pred diy_cgm_image
+mkdir your/abosulte/path/drop_your_data_here_and_see_your_pred
 ```
 
-:warning:**WARNING**:warning:: if you, let's say, change the folder (for example) from `C/Users/aralmeida/Downloads/drop_your_data_here_and_see_your_pred` to `C/Users/aralmeida/Desktop/drop_your_data_here_and_see_your_pred`, you should replace `source=/C/Users/aralmeida/Downloads/drop_your_data_here_and_see_your_pred`by `source=/C/Users/aralmeida/Desktop/drop_your_data_here_and_see_your_pred`. Otherwise, you will recieve an error telling you that that directory does not exist!  
+**8)**  Now, drop the file with your CGM data (usually ended with `.csv`) in the recently created `/drop_your_data_here_and_see_your_pred` :file_folder: folder. For this, you can also copy-paste the following lines: 
+```
+cd your/abosulte/path/drop_your_data_here_and_see_your_pred
+```
+```
+copy where/your/store/your/CGM_data.csv
+``` 
 
-**9)** If everything went good, now you should see some interactive stuff on your terminal. You will be asked about the model of your CGM sensor, the glucose concentration units you are used to, or if you want to know a little bit more about the relation of your CGM data and your AI model. At this point, two different things could happen: 
+**9)**  We are now ready to execute this app for the first time. Let's assume that the path where you placed your `/drop_your_data_here_and_see_your_pred` :file_folder:folder is `C/your/absolute/path/drop_your_data_here_and_see_your_pred`. Now, you have to type (or copy/paste) this in your terminal **with your own directory, of course :bangbang:**:
+
+```
+docker run -ti --mount type=bind,source=/C/your/absolute/path/drop_your_data_here_and_see_your_pred,target=/CGM_forecasting/drop_your_data_here_and_see_your_pred diy_cgm_image
+```
+
+:warning:**WARNING**:warning:: if you, let's say, change the folder (for example) from `C/your/absolute/path/drop_your_data_here_and_see_your_pred` to `C/my/new/absolute/path/drop_your_data_here_and_see_your_pred`, you should replace `source=/C/your/absolute/path/drop_your_data_here_and_see_your_pred`by `source=/C/my/new/absolute/path/drop_your_data_here_and_see_your_pred`. Otherwise, you will recieve an error telling you that that directory does not exist!  
+
+**10)** If everything went good, now you should see some interactive stuff on your terminal. You will be asked about the model of your CGM sensor, the glucose concentration units you are used to, or if you want to know a little bit more about the relation of your CGM data and your AI model. At this point, two different things could happen: 
    -  :white_check_mark:**THE IDEAL CASE**: the year that the app extracted from the file that you provided and will be used to generate and train your AI model do not contain too many interruptions an this app was able to generate a reliable AI-based predictor.
    -  :x::pensive:**BAD NEWS**: the year extracted from your uploaded CGM data contains too many interruptions to reliably generate an AI model. This is mainly due to sensor disconnections, misfunctions... We are sorry! The good news is that you can always go to the first step when you have more data available! We'll be waiting for you! :hugs:
 
-**10)** Let's assume the best scenario. You were able to generate your AI model (after a few hours... :lotus_position_man:). If you go to your `/drop_your_data_here_and_see_your_pred` folder you will see a few things. You just have to focus on two.
+**11)** Let's assume the best scenario. You were able to generate your AI model (after a few hours... :lotus_position_man:). If you go to your `/drop_your_data_here_and_see_your_pred` folder you will see a few things. You just have to focus on two.
    - `your_AI_based_CGM_predictor.h5`:robot: This is **your personalized AI model for your glucose level predictions!** Isn't it great?? __Do not delete this file__. If you do so, you will have to repeat all this process from the beginning.
    - `your_last_prediction.png`:chart_with_upwards_trend: This is your very first AI-based prediction! Of course, this prediction is not useful, since it took place after the model generation, that took a couple of hours (:lotus_position_man:). As you can see, the model takes the data from your last **24 hours**, and performs a prediction of your next **30 minutes**. The red shadow shows the error on each instant (15' and 30' ahead), that has been calculated during the model generation. From now on, everytime you execute this app, this picture will be overwritten with your most recent prediction, so this is what you will see! Unfortunately, if your last day contains CGM reading interruptions, the model will not be able to provide you with a prediction. This is (also) work in progress :hammer_and_wrench:.
+
+From the terminal, type this line with your own directory if you want to see your prediction without moving to your folder! 
+
+```
+explorer your_path/your_last_prediction
+```
 
 From now, everytime you want to use this app, you have to follow the simple steps described in [Use me (again)! section](#use-me-again). 
 
@@ -82,6 +102,12 @@ Hi again! If you are here, it means you have `your_AI_based_CGM_predictor.h5` fi
    docker run -ti --mount type=bind,source=/YOUR_DATA_DIRECTORY/drop_your_data_here_and_see_your_pred,target=/CGM_forecasting/drop_your_data_here_and_see_your_pred diy_cgm_image
    ```
    4) :chart_with_upwards_trend: Now, the terminal will promtp you with some messages. If you had CGM readings interruptions in your last 24 hours, we cannot provide a reliable prediction. We are sorry! If your data was OK, please check the `your_last_prediction.png` picture with your updated prediction. And, please, never take this as an absolute truth! This is just an AI-based prediction!
+
+If you want to see your prediction without moving to your folder, type this in your terminal (with your own directory, as usual!) 
+
+```
+explorer your_path/your_last_prediction
+```
 
 From now on, these are the steps you have to follow any time you want to have a personalized glucose prediction based on your own AI model! Hope this helps in your day-to-day! 
 
