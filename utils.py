@@ -1029,6 +1029,7 @@ def get_LibreView_CGM_X_Y_multistep(recordings : np.array, timestamps : np.array
         (Value Nth+1). Its shape is (prediction_horizon/sampling frequency of the sensor, 1).
         X_times (np.array): datetime datatypes associated to X 
         Y_times (np.array): datetime datatypes associated to Y
+        n_blocks (int): number of blocks in the dataset (the only purpose of this is to inform the user later)
     """ 
 
     # Compute the differentce between two consecutive samples (in minutes)
@@ -1092,7 +1093,7 @@ def get_LibreView_CGM_X_Y_multistep(recordings : np.array, timestamps : np.array
         starting_idx = np.array([len(recordings)-1]) # The starting is the last index of the array 
         num_samples = np.zeros((n_blocks, 1))
     
-    print("Number of blocks of is %i\n" % (n_blocks))
+    # print("Number of blocks of is %i\n" % (n_blocks))
 
     for i in range(0, n_blocks):
     
@@ -1157,7 +1158,7 @@ def get_LibreView_CGM_X_Y_multistep(recordings : np.array, timestamps : np.array
     X = X.astype(np.float64)
     Y = Y.astype(np.float64)
 
-    return X, Y, X_times, Y_times
+    return X, Y, X_times, Y_times, n_blocks
 
 def generate_ranges_tags(Y: np.array, lower_threshold : int = 70, upper_threshold : int = 180) -> List: 
     

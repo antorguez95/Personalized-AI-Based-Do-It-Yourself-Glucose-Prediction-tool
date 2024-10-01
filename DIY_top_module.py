@@ -194,27 +194,103 @@ if "your_AI_based_CGM_predictor.h5" not in os.listdir():
                 for key4 in sensor_1yr_data[key][key2][key3]:
                     for key5 in sensor_1yr_data[key][key2][key3][key4]:
                         your_sensor_model = (list(sensor_1yr_data[key][key2][key3][key4][key5].keys())[0])
-
-    # Save in a npy file the sensor model 
-    np.save('your_sensor_model.npy', your_sensor_model)
+    
+    # Avoid errors if the sensor model  is not saved (meaning there is not 1 year of data)
+    if len(list(sensor_1yr_data.keys())) == 0:
+        pass
+    else: 
+        # Save in a npy file the sensor model 
+        np.save('your_sensor_model.npy', your_sensor_model)
 
     # If data is suitable for AI:
     if data_suitability:
+    
+        ######## Begin CODE OF THE IMPLEMENTED AI FRAMEWORK ########
+        # TO CHANGE THIS, CHANGE/ADD A DICTIONARY IN your_AI_DIY_parameters.py, or change the parameters of the current dictionary
+        N = first_DIY_version['N'] # 96
+        step = first_DIY_version['step'] # 1
+        PH = first_DIY_version['PH'] # 30
+        input_features = first_DIY_version['input_features'] # 2
+        normalization = first_DIY_version['normalization'] # 'min-max'
+        loss_function = first_DIY_version['loss_function'] # 'ISO_loss'
+
+        epochs = 1 # real value from paper: 20
+        batch_size = 512 # real value from paper: 1
+        lr = 0.0001
+        ##################################################
+
         print("Congrats! The data you provided is enough to generate and train your personalized-AI glucose predictor!\n")
 
         print("Before proceeding to the AI-model generation, would you like to know more about how your data will be used to generate your personalized-AI glucose predictor? (y/n):")
         ans = input()
 
+        # Load user's data and the associated timestamps 
+        recordings = np.load('oldest_1yr_CGM.npy')
+        timestamps = np.load('oldest_1yr_CGM_timestamp.npy', allow_pickle=True)
+
         if ans == "y":
 
-            print("\n\nTHINGS ABOUT YOUR DATA\n\n")
-            ###### DATA ANALYSIS ######
-            ##########################
-            ##########################
-            ##########################
-            ##########################
 
-            print("Please, type 'next' once you have finished looking around your data to move to your AI glucose predictor")
+            # Compute days between the first and the last timestamp
+            days = (timestamps[-1] - timestamps[0]).days
+
+            # Computing time in range, hyper and hypo
+            if unit == 'mg/dL':
+                severely_hypo = recordings[recordings < 54]
+                hypo = recordings[(recordings >= 54) & (recordings < 70)]
+                normal = recordings[(recordings >= 70) & (recordings <= 180)]
+                hyper = recordings[(recordings > 180) & (recordings <= 250)]
+                severely_hyper = recordings[recordings > 250]
+
+            elif unit == 'mmol/L':
+                severely_hypo = recordings[recordings < 3.0]
+                hypo = recordings[(recordings >= 3.0) & (recordings < 3.9)]
+                normal = recordings[(recordings >= 3.9) & (recordings <= 10.0)]
+                hyper = recordings[(recordings > 10.0) & (recordings <= 13.9)]
+                severely_hyper = recordings[recordings > 13.9]
+            
+            # Compute percentages
+            # Compute time in range (TiR), Time above the range and time below the range 
+            # Get the number of total samples 
+            total_samples = len(recordings)
+
+            # Get the TiR (number of samples in normal glycaemic level) # HARD-CODED WITH mg/dL
+            TiR_samples = len(recordings[(recordings >= 70) & (recordings <= 180)])
+
+            # Get the number of samples in the range above normal range 
+            above_range_samples = len(recordings[recordings > 180])
+
+            # Get the number of samples in the range below normal range
+            below_range_samples = len(recordings[recordings < 70])
+
+            # Compute the percentage of TiR
+            TiR_percentage = (TiR_samples / total_samples) * 100
+            above_range_percentage = (above_range_samples / total_samples) * 100
+            below_range_percentage = (below_range_samples / total_samples) * 100
+
+            # Generate text with only 2 decimal positions 
+            tir_text = "{:.2f}%".format(TiR_percentage)
+            above_range_text = "{:.2f}%".format(above_range_percentage)
+            below_range_text = "{:.2f}%".format(below_range_percentage)
+
+            print("\n\n\n~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")	
+            print("\n\nYour glucose sensor model: " + sensor_name)
+            print("Time between consecutive glucose readings: " + str(sensor["SAMPLE_PERIOD"])+ " minutes.")
+            print("Your glucose data unit: " + unit + ".")
+            print("\n\nYour uploaded data contains " + str(days) + " days of CGM data, from "  + str(timestamps[0]) +" to " +str(timestamps[-1]) + ".")
+            print("To train your personalized AI model, we will take one year counting from " + str(timestamps[0]) + ".")
+            print("\n\nThese are the times you have spent on each range:\n\t TAR: "+ tir_text +  " %\n\t TIR: " + above_range_text + " %\n\t TBR: "+ below_range_text + " %\n")
+
+            print("If your sensor were perfect and would never stop reading (this never happens!), in one year you would have had " + str(int(365*24*(60/sensor["SAMPLE_PERIOD"]))) + " CGM readings.")
+            print("However, we have found that, due to some reading interruptions, the number of available CGM readings was " +  str(len(recordings)) + ".")
+
+            print("\n\nWith your CGM data, we could extract " +  str(len(recordings)) + " training samples, which is enough to generate your personalized-AI glucose predictor!")
+
+            # print("\n\nIf you want to check a graphical summary of your data, check your_cgm_data_summary.png in the /drop_your_data_here_and_see_your_pred folder.")
+
+            print("\n\n\n~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
+
+            print("\n\n\nPlease, type 'next' once you have finished looking around your data to move to your AI glucose predictor")
             move_on = input()
 
             if move_on == "next": # A loop here would be nice to not go forward until the user type 'next'
@@ -232,24 +308,6 @@ if "your_AI_based_CGM_predictor.h5" not in os.listdir():
         else: 
             raise Exception("Please, enter a 'y' or 'n' to continue.")
         
-        ######## Begin CODE OF THE IMPLEMENTED AI FRAMEWORK ########
-        # TO CHANGE THIS, CHANGE/ADD A DICTIONARY IN your_AI_DIY_parameters.py, or change the parameters of the current dictionary
-        N = first_DIY_version['N'] # 96
-        step = first_DIY_version['step'] # 1
-        PH = first_DIY_version['PH'] # 30
-        input_features = first_DIY_version['input_features'] # 2
-        normalization = first_DIY_version['normalization'] # 'min-max'
-        loss_function = first_DIY_version['loss_function'] # 'ISO_loss'
-
-        epochs = 1 # real value from paper: 20
-        batch_size = 512 # real value from paper: 1
-        lr = 0.0001
-        ##################################################
-
-        # Load user's data and the associated timestamps 
-        recordings = np.load('oldest_1yr_CGM.npy')
-        timestamps = np.load('oldest_1yr_CGM_timestamp.npy', allow_pickle=True)
-
         os.chdir("..")
 
         # If the directory "Your_AI_CGM_predictor" is not created, create it
@@ -260,7 +318,7 @@ if "your_AI_based_CGM_predictor.h5" not in os.listdir():
         os.chdir("Your_AI_CGM_predictor")
 
         # Generating the X and Y to train the AI model. 
-        X, Y, X_times, Y_times = get_LibreView_CGM_X_Y_multistep(recordings, timestamps, libreview_sensors, N, step, PH, plot = True, verbose = 0) 
+        X, Y, X_times, Y_times, num_blocks = get_LibreView_CGM_X_Y_multistep(recordings, timestamps, libreview_sensors, N, step, PH, plot = True, verbose = 0) 
 
         # Generate the tags associated to each Y vector ("hyper", "hypo", "normal") depending of it it contains hyper, hypo or normal values
         levels_tags = generate_ranges_tags(Y)
@@ -428,33 +486,31 @@ if "your_AI_based_CGM_predictor.h5" not in os.listdir():
     # If data is not suitable for AI:
     if not data_suitability:
 
-        print("Sorry, but the data you provided is not enough to generate and train your personalized-AI glucose predictor.")
-        print("Please, try again with more data samples.")
-        print("If you think that this is an error, please contact the developer/maintainer at: _____")
+        print("\n\n\nSorry, but the data you provided is not enough to generate and train your personalized-AI glucose predictor.")
+        print("Please, try again uploading more CGM readings containing at least 1 year of data.")
+        print("If you think that this is an error, please contact the developer/maintainer at: antorguez95@hotmail.com")
 
         print("\n\nDo you want to know more about why did your data not meet the criteria to generate your personalized-AI glucose predictor? (y/n): ")
         ans = input()
 
         if ans == "y": 
-            
-            #################################################
-            # RELLENAR CON INFO SOBRE POR QUE NO SE PUEDE
-            #################################################
-            #################################################
-            #################################################
 
-            # Information to EMPOWER the user and make him/her understand the process and the requirements to generate the personalized-AI glucose predictor
-            print("\n\n\nDETALLES DE QUE HACE FALTA UN AÑO, DE QUE LAS INTERRUPCIONES SE PENALIZAN, ETC.") 
+            # Information about WHY WE CAN'T (we should include here the threshold of samples too). Currently it only consideres the year of data. 
+            print("\n\n\n~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")	
 
-            print("According to our study...blablabla")
-            print("For the algorithm we used, the minimum amount of samples is blablabla\n\n")
+            print("\n\nYour uploaded data contains only " + str(time_between_readings.days) + " days of CGM data")
+            print("Currently, to train your personalized AI model, we should take one year counting from your first CGM reading.")
 
+            print("Unfortunately, we have found that your data does not meet the criteria to generate your personalized-AI glucose predictor. You uploaded less than 1 year of CGM data.")
+
+            # print("\n\nIf you want to check a graphical summary of your data, check your_cgm_data_summary.png in the /drop_your_data_here_and_see_your_pred folder.")
+
+            print("\n\n~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
 
             print("Hope to see you soon! :)") 
 
         # User chooses: No 
         elif ans == "n":
-
 
             print("\n\nNice! Try to upload a greater amount or data and with less interruptions to be able to generate your personalized-AI glucose predictor!") 
             print("Hope to see you soon! :)")

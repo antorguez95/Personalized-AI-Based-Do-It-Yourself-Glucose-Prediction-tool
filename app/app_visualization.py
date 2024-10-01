@@ -25,7 +25,7 @@ import matplotlib.pyplot as plt
 import statsmodels.api as sm
 from typing import List
 
-def cgm_data_summary_figure(id : str, sensor : str, num_blocks : int, cgm_data : np.array, cgm_timestamps : np.array, sensor_sampling_period : int,
+def cgm_data_summary_figure(sensor : str, num_blocks : int, cgm_data : np.array, cgm_timestamps : np.array, sensor_sampling_period : int,
                             pred_steps : int, N : int, prediction : np.array, pred_rmse : np.array,
                             visualization_range : str = '2 weeks', unit : str = 'mg/dL', top_threshold : int = 180, bottom_threshold : int = 70, 
                             ): 
@@ -40,7 +40,6 @@ def cgm_data_summary_figure(id : str, sensor : str, num_blocks : int, cgm_data :
 
     Args
     ----
-        id : Patient ID
         sensor : Sensor used by the patient
         num_blocks : Number of blocks without sensor reading interruptions
         cgm_data : CGM values of the patient (the timeseries itself)
@@ -152,7 +151,7 @@ def cgm_data_summary_figure(id : str, sensor : str, num_blocks : int, cgm_data :
             axs[0,0].set_xticklabels([])
 
             # Set labels only in the first and last day
-            axs[0,0].set_xticklabels(["", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"])
+            # axs[0,0].set_xticklabels(["", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"])
 
         case '1 month':
 
