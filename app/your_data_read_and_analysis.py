@@ -274,7 +274,7 @@ def get_your_1year_LibreView_recordings_dict(your_keys : List, libreview_data : 
     with open('libreview_data_1yr_recordings.pickle', 'wb') as handle:
         pickle.dump(data_1yr_recordings, handle, protocol=pickle.HIGHEST_PROTOCOL)
 
-    return data_1yr_recordings, data_suitability
+    return data_1yr_recordings, data_suitability, time_between_readings
 
 def generate_your_LibreView_npy_files(your_data_path : str, your_keys : List,  libreview_data : Dict, verbose : int = 0) -> None: 
     
@@ -522,7 +522,7 @@ def get_your_oldest_year_npys_from_LibreView_csv(dataset_path : str, first_time 
     your_libreview_data = prepare_LibreView_data(dataset_path, first_time)
 
     # Take only the T1DM patients with at least one year in a row of CGM data with the same sensor 
-    your_data_1yr_recordings, data_suitability = get_your_1year_LibreView_recordings_dict(your_keys, your_libreview_data)
+    your_data_1yr_recordings, data_suitability,  time_between_readings = get_your_1year_LibreView_recordings_dict(your_keys, your_libreview_data)
 
     # Generate the Libreview .npy files from the generated or saved dictionary 
     generate_your_LibreView_npy_files(dataset_path, your_keys, your_data_1yr_recordings, r"/1yr_npy_files")
@@ -530,7 +530,7 @@ def get_your_oldest_year_npys_from_LibreView_csv(dataset_path : str, first_time 
     # Extract an EXACT 1 year recordings from the dictionary and store them to load them separately 
     generate_your_LibreView_npy_1yr_recordings(your_data_1yr_recordings)
 
-    return data_suitability 
+    return data_suitability, time_between_readings 
 
 def get_and_check_last_day_of_data (subject_keys : List, upload_dir: str) -> Tuple[np.array, np.array, bool]: 
 

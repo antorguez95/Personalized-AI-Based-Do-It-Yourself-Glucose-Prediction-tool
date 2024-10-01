@@ -47,6 +47,7 @@ import sys
 import time
 sys.path.append("..")
 import warnings
+import logging
 
 # Custom libraries 
 from app.your_data_read_and_analysis import *
@@ -60,6 +61,10 @@ from sensor_params import *
 
 # Ignore warnings
 warnings.filterwarnings("ignore")
+
+
+# Avoid Python verbosity associated to TensorFlow
+logging.getLogger('tensorflow').setLevel(logging.ERROR)
 
 # DIY module welcome message (web generated)
 print("""\
@@ -177,7 +182,7 @@ if "your_AI_based_CGM_predictor.h5" not in os.listdir():
     # Analyze the data
     print("\n\nAnalyzing your data... This could take a few seconds.\n\n")
 
-    data_suitability = get_your_oldest_year_npys_from_LibreView_csv(your_data_path, True)
+    data_suitability, time_between_readings = get_your_oldest_year_npys_from_LibreView_csv(your_data_path, True)
 
     # Read the generated dictionary to save the sensor model 
     with open('libreview_data_1yr_recordings.pickle', 'rb') as handle:
