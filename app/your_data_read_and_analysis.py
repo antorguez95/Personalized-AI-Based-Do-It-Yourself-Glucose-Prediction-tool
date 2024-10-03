@@ -510,8 +510,6 @@ def get_your_oldest_year_npys_from_LibreView_csv(dataset_path : str, first_time 
     # Filename is the element that contains '.csv' in the name 
     filename = [f for f in filename if ".csv" in f]
 
-    print(filename)
-
     # Raise a Value Error to let the user know that data has not been uploaded
     if ".csv" not in filename[0]:
         raise ValueError("Oops! Seems that you have not properly uploaded your data at /drop_your_data_here_and_see_your_pred. Please, check it!")
