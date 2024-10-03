@@ -215,8 +215,8 @@ if "your_AI_based_CGM_predictor.h5" not in os.listdir():
         normalization = first_DIY_version['normalization'] # 'min-max'
         loss_function = first_DIY_version['loss_function'] # 'ISO_loss'
 
-        epochs = 1 # real value from paper: 20
-        batch_size = 512 # real value from paper: 1
+        epochs = 20 # real value from paper: 20
+        batch_size = 1 # real value from paper: 1
         lr = 0.0001
         ##################################################
 
