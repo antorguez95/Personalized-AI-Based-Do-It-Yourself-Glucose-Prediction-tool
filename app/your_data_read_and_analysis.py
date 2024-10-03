@@ -507,6 +507,9 @@ def get_your_oldest_year_npys_from_LibreView_csv(dataset_path : str, first_time 
     # Extract the ID from the uploaded file in the current user directory 
     filename = os.listdir(dataset_path)
 
+    # Filename is the element that contains '.csv' in the name 
+    filename = [f for f in filename if ".csv" in f]
+
     print(filename)
 
     # Raise a Value Error to let the user know that data has not been uploaded
