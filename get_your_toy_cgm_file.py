@@ -28,6 +28,7 @@
 
 import pandas as pd
 import numpy as np
+import os
 
 # Declare a dataframe 
 df = pd.DataFrame()
@@ -47,7 +48,12 @@ filename = f"ID{id}_S{s}_R{r}_glucose_{day}-{month}-{year}.csv"
 
 # String that represents all columns in the file (separated by commas) (If executed on Jupyter, uncomment the first row and comment the second one)
 # first_row = "Dispositivo,Número de serial,Sello de tiempo del dispositivo,Tipo de registro,Historial de glucosa mg/dL,Escaneo de glucosa mg/dL,Insulina de acción rápida no numérica,Insulina de acción rápida (unidades),Alimento no numérico,Carbohidratos (gramos),Carbohidratos (porciones),Insulina de acción larga no numérica,Insulina de acción larga (unidades),Notas,Tira reactiva para glucosa mg/dL,Cuerpos cetónicos mmol/L,Comida e insulina (unidades),Insulina de corrección (unidades),Insulina del cambio de usuario (unidades)"
-first_row = "Dispositivo,NÃºmero de serial,Sello de tiempo del dispositivo,Tipo de registro,Historial de glucosa mg/dL,Escaneo de glucosa mg/dL,Insulina de acciÃ³n rÃ¡pida no numÃ©rica,Insulina de acciÃ³n rÃ¡pida (unidades),Alimento no numÃ©rico,Carbohidratos (gramos),Carbohidratos (porciones),Insulina de acciÃ³n larga no numÃ©rica,Insulina de acciÃ³n larga (unidades),Notas,Tira reactiva para glucosa mg/dL,Cuerpos cetÃ³nicos mmol/L,Comida e insulina (unidades),Insulina de correcciÃ³n (unidades),Insulina del cambio de usuario (unidades)"
+
+# If OS is Windows, use this line. If it is Linux, use the one above
+if os.name == 'nt':
+    first_row = "Dispositivo,NÃºmero de serial,Sello de tiempo del dispositivo,Tipo de registro,Historial de glucosa mg/dL,Escaneo de glucosa mg/dL,Insulina de acciÃ³n rÃ¡pida no numÃ©rica,Insulina de acciÃ³n rÃ¡pida (unidades),Alimento no numÃ©rico,Carbohidratos (gramos),Carbohidratos (porciones),Insulina de acciÃ³n larga no numÃ©rica,Insulina de acciÃ³n larga (unidades),Notas,Tira reactiva para glucosa mg/dL,Cuerpos cetÃ³nicos mmol/L,Comida e insulina (unidades),Insulina de correcciÃ³n (unidades),Insulina del cambio de usuario (unidades)"
+elif os.name == 'posix':
+    first_row = "Dispositivo,Número de serial,Sello de tiempo del dispositivo,Tipo de registro,Historial de glucosa mg/dL,Escaneo de glucosa mg/dL,Insulina de acción rápida no numérica,Insulina de acción rápida (unidades),Alimento no numérico,Carbohidratos (gramos),Carbohidratos (porciones),Insulina de acción larga no numérica,Insulina de acción larga (unidades),Notas,Tira reactiva para glucosa mg/dL,Cuerpos cetónicos mmol/L,Comida e insulina (unidades),Insulina de corrección (unidades),Insulina del cambio de usuario (unidades)"
 
 # Merge day, month and year to create a date and substract 1'5 year to create the randoms CGM samples with their timestamps 
 date = f"{day}/{month}/{year} 00:00:00"
