@@ -114,7 +114,8 @@ print("***DISCLAIMER***: Please, do not use this tool as a replacement for profe
 print("\nPlease, for any suggestions, feedback or bug reports, contact the developer at: antorguez95@hotmail.com\nYou can also visit the project's GitHub page at:")
 print("https://github.com/antorguez95/Personalized-AI-Based-Do-It-Yourself-Glucose-Prediction-tool")
 
-your_data_path = "/CGM_forecasting/drop_your_data_here_and_see_your_pred"
+# Make base directory independently of the OS running the app
+your_data_path = os.path.join('/', 'CGM_forecasting', 'drop_your_data_here_and_see_your_pred')
 
 os.chdir(your_data_path)
 
@@ -229,7 +230,6 @@ if "your_AI_based_CGM_predictor.h5" not in os.listdir():
         timestamps = np.load('oldest_1yr_CGM_timestamp.npy', allow_pickle=True)
 
         if ans == "y":
-
 
             # Compute days between the first and the last timestamp
             days = (timestamps[-1] - timestamps[0]).days
